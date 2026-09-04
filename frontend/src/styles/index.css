@@ -84,6 +84,8 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .brand-header {
@@ -96,6 +98,8 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .brand-logo-text {
@@ -136,6 +140,7 @@ button {
   overflow-x: auto;
   gap: 0.5rem;
   padding: 0.5rem 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .nav-link {
@@ -152,7 +157,7 @@ button {
   color: var(--color-primary-dark);
 }
 
-/* Hero & Breaking News Ticker */
+/* Breaking News Ticker */
 .breaking-ticker {
   display: flex;
   align-items: center;
@@ -216,13 +221,6 @@ button {
   box-shadow: var(--shadow-md);
 }
 
-.news-card-img {
-  width: 100%;
-  height: 320px;
-  object-fit: cover;
-  background-color: #cbd5e1;
-}
-
 .news-card-content {
   padding: 1.5rem;
 }
@@ -240,6 +238,17 @@ button {
 .badge-primary {
   background-color: var(--color-primary-light);
   color: var(--color-primary-dark);
+}
+
+.badge-success {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.badge-inactive {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid var(--color-border);
 }
 
 .badge-outline {
@@ -306,15 +315,6 @@ button {
   background-color: var(--color-surface-hover);
 }
 
-.sidebar-news-thumb {
-  width: 84px;
-  height: 84px;
-  border-radius: var(--radius-sm);
-  object-fit: cover;
-  background-color: #cbd5e1;
-  flex-shrink: 0;
-}
-
 .sidebar-news-title {
   font-size: 0.9375rem;
   font-weight: 600;
@@ -322,25 +322,178 @@ button {
   color: var(--color-secondary);
 }
 
-/* Status & Health Checker Widget */
-.status-pill {
+/* Buttons */
+.btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
   font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
 }
 
-.status-connected {
-  background-color: #dcfce7;
-  color: #15803d;
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
 }
 
-.status-disconnected {
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary-light);
+}
+
+.btn-outline {
+  border: 1px solid var(--color-border-dark);
+  background: white;
+  color: var(--color-secondary);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.btn-danger-outline {
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #dc2626;
+}
+
+.btn-danger-outline:hover {
   background-color: #fee2e2;
-  color: #b91c1c;
+}
+
+/* Responsive Table & Cards */
+.table-container {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.data-table th {
+  background-color: #f8fafc;
+  padding: 0.875rem 1.25rem;
+  font-weight: 700;
+  color: #475569;
+  border-bottom: 1px solid var(--color-border);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.data-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-main);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Mobile Card View (shown below 768px) */
+.mobile-card-view {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .desktop-table-view {
+    display: none;
+  }
+  .mobile-card-view {
+    display: flex;
+  }
+}
+
+.mobile-item-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
 /* Footer */
@@ -404,45 +557,6 @@ button {
   justify-content: space-between;
   align-items: center;
   font-size: 0.8125rem;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  transition: all 0.2s ease;
-}
-
-.btn-primary {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: var(--color-primary-dark);
-}
-
-.btn-secondary {
-  background-color: var(--color-secondary);
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: var(--color-secondary-light);
-}
-
-.btn-outline {
-  border: 1px solid var(--color-border-dark);
-  background: white;
-  color: var(--color-secondary);
-}
-
-.btn-outline:hover {
-  background-color: var(--color-surface-hover);
+  flex-wrap: wrap;
+  gap: 1rem;
 }

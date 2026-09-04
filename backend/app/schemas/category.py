@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
@@ -31,3 +31,15 @@ class CategoryResponse(CategoryBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
+
+
+class CategoryAdminResponse(CategoryResponse):
+    article_count: int = 0
+
+
+class CategoryListResponse(BaseModel):
+    items: List[CategoryAdminResponse]
+    page: int
+    limit: int
+    total: int
+    total_pages: int

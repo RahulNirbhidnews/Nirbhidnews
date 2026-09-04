@@ -92,8 +92,13 @@ export const AdminDashboardPage: React.FC = () => {
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
             Manage editorial news sections: Maharashtra, Mumbai, Thane, Crime, Politics, Business, World news, etc.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#16a34a', fontSize: '0.8125rem', fontWeight: 600 }}>
-            <CheckCircle size={16} /> 13 Initial categories seeded
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#16a34a', fontSize: '0.8125rem', fontWeight: 600 }}>
+              <CheckCircle size={16} /> 13 Initial categories active
+            </div>
+            <Link to="/admin/categories" className="btn btn-sm btn-primary">
+              Manage Categories
+            </Link>
           </div>
         </div>
 

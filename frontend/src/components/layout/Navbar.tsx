@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Shield, Search, Calendar, MapPin } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { categoryApi } from '../../api/categories';
 
-const CATEGORIES = [
+const FALLBACK_CATEGORIES = [
   { name: 'Maharashtra', slug: 'maharashtra' },
   { name: 'Mumbai', slug: 'mumbai' },
   { name: 'Thane', slug: 'thane' },
@@ -24,12 +26,22 @@ export const Navbar: React.FC = () => {
     day: 'numeric',
   });
 
+  const { data: dynamicCategories } = useQuery({
+    queryKey: ['public-categories'],
+    queryFn: categoryApi.getPublicCategories,
+    staleTime: 1000 * 60 * 10, // 10 minutes cache
+  });
+
+  const categories = (dynamicCategories && dynamicCategories.length > 0)
+    ? dynamicCategories
+    : FALLBACK_CATEGORIES;
+
   return (
     <header>
       {/* Top Utility Bar */}
       <div className="top-bar">
         <div className="container top-bar-inner">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
               <Calendar size={13} /> {currentDate}
             </span>
@@ -78,7 +90,7 @@ export const Navbar: React.FC = () => {
                 Home
               </Link>
             </li>
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <li key={cat.slug}>
                 <Link
                   to={`/category/${cat.slug}`}
