@@ -1,9 +1,28 @@
 import os
+import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 from app.core.config import settings
 from app.api.v1 import api_router
+from app.db.session import engine
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Ensure DB table schema migrations are up to date
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE articles ADD COLUMN IF NOT EXISTS video_url TEXT;"))
+            logger.info("Database migration check completed: video_url column verified.")
+    except Exception as e:
+        logger.warning(f"Database migration check notice: {e}")
+    yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -11,6 +30,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     description="Nirbhid News MVP API — Public News & Private Admin CMS",
+    lifespan=lifespan,
 )
 
 # Ensure static directories exist

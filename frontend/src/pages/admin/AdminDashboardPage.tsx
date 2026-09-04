@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   FileText,
   FolderTree,
@@ -11,17 +11,19 @@ import {
   Flame,
   Star,
   Edit,
-  ExternalLink,
   Loader2,
-  HardDrive
+  HardDrive,
+  BookOpen
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
 import { statsApi } from '../../api/stats';
+import { AdminTutorialModal } from '../../components/admin/AdminTutorialModal';
 
 export const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats'],
@@ -68,7 +70,23 @@ export const AdminDashboardPage: React.FC = () => {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={() => setIsTutorialOpen(true)}
+            className="btn btn-outline"
+            style={{
+              backgroundColor: 'rgba(234, 179, 8, 0.2)',
+              borderColor: 'rgba(234, 179, 8, 0.5)',
+              color: '#fef08a',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <BookOpen size={16} color="#fde047" /> Tutorial & Guide
+          </button>
+
           <Link to="/admin/articles/new" className="btn btn-primary">
             <Plus size={16} /> नवीन बातमी लिहा
           </Link>
@@ -77,18 +95,16 @@ export const AdminDashboardPage: React.FC = () => {
             className="btn btn-outline"
             style={{ backgroundColor: 'transparent', color: '#e2e8f0', borderColor: '#475569' }}
           >
-            <UploadCloud size={16} /> फोटो लायब्ररी
-          </Link>
-          <Link
-            to="/"
-            target="_blank"
-            className="btn btn-outline"
-            style={{ backgroundColor: 'transparent', color: '#e2e8f0', borderColor: '#475569' }}
-          >
-            वेबसाइट पाहा <ExternalLink size={14} />
+            <UploadCloud size={16} /> फोटो व व्हिडिओ
           </Link>
         </div>
       </div>
+
+      {/* Tutorial Modal */}
+      <AdminTutorialModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+      />
 
       {/* 2. Real-time Metrics Grid */}
       {isLoading ? (

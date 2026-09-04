@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, User, Newspaper, Flame } from 'lucide-react';
+import { Clock, User, Newspaper, Flame, Play } from 'lucide-react';
 import { Article } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -112,6 +112,28 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               <Flame size={10} /> {t.breakingNews}
             </span>
           )}
+          {article.video_url && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                backdropFilter: 'blur(2px)',
+                color: '#ffffff',
+                fontSize: '0.6875rem',
+                fontWeight: 700,
+                padding: '0.15rem 0.4rem',
+                borderRadius: '3px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.2rem',
+                border: '1px solid rgba(239, 68, 68, 0.5)',
+              }}
+            >
+              <Play size={10} fill="#ef4444" color="#ef4444" /> VIDEO
+            </span>
+          )}
         </Link>
 
         <div style={{ padding: '1rem 1rem 1rem 0', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -202,6 +224,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
         <Link
           to={`/news/${article.slug}`}
           style={{
+            position: 'relative',
             width: '80px',
             height: '65px',
             flexShrink: 0,
@@ -231,6 +254,23 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
             >
               <Newspaper size={18} />
             </div>
+          )}
+          {article.video_url && (
+            <span
+              style={{
+                position: 'absolute',
+                bottom: '2px',
+                right: '2px',
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                color: '#ef4444',
+                padding: '1px 3px',
+                borderRadius: '2px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <Play size={8} fill="#ef4444" />
+            </span>
           )}
         </Link>
 
@@ -368,6 +408,30 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
             }}
           >
             {t.featuredStories}
+          </span>
+        )}
+
+        {article.video_url && (
+          <span
+            style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              backdropFilter: 'blur(3px)',
+              color: '#ffffff',
+              fontSize: '0.6875rem',
+              fontWeight: 700,
+              padding: '0.2rem 0.5rem',
+              borderRadius: '3px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+              border: '1px solid rgba(220, 38, 38, 0.5)',
+            }}
+          >
+            <Play size={10} fill="#ef4444" color="#ef4444" /> VIDEO
           </span>
         )}
       </Link>

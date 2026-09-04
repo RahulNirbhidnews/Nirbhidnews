@@ -6,6 +6,7 @@ import { articleApi } from '../../api/articles';
 import { MarkdownRenderer } from '../../components/news/MarkdownRenderer';
 import { SocialShareBar } from '../../components/news/SocialShareBar';
 import { ArticleCard } from '../../components/news/ArticleCard';
+import { VideoPlayer } from '../../components/news/VideoPlayer';
 import { AdBanner } from '../../components/common/AdBanner';
 import { SEOHead } from '../../components/common/SEOHead';
 import { SkeletonLoader } from '../../components/common/SkeletonLoader';
@@ -229,8 +230,19 @@ export const ArticleDetailPage: React.FC = () => {
           {/* Social Share Bar Top */}
           <SocialShareBar title={article.title} />
 
-          {/* Featured Image */}
-          {article.featured_image_url && (
+          {/* Video News Bulletin Player */}
+          {article.video_url && (
+            <div style={{ margin: '1.5rem 0 2rem 0' }}>
+              <VideoPlayer
+                url={article.video_url}
+                title={article.title}
+                poster={article.featured_image_url || undefined}
+              />
+            </div>
+          )}
+
+          {/* Featured Image (when no video, or as secondary photo if video is present) */}
+          {article.featured_image_url && !article.video_url && (
             <figure style={{ margin: '1.5rem 0 2rem 0' }}>
               <img
                 src={article.featured_image_url}

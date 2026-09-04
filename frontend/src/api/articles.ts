@@ -21,6 +21,7 @@ export interface ArticleInput {
   content: string;
   featured_image_url?: string;
   featured_image_path?: string;
+  video_url?: string;
   category_id: string;
   author_name?: string;
   status?: string;

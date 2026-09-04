@@ -245,6 +245,7 @@ def create_article(db: Session, article_in: ArticleCreate, author: User) -> Arti
         content=article_in.content.strip(),
         featured_image_url=article_in.featured_image_url.strip() if article_in.featured_image_url else None,
         featured_image_path=article_in.featured_image_path.strip() if article_in.featured_image_path else None,
+        video_url=article_in.video_url.strip() if article_in.video_url else None,
         category_id=category.id,
         author_id=author.id,
         author_name=article_in.author_name.strip() if article_in.author_name else (author.full_name or author.email),
@@ -303,6 +304,9 @@ def update_article(
 
     if article_in.featured_image_path is not None:
         article.featured_image_path = article_in.featured_image_path.strip() if article_in.featured_image_path else None
+
+    if article_in.video_url is not None:
+        article.video_url = article_in.video_url.strip() if article_in.video_url else None
 
     if article_in.author_name is not None:
         article.author_name = article_in.author_name.strip() if article_in.author_name else None

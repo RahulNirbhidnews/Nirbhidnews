@@ -44,6 +44,10 @@ class Article(Base, TimestampMixin):
         Text,
         nullable=True,
     )
+    video_url: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+    )
     category_id: Mapped[uuid.UUID] = mapped_column(
         GUID,
         ForeignKey("categories.id", ondelete="RESTRICT"),

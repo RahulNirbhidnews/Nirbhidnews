@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { Shield, LayoutDashboard, FileText, FolderTree, Image, LogOut, Globe } from 'lucide-react';
+import { Shield, LayoutDashboard, FileText, FolderTree, Image, LogOut, Globe, BookOpen } from 'lucide-react';
+import { AdminTutorialModal } from '../admin/AdminTutorialModal';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -66,7 +68,30 @@ export const AdminLayout: React.FC = () => {
             </nav>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {/* Tutorial & Guide Trigger Button */}
+            <button
+              type="button"
+              onClick={() => setIsTutorialOpen(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                backgroundColor: 'rgba(234, 179, 8, 0.15)',
+                border: '1px solid rgba(234, 179, 8, 0.4)',
+                color: '#fde047',
+                padding: '0.35rem 0.75rem',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              title="Open CMS Tutorial & Editorial Guide"
+            >
+              <BookOpen size={15} color="#facc15" /> Tutorial & Guide
+            </button>
+
             <Link
               to="/"
               target="_blank"
@@ -82,7 +107,7 @@ export const AdminLayout: React.FC = () => {
             </Link>
 
             {user && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid #334155', paddingLeft: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid #334155', paddingLeft: '1rem' }}>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#f1f5f9' }}>
                     {user.full_name || user.email}
@@ -127,6 +152,13 @@ export const AdminLayout: React.FC = () => {
       <main style={{ flex: 1 }}>
         <Outlet />
       </main>
+
+      {/* Editorial Onboarding Tutorial Modal */}
+      <AdminTutorialModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+      />
     </div>
   );
 };
+

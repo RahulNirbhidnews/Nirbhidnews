@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   Save,
-  Globe,
   Star,
   Flame,
   Image as ImageIcon,
@@ -17,12 +16,82 @@ import {
   Italic,
   Heading,
   Quote,
-  List
+  List,
+  Video,
+  Sparkles,
+  BookOpen,
+  Film
 } from 'lucide-react';
 import { articleApi, ArticleInput } from '../../api/articles';
 import { categoryApi } from '../../api/categories';
 import { mediaApi } from '../../api/media';
 import { useAuth } from '../../hooks/useAuth';
+import { MarkdownRenderer } from '../../components/news/MarkdownRenderer';
+import { VideoPlayer } from '../../components/news/VideoPlayer';
+import { AdminTutorialModal } from '../../components/admin/AdminTutorialModal';
+
+const ARTICLE_TEMPLATES = [
+  {
+    name: 'Standard News Report',
+    icon: '📰',
+    template: `# [बातमीचे मुख्य शीर्षक / Main Story Headline]
+
+**मुंबई / विशेष प्रतिनिधी:** येथे बातमीचा मुख्य आणि महत्त्वाचा तपशील लिहा. (Write the primary lead paragraph here with key facts).
+
+> "येथे महत्त्वाचे वक्तव्य किंवा शासकीय/अधिकृत प्रतिक्रिया समाविष्ट करा." — संबंधित अधिकारी / नेते
+
+### महत्त्वाचे मुद्दे (Key Highlights):
+- **पहिली महत्त्वाची बाब:** तपशील येथे द्या.
+- **दुसरी महत्त्वाची बाब:** पुढील निर्णयांची माहिती.
+- **नागरिकांवर परिणाम:** सर्वसामान्य जनतेसाठी माहिती.
+
+अधिक तपास सुरू असून पुढील घडामोडींवर लक्ष ठेवले जात आहे.`,
+  },
+  {
+    name: 'Breaking News Alert',
+    icon: '🚨',
+    template: `# [तातडीची बातमी / BREAKING NEWS HEADLINE]
+
+**आत्ताची मोठी बातमी:** [घटनेचे ठिकाण] येथून मोठी बातमी समोर येत असून प्राथमिक माहितीनुसार [घटनेचे संक्षिप्त वर्णन].
+
+> तातडीची माहिती: घटनास्थळी मदत व बचाव कार्य युद्धपातळीवर सुरू करण्यात आले आहे.
+
+### प्राथमिक अपडेट्स (Live Updates):
+1. **वेळ:** नुकतीच घडलेली घटना.
+2. **परिस्थिती:** पोलीस व प्रशासकीय यंत्रणा घटनास्थळी दाखल.
+3. **अधिकृत माहिती:** अधिकृत पत्रकाची प्रतीक्षा.
+
+*बातमी अपडेट होत आहे... ताज्या माहितीसाठी जोडलेले रहा.*`,
+  },
+  {
+    name: 'Video News Bulletin',
+    icon: '🎥',
+    template: `# [व्हिडिओ बातमी / Video Bulletin Headline]
+
+**निर्भीड डिजिटल विशेष:** खालील व्हिडिओ रिपोर्टमध्ये पहा आजच्या सर्वात महत्त्वाच्या घटनेचा सविस्तर ग्राउंड रिपोर्ट.
+
+### व्हिडिओ बातमीतील महत्त्वाचे मुद्दे:
+- प्रत्यक्षदर्शींनी सांगितलेला संपूर्ण घटनाक्रम.
+- घटनास्थळावरून प्रतिनिधीचा थेट वृत्तांत.
+- प्रशासनाची भूमिका आणि पुढील पावले.
+
+खालील संपूर्ण व्हिडिओ पहा आणि आपल्या प्रतिक्रिया नोंदवा.`,
+  },
+  {
+    name: 'Press Release / Interview',
+    icon: '🎙️',
+    template: `# [मुलाखत / पत्रकार परिषद शीर्षक]
+
+**विशेष मुलाखत:** आज घेतलेल्या विशेष पत्रकार परिषदेमध्ये खालील महत्त्वाच्या मुद्द्यांवर सविस्तर भाष्य करण्यात आले.
+
+### प्रश्नोत्तरांचा मुख्य गोषवारा:
+**प्रश्न:** सध्याच्या चालू घडामोडींबद्दल आपली भूमिका काय?  
+**उत्तर:** आम्ही जनतेच्या हितासाठी सर्वतोपरी प्रयत्न करत आहोत.
+
+**प्रश्न:** आगामी काळातील नवीन योजनांबद्दल काय सांगाल?  
+**उत्तर:** लवकरच सर्वसमावेशक विकास आराखडा जाहीर केला जाईल.`,
+  },
+];
 
 export const ArticleEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,15 +100,18 @@ export const ArticleEditorPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoFileInputRef = useRef<HTMLInputElement>(null);
   const contentFileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [formData, setFormData] = useState<ArticleInput>({
     title: '',
     slug: '',
     excerpt: '',
     content: '',
     featured_image_url: '',
+    video_url: '',
     category_id: '',
     author_name: '',
     status: 'draft',
@@ -50,6 +122,7 @@ export const ArticleEditorPage: React.FC = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [imagePreviewError, setImagePreviewError] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
 
   // Fetch Categories for Selection
   const { data: categories, isLoading: loadingCategories } = useQuery({
@@ -73,6 +146,7 @@ export const ArticleEditorPage: React.FC = () => {
         excerpt: existingArticle.excerpt || '',
         content: existingArticle.content,
         featured_image_url: existingArticle.featured_image_url || '',
+        video_url: existingArticle.video_url || '',
         category_id: existingArticle.category_id,
         author_name: existingArticle.author_name || '',
         status: existingArticle.status,
@@ -129,6 +203,14 @@ export const ArticleEditorPage: React.FC = () => {
     }, 50);
   };
 
+  // Apply quick template
+  const applyTemplate = (templateContent: string) => {
+    if (formData.content.trim() && !window.confirm('Applying a template will overwrite current article body. Do you wish to continue?')) {
+      return;
+    }
+    setFormData((prev) => ({ ...prev, content: templateContent }));
+  };
+
   // Handle Image Upload for Featured Image
   const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -136,14 +218,34 @@ export const ArticleEditorPage: React.FC = () => {
 
     const file = files[0];
     setIsUploadingImage(true);
+    setFormError(null);
     try {
       const media = await mediaApi.uploadMedia(file);
       setFormData((prev) => ({ ...prev, featured_image_url: media.public_url }));
       setImagePreviewError(false);
     } catch (err: any) {
-      setFormError(err.response?.data?.detail || 'Failed to upload image.');
+      setFormError(err.response?.data?.detail || 'Failed to upload photo. Please check format and size.');
     } finally {
       setIsUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  // Handle Video Upload (MP4, WebM up to 50MB)
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    setIsUploadingVideo(true);
+    setFormError(null);
+    try {
+      const media = await mediaApi.uploadMedia(file);
+      setFormData((prev) => ({ ...prev, video_url: media.public_url }));
+    } catch (err: any) {
+      setFormError(err.response?.data?.detail || 'Failed to upload video. Allowed formats: MP4, WebM up to 50 MB.');
+    } finally {
+      setIsUploadingVideo(false);
       e.target.value = '';
     }
   };
@@ -159,7 +261,7 @@ export const ArticleEditorPage: React.FC = () => {
       const markdownImage = `\n\n![${media.file_name}](${media.public_url})\n\n`;
       setFormData((prev) => ({ ...prev, content: prev.content + markdownImage }));
     } catch (err: any) {
-      setFormError(err.response?.data?.detail || 'Failed to upload content image.');
+      setFormError(err.response?.data?.detail || 'Failed to upload inline image.');
     } finally {
       e.target.value = '';
     }
@@ -167,33 +269,38 @@ export const ArticleEditorPage: React.FC = () => {
 
   // Save Mutation
   const saveMutation = useMutation({
-    mutationFn: (statusOverride?: string) => {
-      const payload = {
-        ...formData,
-        status: statusOverride || formData.status,
-      };
+    mutationFn: (data: ArticleInput) => {
       if (isEditing && id) {
-        return articleApi.updateArticle(id, payload);
+        return articleApi.updateArticle(id, data);
       }
-      return articleApi.createArticle(payload);
+      return articleApi.createArticle(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['public-articles'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-articles'] });
+      queryClient.invalidateQueries({ queryKey: ['breaking-articles'] });
       navigate('/admin/articles');
     },
     onError: (err: any) => {
-      setFormError(err.response?.data?.detail || 'Failed to save article. Please check all fields.');
+      const detail = err.response?.data?.detail || 'Failed to save article. Please verify required fields.';
+      setFormError(detail);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
   });
 
-  const handleSubmit = (statusOverride?: string) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     setFormError(null);
+
+    // Validation
     if (!formData.title.trim()) {
       setFormError('Article headline is required.');
       return;
     }
     if (!formData.content.trim()) {
-      setFormError('Article content cannot be empty.');
+      setFormError('Article content body is required.');
       return;
     }
     if (!formData.category_id) {
@@ -201,455 +308,755 @@ export const ArticleEditorPage: React.FC = () => {
       return;
     }
 
-    saveMutation.mutate(statusOverride);
+    saveMutation.mutate(formData);
   };
 
-  if (loadingArticle || loadingCategories) {
+  if (isEditing && loadingArticle) {
     return (
-      <div style={{ textAlign: 'center', padding: '6rem 1rem' }}>
-        <Loader2 size={40} color="#dc2626" className="animate-spin" style={{ margin: '0 auto 1rem auto' }} />
-        <p style={{ color: '#64748b' }}>Loading editorial workspace...</p>
+      <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center' }}>
+        <Loader2 className="spinner" size={36} color="var(--color-primary)" style={{ margin: '0 auto 1rem auto' }} />
+        <p style={{ color: '#64748b' }}>Loading article details for editing...</p>
       </div>
     );
   }
 
-  const wordCount = formData.content.trim() ? formData.content.trim().split(/\s+/).length : 0;
-  const charCount = formData.content.length;
-
   return (
-    <div className="container" style={{ padding: '2rem 1.25rem', maxWidth: '1200px' }}>
-      {/* Hidden File Inputs */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        accept="image/jpeg,image/png,image/webp"
-        style={{ display: 'none' }}
-        onChange={handleFeaturedImageUpload}
-      />
-      <input
-        type="file"
-        ref={contentFileInputRef}
-        accept="image/jpeg,image/png,image/webp"
-        style={{ display: 'none' }}
-        onChange={handleContentImageUpload}
-      />
-
+    <div className="container" style={{ padding: '2rem 1rem 5rem 1rem', maxWidth: '1100px' }}>
       {/* Top Header Bar */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        gap: '1rem',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Link to="/admin/articles" className="btn btn-sm btn-outline">
-            <ArrowLeft size={14} /> Back to Articles
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Link
+            to="/admin/articles"
+            className="btn btn-outline"
+            style={{ padding: '0.45rem 0.75rem', fontSize: '0.875rem' }}
+          >
+            <ArrowLeft size={16} /> Back to Articles
           </Link>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
-            {isEditing ? 'Edit Article' : 'Write New Article'}
-          </h1>
+          <div>
+            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0 }}>
+              {isEditing ? 'Edit News Story' : 'Create New News Story'}
+            </h1>
+            <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0 }}>
+              {isEditing ? `Updating: ${formData.title || 'Untitled'}` : 'Draft, format, upload media & publish digital news'}
+            </p>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        {/* Action Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button
             type="button"
-            onClick={() => handleSubmit('draft')}
-            disabled={saveMutation.isPending}
-            className="btn btn-outline"
+            onClick={() => setIsTutorialOpen(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              backgroundColor: '#fef3c7',
+              border: '1px solid #fde68a',
+              color: '#92400e',
+              padding: '0.5rem 0.9rem',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.8125rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
           >
-            <Save size={15} /> Save Draft
+            <BookOpen size={16} color="#d97706" /> How to Use Tutorial
           </button>
+
           <button
             type="button"
-            onClick={() => handleSubmit('published')}
+            onClick={handleSubmit}
             disabled={saveMutation.isPending}
             className="btn btn-primary"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.55rem 1.25rem',
+              fontSize: '0.9rem',
+              fontWeight: 700,
+            }}
           >
-            <Globe size={15} /> {isEditing ? 'Update & Publish' : 'Publish Article'}
+            {saveMutation.isPending ? (
+              <>
+                <Loader2 className="spinner" size={16} /> Saving...
+              </>
+            ) : (
+              <>
+                <Save size={16} /> {formData.status === 'published' ? 'Publish Story' : 'Save as Draft'}
+              </>
+            )}
           </button>
         </div>
       </div>
 
+      {/* Error Alert */}
       {formError && (
-        <div style={{
-          backgroundColor: '#fee2e2',
-          border: '1px solid #fecdd3',
-          color: '#991b1b',
-          padding: '0.875rem 1.25rem',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}>
-          <AlertCircle size={18} />
-          <span>{formError}</span>
+        <div
+          style={{
+            backgroundColor: '#fee2e2',
+            border: '1px solid #fecaca',
+            color: '#dc2626',
+            padding: '1rem',
+            borderRadius: 'var(--radius-md)',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+          }}
+        >
+          <AlertCircle size={20} style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{formError}</span>
         </div>
       )}
 
-      {/* Editor Grid: Main Form (Left) & Sidebar (Right) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }} className="editor-grid">
-        {/* Left Column: Headline, Slug, Excerpt, Content */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {/* Headline */}
-          <div style={{ background: '#fff', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569', marginBottom: '0.5rem' }}>
-              Headline / Title *
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Maharashtra Cabinet Approves New Industrial Policy"
-              value={formData.title}
-              onChange={(e) => handleTitleChange(e.target.value)}
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: '7fr 3fr', gap: '1.75rem' }} className="article-editor-grid">
+          {/* Main Left Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* 1. Headline & Slug Card */}
+            <div
               style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
+                backgroundColor: '#ffffff',
                 border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-md)',
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                outline: 'none',
-                fontFamily: 'var(--font-serif)',
+                padding: '1.5rem',
+                boxShadow: 'var(--shadow-sm)',
               }}
-            />
-
-            {/* Slug row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem', fontSize: '0.8125rem', color: '#64748b', flexWrap: 'wrap' }}>
-              <span style={{ fontWeight: 600 }}>Slug:</span>
-              <span style={{ color: '#94a3b8' }}>/news/</span>
-              <input
-                type="text"
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                placeholder="article-url-slug"
-                style={{
-                  flex: 1,
-                  minWidth: '180px',
-                  padding: '0.25rem 0.5rem',
-                  fontSize: '0.8125rem',
-                  border: '1px dashed var(--color-border)',
-                  borderRadius: '4px',
-                  outline: 'none',
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Excerpt */}
-          <div style={{ background: '#fff', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569', marginBottom: '0.5rem' }}>
-              Excerpt / Summary
-            </label>
-            <textarea
-              rows={3}
-              placeholder="A brief 1-2 sentence lead summary appearing on homepage cards and search snippets."
-              value={formData.excerpt}
-              onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-              style={{
-                width: '100%',
-                padding: '0.65rem 0.875rem',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.875rem',
-                outline: 'none',
-                lineHeight: 1.5,
-              }}
-            />
-          </div>
-
-          {/* Content Editor with Formatting Toolbar & Preview */}
-          <div style={{ background: '#fff', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '0.75rem 1.25rem',
-              borderBottom: '1px solid var(--color-border)',
-              backgroundColor: '#f8fafc',
-              flexWrap: 'wrap',
-              gap: '0.5rem',
-            }}>
-              <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting('**', '**')}
-                  className="btn btn-sm btn-outline"
-                  title="Bold"
+            >
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: 700,
+                    color: 'var(--color-secondary)',
+                    marginBottom: '0.4rem',
+                  }}
                 >
-                  <Bold size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting('*', '*')}
-                  className="btn btn-sm btn-outline"
-                  title="Italic"
-                >
-                  <Italic size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting('### ')}
-                  className="btn btn-sm btn-outline"
-                  title="Heading"
-                >
-                  <Heading size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting('> ')}
-                  className="btn btn-sm btn-outline"
-                  title="Quote"
-                >
-                  <Quote size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertFormatting('- ')}
-                  className="btn btn-sm btn-outline"
-                  title="Bullet List"
-                >
-                  <List size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => contentFileInputRef.current?.click()}
-                  className="btn btn-sm btn-outline"
-                  title="Upload & Insert Photo"
-                >
-                  <ImageIcon size={13} /> Insert Photo
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.25rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('write')}
-                  className={`btn btn-sm ${activeTab === 'write' ? 'btn-secondary' : 'btn-outline'}`}
-                >
-                  <Edit3 size={13} /> Write
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('preview')}
-                  className={`btn btn-sm ${activeTab === 'preview' ? 'btn-secondary' : 'btn-outline'}`}
-                >
-                  <Eye size={13} /> Preview
-                </button>
-              </div>
-            </div>
-
-            <div style={{ padding: '1.25rem' }}>
-              {activeTab === 'write' ? (
-                <textarea
-                  id="article-content-area"
-                  rows={16}
-                  required
-                  placeholder="Write full news article content here (Markdown & paragraph formatting supported)..."
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  News Headline (मुख्य बातमी शीर्षक) <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  placeholder="उदा: मुंबई-पुणे एक्सप्रेसवेवर नवीन AI ट्रॅफिक सिस्टीम सुरू..."
                   style={{
                     width: '100%',
-                    border: 'none',
-                    outline: 'none',
-                    fontSize: '0.9375rem',
-                    lineHeight: 1.7,
-                    fontFamily: 'var(--font-sans)',
+                    padding: '0.75rem 1rem',
+                    fontSize: '1.15rem',
+                    fontWeight: 700,
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--color-border)',
+                    fontFamily: 'var(--font-serif)',
+                  }}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.3rem' }}>
+                    URL Slug (वेब लिंक नाव)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    placeholder="mumbai-pune-expressway-ai-traffic"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      fontSize: '0.875rem',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--color-border)',
+                      backgroundColor: '#f8fafc',
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.3rem' }}>
+                    Author / Journalist Bylines (वार्ताहर नाव)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.author_name || ''}
+                    onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
+                    placeholder="उदा: राजेश सावंत (विशेष प्रतिनिधी)"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      fontSize: '0.875rem',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--color-border)',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.3rem' }}>
+                  Short Summary / Excerpt (थोडक्यात सारांश)
+                </label>
+                <textarea
+                  value={formData.excerpt || ''}
+                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                  placeholder="बातमीचा २-३ ओळींचा सारांश जो सोशल मीडिया व बातमी कार्डांवर दिसेल..."
+                  rows={2}
+                  style={{
+                    width: '100%',
+                    padding: '0.6rem 0.75rem',
+                    fontSize: '0.875rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--color-border)',
                     resize: 'vertical',
-                    minHeight: '320px',
                   }}
                 />
+              </div>
+            </div>
+
+            {/* 2. Visual Media & Video Bulletin Card */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.5rem',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-secondary)', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Film size={18} color="var(--color-primary)" /> Visual Media & Video Bulletin (फोटो आणि व्हिडिओ बातमी)
+              </h3>
+
+              {/* Video News Section */}
+              <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <label style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Video size={16} color="#7c3aed" /> Video News / Bulletin URL (व्हिडिओ बातमी)
+                  </label>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>YouTube URL or Direct MP4</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                  <input
+                    type="url"
+                    value={formData.video_url || ''}
+                    onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                    placeholder="https://www.youtube.com/watch?v=... or MP4 URL"
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem 0.75rem',
+                      fontSize: '0.875rem',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--color-border)',
+                    }}
+                  />
+                  <input
+                    type="file"
+                    ref={videoFileInputRef}
+                    onChange={handleVideoUpload}
+                    accept="video/mp4,video/webm,video/quicktime"
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => videoFileInputRef.current?.click()}
+                    disabled={isUploadingVideo}
+                    className="btn btn-outline"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      padding: '0.5rem 0.85rem',
+                      fontSize: '0.8125rem',
+                      backgroundColor: '#ffffff',
+                    }}
+                  >
+                    {isUploadingVideo ? <Loader2 size={14} className="spinner" /> : <UploadCloud size={14} color="#7c3aed" />}
+                    Upload MP4
+                  </button>
+                </div>
+
+                {/* Live Video Preview if URL provided */}
+                {formData.video_url && (
+                  <div style={{ marginTop: '0.75rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.35rem' }}>
+                      ▶️ Live Video Player Preview:
+                    </span>
+                    <VideoPlayer url={formData.video_url} title={formData.title} />
+                  </div>
+                )}
+              </div>
+
+              {/* Featured Cover Image Section */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.4rem' }}>
+                  Featured Cover Photo (मुख्य फोटो)
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                  <input
+                    type="url"
+                    value={formData.featured_image_url || ''}
+                    onChange={(e) => {
+                      setFormData({ ...formData, featured_image_url: e.target.value });
+                      setImagePreviewError(false);
+                    }}
+                    placeholder="https://images.unsplash.com/... or upload image"
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem 0.75rem',
+                      fontSize: '0.875rem',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--color-border)',
+                    }}
+                  />
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFeaturedImageUpload}
+                    accept="image/jpeg,image/png,image/webp"
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingImage}
+                    className="btn btn-outline"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      padding: '0.5rem 0.85rem',
+                      fontSize: '0.8125rem',
+                      backgroundColor: '#ffffff',
+                    }}
+                  >
+                    {isUploadingImage ? <Loader2 size={14} className="spinner" /> : <UploadCloud size={14} color="#0284c7" />}
+                    Upload Photo
+                  </button>
+                </div>
+
+                {/* Featured Photo Preview */}
+                {formData.featured_image_url && !imagePreviewError && (
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      maxHeight: '220px',
+                      overflow: 'hidden',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--color-border)',
+                    }}
+                  >
+                    <img
+                      src={formData.featured_image_url}
+                      alt="Cover Preview"
+                      onError={() => setImagePreviewError(true)}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 3. Article Content & Quick Templates Card */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.5rem',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-secondary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Edit3 size={18} color="var(--color-primary)" /> News Content (बातमीचा सविस्तर मजकूर) <span style={{ color: '#dc2626' }}>*</span>
+                </h3>
+
+                {/* Write / Preview Tab Switcher */}
+                <div style={{ display: 'flex', backgroundColor: '#f1f5f9', borderRadius: '6px', padding: '3px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('write')}
+                    style={{
+                      padding: '0.35rem 0.75rem',
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      border: 'none',
+                      borderRadius: '4px',
+                      backgroundColor: activeTab === 'write' ? '#ffffff' : 'transparent',
+                      color: activeTab === 'write' ? 'var(--color-secondary)' : '#64748b',
+                      boxShadow: activeTab === 'write' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                    }}
+                  >
+                    <Edit3 size={13} /> Write Mode
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('preview')}
+                    style={{
+                      padding: '0.35rem 0.75rem',
+                      fontSize: '0.8125rem',
+                      fontWeight: 600,
+                      border: 'none',
+                      borderRadius: '4px',
+                      backgroundColor: activeTab === 'preview' ? '#ffffff' : 'transparent',
+                      color: activeTab === 'preview' ? 'var(--color-secondary)' : '#64748b',
+                      boxShadow: activeTab === 'preview' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                    }}
+                  >
+                    <Eye size={13} /> Live Reader Preview
+                  </button>
+                </div>
+              </div>
+
+              {/* 1-Click Fast Templates Bar */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.6rem 0.75rem',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '6px',
+                  marginBottom: '1rem',
+                  overflowX: 'auto',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap' }}>
+                  <Sparkles size={14} color="#eab308" /> 1-Click Templates:
+                </div>
+                {ARTICLE_TEMPLATES.map((tpl) => (
+                  <button
+                    key={tpl.name}
+                    type="button"
+                    onClick={() => applyTemplate(tpl.template)}
+                    style={{
+                      padding: '0.25rem 0.6rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                    }}
+                  >
+                    <span>{tpl.icon}</span> {tpl.name}
+                  </button>
+                ))}
+              </div>
+
+              {activeTab === 'write' ? (
+                <div>
+                  {/* Markdown Toolbar */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      padding: '0.4rem',
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderBottom: 'none',
+                      borderTopLeftRadius: 'var(--radius-sm)',
+                      borderTopRightRadius: 'var(--radius-sm)',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => insertFormatting('**', '**')}
+                      className="btn btn-outline"
+                      style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem' }}
+                      title="Bold"
+                    >
+                      <Bold size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertFormatting('*', '*')}
+                      className="btn btn-outline"
+                      style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem' }}
+                      title="Italic"
+                    >
+                      <Italic size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertFormatting('### ')}
+                      className="btn btn-outline"
+                      style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem' }}
+                      title="Heading"
+                    >
+                      <Heading size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertFormatting('> ')}
+                      className="btn btn-outline"
+                      style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem' }}
+                      title="Quote"
+                    >
+                      <Quote size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertFormatting('- ')}
+                      className="btn btn-outline"
+                      style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem' }}
+                      title="Bullet list"
+                    >
+                      <List size={14} />
+                    </button>
+
+                    <input
+                      type="file"
+                      ref={contentFileInputRef}
+                      onChange={handleContentImageUpload}
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => contentFileInputRef.current?.click()}
+                      className="btn btn-outline"
+                      style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      title="Insert inline image"
+                    >
+                      <ImageIcon size={14} /> Photo
+                    </button>
+                  </div>
+
+                  <textarea
+                    id="article-content-area"
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    placeholder="Write article details in Markdown or select a 1-click template above..."
+                    rows={16}
+                    style={{
+                      width: '100%',
+                      padding: '1rem',
+                      fontSize: '0.9375rem',
+                      lineHeight: 1.6,
+                      border: '1px solid #e2e8f0',
+                      borderBottomLeftRadius: 'var(--radius-sm)',
+                      borderBottomRightRadius: 'var(--radius-sm)',
+                      fontFamily: 'monospace',
+                      resize: 'vertical',
+                    }}
+                    required
+                  />
+                </div>
               ) : (
-                <div style={{
-                  minHeight: '320px',
-                  fontSize: '0.9375rem',
-                  lineHeight: 1.8,
-                  color: '#334155',
-                  whiteSpace: 'pre-wrap',
-                }}>
-                  {formData.content ? (
-                    formData.content
-                  ) : (
-                    <em style={{ color: '#94a3b8' }}>No content written yet. Switch back to Write tab to begin.</em>
-                  )}
+                /* Live Preview Render */
+                <div
+                  style={{
+                    padding: '1.5rem',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: '#ffffff',
+                    minHeight: '380px',
+                  }}
+                >
+                  <MarkdownRenderer content={formData.content || '*No content written yet.*'} />
                 </div>
               )}
             </div>
-
-            <div style={{
-              padding: '0.5rem 1.25rem',
-              borderTop: '1px solid var(--color-border)',
-              backgroundColor: '#f8fafc',
-              fontSize: '0.75rem',
-              color: '#64748b',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}>
-              <span>{wordCount} words</span>
-              <span>{charCount} characters</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Editorial Metadata Sidebar */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {/* Category & Reporter */}
-          <div style={{ background: '#fff', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '1rem' }}>
-              Editorial Attributes
-            </h3>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-                News Category *
-              </label>
-              <select
-                required
-                value={formData.category_id}
-                onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.875rem',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '0.875rem',
-                  outline: 'none',
-                  backgroundColor: '#fff',
-                }}
-              >
-                {categories?.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-                Reporter / Byline
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Special Correspondent"
-                value={formData.author_name}
-                onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.875rem',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '0.875rem',
-                  outline: 'none',
-                }}
-              />
-            </div>
           </div>
 
-          {/* Featured Image */}
-          <div style={{ background: '#fff', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-secondary)' }}>
-                Featured Image
+          {/* Right Sidebar: Categories & Publishing Flags */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Publishing Settings Box */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.25rem',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-secondary)', margin: '0 0 1rem 0' }}>
+                Publishing Status (प्रकाशन स्थिती)
               </h3>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingImage}
-                className="btn btn-sm btn-outline"
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
-              >
-                {isUploadingImage ? <Loader2 size={12} className="animate-spin" /> : <UploadCloud size={12} />} Upload
-              </button>
+
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
+                  Status
+                </label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: '#ffffff',
+                  }}
+                >
+                  <option value="draft">📝 Draft (मसुदा - खाजगी)</option>
+                  <option value="published">🟢 Published (थेट प्रकाशित)</option>
+                  <option value="archived">📦 Archived (दप्तरबंद)</option>
+                </select>
+              </div>
+
+              {/* Category Dropdown */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
+                  Category (बातमीचा विभाग) <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <select
+                  value={formData.category_id}
+                  onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: '#ffffff',
+                  }}
+                  required
+                >
+                  {loadingCategories ? (
+                    <option>Loading categories...</option>
+                  ) : (
+                    categories?.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name} ({cat.slug})
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              {/* Flags Toggles */}
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {/* Breaking News Toggle */}
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: formData.is_breaking ? '#dc2626' : '#334155',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.is_breaking}
+                    onChange={(e) => setFormData({ ...formData, is_breaking: e.target.checked })}
+                    style={{ width: '16px', height: '16px', accentColor: '#dc2626' }}
+                  />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <Flame size={16} color="#dc2626" /> Breaking News Ticker (ब्रेकिंग न्यूज)
+                  </span>
+                </label>
+
+                {/* Featured Story Toggle */}
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: formData.is_featured ? '#2563eb' : '#334155',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.is_featured}
+                    onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                    style={{ width: '16px', height: '16px', accentColor: '#2563eb' }}
+                  />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <Star size={16} color="#eab308" /> Featured Story Hero (मुख्य बातमी)
+                  </span>
+                </label>
+              </div>
+
+              {/* Submit Button in Sidebar */}
+              <div style={{ marginTop: '1.5rem' }}>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={saveMutation.isPending}
+                  className="btn btn-primary"
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  {saveMutation.isPending ? (
+                    <>
+                      <Loader2 className="spinner" size={16} /> Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} /> {formData.status === 'published' ? 'Publish Story' : 'Save as Draft'}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
-            <div style={{ marginBottom: '0.75rem' }}>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-                Image Public URL
-              </label>
-              <input
-                type="url"
-                placeholder="https://... or upload from button"
-                value={formData.featured_image_url}
-                onChange={(e) => {
-                  setFormData({ ...formData, featured_image_url: e.target.value });
-                  setImagePreviewError(false);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '0.6rem 0.875rem',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '0.8125rem',
-                  outline: 'none',
-                }}
-              />
-            </div>
-
-            {formData.featured_image_url && !imagePreviewError ? (
-              <div style={{ marginTop: '0.5rem', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
-                <img
-                  src={formData.featured_image_url}
-                  alt="Featured preview"
-                  onError={() => setImagePreviewError(true)}
-                  style={{ width: '100%', height: '140px', objectFit: 'cover' }}
-                />
-              </div>
-            ) : (
-              <div style={{
-                height: '90px',
-                border: '1px dashed var(--color-border)',
-                borderRadius: 'var(--radius-sm)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.25rem',
-                color: '#94a3b8',
-                fontSize: '0.75rem',
-              }}>
-                <ImageIcon size={20} />
-                <span>Upload an image or paste URL above</span>
-              </div>
-            )}
-          </div>
-
-          {/* Flags & Status */}
-          <div style={{ background: '#fff', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '1rem' }}>
-              Visibility & Flags
-            </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={formData.is_breaking}
-                  onChange={(e) => setFormData({ ...formData, is_breaking: e.target.checked })}
-                  style={{ width: '16px', height: '16px', accentColor: '#dc2626' }}
-                />
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <Flame size={14} /> Breaking News Ticker
-                </span>
-              </label>
-
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={formData.is_featured}
-                  onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                  style={{ width: '16px', height: '16px', accentColor: '#d97706' }}
-                />
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#d97706', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <Star size={14} /> Top Featured Story
-                </span>
-              </label>
+            {/* Quick Tips Box */}
+            <div
+              style={{
+                backgroundColor: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.25rem',
+              }}
+            >
+              <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1e40af', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                💡 Editorial Pro Tips
+              </h4>
+              <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.8125rem', color: '#1e3a8a', lineHeight: 1.6 }}>
+                <li>Attach a <strong>Video Bulletin URL</strong> for multimedia digital reporting.</li>
+                <li>Add a short <strong>summary excerpt</strong> for higher Google click-through rates.</li>
+                <li>Mark as <strong>Breaking News</strong> to alert readers instantly across the site.</li>
+              </ul>
             </div>
           </div>
         </div>
-      </div>
+      </form>
+
+      {/* Tutorial Modal */}
+      <AdminTutorialModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+      />
     </div>
   );
 };

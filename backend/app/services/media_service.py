@@ -16,12 +16,20 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 ALLOWED_MIME_TYPES = {
+    # Images
     "image/jpeg": "jpg",
     "image/jpg": "jpg",
     "image/png": "png",
     "image/webp": "webp",
+    "image/gif": "gif",
+    # Videos
+    "video/mp4": "mp4",
+    "video/webm": "webm",
+    "video/ogg": "ogv",
+    "video/quicktime": "mov",
 }
-MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024   # 5 MB for photos
+MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024  # 50 MB for videos
 
 
 def validate_and_read_media(file: UploadFile) -> Tuple[bytes, str, str]:
@@ -40,10 +48,14 @@ def validate_and_read_media(file: UploadFile) -> Tuple[bytes, str, str]:
     file_bytes = file.file.read()
     file_size = len(file_bytes)
 
-    if file_size > MAX_FILE_SIZE_BYTES:
+    is_video = mime_type.startswith("video/")
+    max_limit = MAX_VIDEO_SIZE_BYTES if is_video else MAX_IMAGE_SIZE_BYTES
+    limit_label = "50 MB" if is_video else "5 MB"
+
+    if file_size > max_limit:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File size exceeds 5 MB limit (file size: {file_size / (1024 * 1024):.2f} MB).",
+            detail=f"File size exceeds {limit_label} limit (file size: {file_size / (1024 * 1024):.2f} MB).",
         )
 
     if file_size == 0:

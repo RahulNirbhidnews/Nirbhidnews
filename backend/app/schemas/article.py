@@ -13,6 +13,7 @@ class ArticleBase(BaseModel):
     content: str
     featured_image_url: Optional[str] = None
     featured_image_path: Optional[str] = None
+    video_url: Optional[str] = None
     category_id: UUID
     author_name: Optional[str] = None
     status: str = "draft"
@@ -28,6 +29,7 @@ class ArticleCreate(BaseModel):
     content: str
     featured_image_url: Optional[str] = None
     featured_image_path: Optional[str] = None
+    video_url: Optional[str] = None
     category_id: UUID
     author_name: Optional[str] = None
     status: str = "draft"
@@ -43,6 +45,7 @@ class ArticleUpdate(BaseModel):
     content: Optional[str] = None
     featured_image_url: Optional[str] = None
     featured_image_path: Optional[str] = None
+    video_url: Optional[str] = None
     category_id: Optional[UUID] = None
     author_name: Optional[str] = None
     status: Optional[str] = None

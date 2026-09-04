@@ -34,6 +34,7 @@ export interface Article {
   content: string;
   featured_image_url?: string | null;
   featured_image_path?: string | null;
+  video_url?: string | null;
   category_id: string;
   author_id?: string | null;
   author_name?: string | null;
