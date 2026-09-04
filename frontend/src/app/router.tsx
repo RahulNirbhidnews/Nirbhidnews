@@ -13,6 +13,7 @@ import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 import { AdminCategoriesPage } from '../pages/admin/AdminCategoriesPage';
 import { AdminArticlesPage } from '../pages/admin/AdminArticlesPage';
 import { ArticleEditorPage } from '../pages/admin/ArticleEditorPage';
+import { AdminMediaPage } from '../pages/admin/AdminMediaPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -50,7 +51,7 @@ export const router = createBrowserRouter([
       { path: 'articles', element: <AdminArticlesPage /> },
       { path: 'articles/new', element: <ArticleEditorPage /> },
       { path: 'articles/:id/edit', element: <ArticleEditorPage /> },
-      { path: 'media', element: <AdminDashboardPage /> },
+      { path: 'media', element: <AdminMediaPage /> },
     ],
   },
   // Fallback 404 Route

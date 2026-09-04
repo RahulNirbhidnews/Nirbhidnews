@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -8,6 +8,7 @@ import {
   Star,
   Flame,
   Image as ImageIcon,
+  UploadCloud,
   AlertCircle,
   Loader2,
   Eye,
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 import { articleApi, ArticleInput } from '../../api/articles';
 import { categoryApi } from '../../api/categories';
+import { mediaApi } from '../../api/media';
 import { useAuth } from '../../hooks/useAuth';
 
 export const ArticleEditorPage: React.FC = () => {
@@ -28,6 +30,8 @@ export const ArticleEditorPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const contentFileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [formData, setFormData] = useState<ArticleInput>({
@@ -45,6 +49,7 @@ export const ArticleEditorPage: React.FC = () => {
 
   const [formError, setFormError] = useState<string | null>(null);
   const [imagePreviewError, setImagePreviewError] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Fetch Categories for Selection
   const { data: categories, isLoading: loadingCategories } = useQuery({
@@ -124,6 +129,42 @@ export const ArticleEditorPage: React.FC = () => {
     }, 50);
   };
 
+  // Handle Image Upload for Featured Image
+  const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    setIsUploadingImage(true);
+    try {
+      const media = await mediaApi.uploadMedia(file);
+      setFormData((prev) => ({ ...prev, featured_image_url: media.public_url }));
+      setImagePreviewError(false);
+    } catch (err: any) {
+      setFormError(err.response?.data?.detail || 'Failed to upload image.');
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  // Handle Image Upload directly into content
+  const handleContentImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    try {
+      const media = await mediaApi.uploadMedia(file);
+      const markdownImage = `\n\n![${media.file_name}](${media.public_url})\n\n`;
+      setFormData((prev) => ({ ...prev, content: prev.content + markdownImage }));
+    } catch (err: any) {
+      setFormError(err.response?.data?.detail || 'Failed to upload content image.');
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   // Save Mutation
   const saveMutation = useMutation({
     mutationFn: (statusOverride?: string) => {
@@ -177,6 +218,22 @@ export const ArticleEditorPage: React.FC = () => {
 
   return (
     <div className="container" style={{ padding: '2rem 1.25rem', maxWidth: '1200px' }}>
+      {/* Hidden File Inputs */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/jpeg,image/png,image/webp"
+        style={{ display: 'none' }}
+        onChange={handleFeaturedImageUpload}
+      />
+      <input
+        type="file"
+        ref={contentFileInputRef}
+        accept="image/jpeg,image/png,image/webp"
+        style={{ display: 'none' }}
+        onChange={handleContentImageUpload}
+      />
+
       {/* Top Header Bar */}
       <div style={{
         display: 'flex',
@@ -260,7 +317,7 @@ export const ArticleEditorPage: React.FC = () => {
             />
 
             {/* Slug row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem', fontSize: '0.8125rem', color: '#64748b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem', fontSize: '0.8125rem', color: '#64748b', flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 600 }}>Slug:</span>
               <span style={{ color: '#94a3b8' }}>/news/</span>
               <input
@@ -270,6 +327,7 @@ export const ArticleEditorPage: React.FC = () => {
                 placeholder="article-url-slug"
                 style={{
                   flex: 1,
+                  minWidth: '180px',
                   padding: '0.25rem 0.5rem',
                   fontSize: '0.8125rem',
                   border: '1px dashed var(--color-border)',
@@ -314,7 +372,7 @@ export const ArticleEditorPage: React.FC = () => {
               flexWrap: 'wrap',
               gap: '0.5rem',
             }}>
-              <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button
                   type="button"
                   onClick={() => insertFormatting('**', '**')}
@@ -354,6 +412,14 @@ export const ArticleEditorPage: React.FC = () => {
                   title="Bullet List"
                 >
                   <List size={13} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => contentFileInputRef.current?.click()}
+                  className="btn btn-sm btn-outline"
+                  title="Upload & Insert Photo"
+                >
+                  <ImageIcon size={13} /> Insert Photo
                 </button>
               </div>
 
@@ -484,9 +550,20 @@ export const ArticleEditorPage: React.FC = () => {
 
           {/* Featured Image */}
           <div style={{ background: '#fff', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '1rem' }}>
-              Featured Image
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-secondary)' }}>
+                Featured Image
+              </h3>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingImage}
+                className="btn btn-sm btn-outline"
+                style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+              >
+                {isUploadingImage ? <Loader2 size={12} className="animate-spin" /> : <UploadCloud size={12} />} Upload
+              </button>
+            </div>
 
             <div style={{ marginBottom: '0.75rem' }}>
               <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.35rem' }}>
@@ -494,7 +571,7 @@ export const ArticleEditorPage: React.FC = () => {
               </label>
               <input
                 type="url"
-                placeholder="https://images.unsplash.com/... or media path"
+                placeholder="https://... or upload from button"
                 value={formData.featured_image_url}
                 onChange={(e) => {
                   setFormData({ ...formData, featured_image_url: e.target.value });
@@ -534,7 +611,7 @@ export const ArticleEditorPage: React.FC = () => {
                 fontSize: '0.75rem',
               }}>
                 <ImageIcon size={20} />
-                <span>Image preview will appear here</span>
+                <span>Upload an image or paste URL above</span>
               </div>
             )}
           </div>

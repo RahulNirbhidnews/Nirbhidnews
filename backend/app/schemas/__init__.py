@@ -16,7 +16,7 @@ from app.schemas.article import (
     ArticleResponse,
     ArticleListResponse,
 )
-from app.schemas.media import MediaBase, MediaCreate, MediaResponse
+from app.schemas.media import MediaBase, MediaCreate, MediaResponse, MediaListResponse
 
 __all__ = [
     "HealthCheck",
@@ -40,4 +40,5 @@ __all__ = [
     "MediaBase",
     "MediaCreate",
     "MediaResponse",
+    "MediaListResponse",
 ]

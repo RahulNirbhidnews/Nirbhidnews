@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
@@ -22,3 +22,11 @@ class MediaResponse(MediaBase):
     id: UUID
     uploaded_by: Optional[UUID] = None
     created_at: datetime
+
+
+class MediaListResponse(BaseModel):
+    items: List[MediaResponse]
+    page: int
+    limit: int
+    total: int
+    total_pages: int

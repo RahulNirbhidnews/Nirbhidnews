@@ -1,10 +1,11 @@
 import React from 'react';
-import { LayoutDashboard, FileText, FolderTree, Image, CheckCircle, ShieldCheck, Plus } from 'lucide-react';
+import { LayoutDashboard, FileText, FolderTree, Image, CheckCircle, ShieldCheck, Plus, UploadCloud } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
 import { articleApi } from '../../api/articles';
 import { categoryApi } from '../../api/categories';
+import { mediaApi } from '../../api/media';
 
 export const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -22,6 +23,11 @@ export const AdminDashboardPage: React.FC = () => {
   const { data: categoriesData } = useQuery({
     queryKey: ['admin-dashboard-categories'],
     queryFn: () => categoryApi.getAdminCategories({ limit: 1 }),
+  });
+
+  const { data: mediaData } = useQuery({
+    queryKey: ['admin-dashboard-media'],
+    queryFn: () => mediaApi.getAdminMedia(1, 1),
   });
 
   return (
@@ -55,9 +61,12 @@ export const AdminDashboardPage: React.FC = () => {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Link to="/admin/articles/new" className="btn btn-primary">
             <Plus size={16} /> Write Article
+          </Link>
+          <Link to="/admin/media" className="btn btn-outline" style={{ backgroundColor: 'transparent', color: '#e2e8f0', borderColor: '#475569' }}>
+            <UploadCloud size={16} /> Media Library
           </Link>
           <Link to="/" target="_blank" className="btn btn-outline" style={{ backgroundColor: 'transparent', color: '#e2e8f0', borderColor: '#475569' }}>
             Preview Public Site
@@ -76,7 +85,7 @@ export const AdminDashboardPage: React.FC = () => {
           { label: 'Total Articles', value: articlesData?.total ?? '...', icon: FileText, color: '#3b82f6' },
           { label: 'Published News', value: publishedData?.total ?? '...', icon: LayoutDashboard, color: '#22c55e' },
           { label: 'Configured Categories', value: categoriesData?.total ?? '13', icon: FolderTree, color: '#eab308' },
-          { label: 'Media Assets', value: '0', icon: Image, color: '#a855f7' },
+          { label: 'Media Assets', value: mediaData?.total ?? '...', icon: Image, color: '#a855f7' },
         ].map((item, idx) => {
           const Icon = item.icon;
           return (
@@ -108,7 +117,7 @@ export const AdminDashboardPage: React.FC = () => {
           padding: '1.5rem',
         }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem' }}>
-            Article CMS (Phase 4 Active)
+            Article CMS
           </h3>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
             Create drafts, schedule releases, mark breaking headlines, and manage verified news publications.
@@ -130,17 +139,17 @@ export const AdminDashboardPage: React.FC = () => {
           padding: '1.5rem',
         }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem' }}>
-            Category Management (Phase 3 Active)
+            Media Library (Phase 5 Active)
           </h3>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            Manage editorial news sections: Maharashtra, Mumbai, Thane, Crime, Politics, Business, World news, etc.
+            Upload, browse, and organize photographs, graphics, and infographics for news stories.
           </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#16a34a', fontSize: '0.8125rem', fontWeight: 600 }}>
-              <CheckCircle size={16} /> 13 Categories active
+              <CheckCircle size={16} /> Storage Integrated
             </div>
-            <Link to="/admin/categories" className="btn btn-sm btn-outline">
-              Manage Categories
+            <Link to="/admin/media" className="btn btn-sm btn-outline">
+              Open Media Library
             </Link>
           </div>
         </div>
