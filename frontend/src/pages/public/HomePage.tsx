@@ -1,203 +1,328 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Flame, Activity, Server, Database, ArrowRight, Newspaper } from 'lucide-react';
-import { systemApi } from '../../api/client';
-import { HealthCheckResponse } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import {
+  TrendingUp,
+  Folder,
+  ArrowRight,
+  Shield,
+  Newspaper,
+  Loader2,
+  Clock
+} from 'lucide-react';
+import { articleApi } from '../../api/articles';
+import { categoryApi } from '../../api/categories';
+import { BreakingNewsTicker } from '../../components/news/BreakingNewsTicker';
+import { HeroFeatured } from '../../components/news/HeroFeatured';
+import { ArticleCard } from '../../components/news/ArticleCard';
+import { CategorySection } from '../../components/news/CategorySection';
+import { AdBanner } from '../../components/common/AdBanner';
 
 export const HomePage: React.FC = () => {
-  const [health, setHealth] = useState<HealthCheckResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Fetch Featured Articles for Hero
+  const { data: featuredArticles, isLoading: loadingFeatured } = useQuery({
+    queryKey: ['featured-articles'],
+    queryFn: () => articleApi.getFeaturedArticles(4),
+  });
 
-  useEffect(() => {
-    const fetchHealth = async () => {
-      try {
-        setLoading(true);
-        const data = await systemApi.checkHealth();
-        setHealth(data);
-        setError(null);
-      } catch (err: any) {
-        setError(err.message || 'Unable to connect to backend server');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch Latest Published Articles for Main Feed
+  const { data: latestData, isLoading: loadingLatest } = useQuery({
+    queryKey: ['latest-public-articles'],
+    queryFn: () => articleApi.getPublicArticles({ limit: 8, page: 1 }),
+  });
 
-    fetchHealth();
-  }, []);
+  // Fetch Categories
+  const { data: categories } = useQuery({
+    queryKey: ['public-categories'],
+    queryFn: categoryApi.getPublicCategories,
+  });
+
+  // Fetch Maharashtra Category News
+  const { data: maharashtraData } = useQuery({
+    queryKey: ['category-news-maharashtra'],
+    queryFn: () => articleApi.getPublicArticles({ category: 'maharashtra', limit: 4 }),
+  });
+
+  // Fetch Politics Category News
+  const { data: politicsData } = useQuery({
+    queryKey: ['category-news-politics'],
+    queryFn: () => articleApi.getPublicArticles({ category: 'politics', limit: 4 }),
+  });
+
+  // Fetch Mumbai Category News
+  const { data: mumbaiData } = useQuery({
+    queryKey: ['category-news-mumbai'],
+    queryFn: () => articleApi.getPublicArticles({ category: 'mumbai', limit: 4 }),
+  });
+
+  const latestArticles = latestData?.items || [];
+  const maharashtraArticles = maharashtraData?.items || [];
+  const politicsArticles = politicsData?.items || [];
+  const mumbaiArticles = mumbaiData?.items || [];
+
+  const maharashtraCategory = categories?.find((c) => c.slug === 'maharashtra') || {
+    id: 'maharashtra',
+    name: 'महाराष्ट्र',
+    slug: 'maharashtra',
+  };
+
+  const politicsCategory = categories?.find((c) => c.slug === 'politics') || {
+    id: 'politics',
+    name: 'राजकारण',
+    slug: 'politics',
+  };
+
+  const mumbaiCategory = categories?.find((c) => c.slug === 'mumbai') || {
+    id: 'mumbai',
+    name: 'मुंबई मेट्रो',
+    slug: 'mumbai',
+  };
+
+  const isInitialLoading = loadingFeatured && loadingLatest;
 
   return (
-    <div className="container" style={{ paddingBottom: '3rem' }}>
-      {/* Breaking News Ticker */}
-      <div className="breaking-ticker">
-        <div className="breaking-badge">
-          <Flame size={15} /> Breaking News
-        </div>
-        <div className="breaking-text">
-          Nirbhid News MVP Core Platform successfully initialized with React 18, Vite, FastAPI & Supabase PostgreSQL backend.
-        </div>
-      </div>
+    <div className="container" style={{ paddingBottom: '4rem' }}>
+      {/* 1. Breaking News Ticker */}
+      <BreakingNewsTicker />
 
-      {/* System Health / Foundation Status Banner */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-        borderRadius: 'var(--radius-lg)',
-        padding: '1.5rem 2rem',
-        color: 'white',
-        margin: '1.5rem 0',
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: '1.5rem',
-        boxShadow: 'var(--shadow-md)'
-      }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-            <Activity size={18} color="#38bdf8" />
-            <span style={{ fontSize: '0.8125rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#94a3b8', fontWeight: 700 }}>
-              Phase 0 & 1 Verification
-            </span>
-          </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, fontFamily: 'var(--font-brand)' }}>
-            Nirbhid News Engine Active
-          </h2>
-          <p style={{ color: '#cbd5e1', fontSize: '0.875rem', marginTop: '0.25rem', maxWidth: '600px' }}>
-            Foundation architecture configured according to full-stack specification. Full database models for users, categories, articles, and media are ready.
-          </p>
+      {/* 2. Hero Featured Stories Section */}
+      {isInitialLoading ? (
+        <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+          <Loader2 size={36} color="#dc2626" className="animate-spin" style={{ margin: '0 auto 1rem auto' }} />
+          <p style={{ color: '#64748b' }}>ताज्या महत्त्वाच्या बातम्या लोड होत आहेत...</p>
         </div>
+      ) : (
+        <HeroFeatured articles={featuredArticles || []} />
+      )}
 
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: 'var(--radius-md)',
-            padding: '0.75rem 1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
-            <Server size={20} color="#38bdf8" />
-            <div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>FastAPI Backend</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: loading ? '#facc15' : error ? '#f87171' : '#4ade80' }}>
-                {loading ? 'Checking...' : error ? 'Offline' : 'Online (v1.0.0)'}
-              </div>
-            </div>
-          </div>
+      {/* 3. Top Leaderboard Advertisement Banner */}
+      <AdBanner type="leaderboard" />
 
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: 'var(--radius-md)',
-            padding: '0.75rem 1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}>
-            <Database size={20} color="#a855f7" />
-            <div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Database Status</div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: health?.database === 'connected' ? '#4ade80' : '#facc15' }}>
-                {health?.database || 'Standby'}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Editorial Layout */}
-      <div className="editorial-grid">
-        {/* Left Primary Story */}
-        <div>
-          <article className="news-card-lead">
-            <div style={{
-              height: '320px',
-              backgroundColor: '#0f172a',
-              color: 'white',
+      {/* 4. Main Editorial Layout Grid (70% News Feed / 30% Sidebar) */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '7fr 3fr',
+          gap: '2.5rem',
+          marginTop: '2rem',
+        }}
+        className="homepage-editorial-grid"
+      >
+        {/* Left Column: Latest Feed & Categorized Sections */}
+        <main>
+          {/* Latest Stories Header */}
+          <div
+            style={{
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
+              justifyContent: 'space-between',
               alignItems: 'center',
-              padding: '2rem',
-              textAlign: 'center',
-              background: 'radial-gradient(circle at center, #1e293b 0%, #0f172a 100%)'
-            }}>
-              <Newspaper size={48} color="#dc2626" style={{ marginBottom: '1rem' }} />
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, maxWidth: '600px', margin: 0 }}>
-                Digital News Platform Architecture Initialized
-              </h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginTop: '0.5rem' }}>
-                Next Phase: Authentication & Admin Article CMS
-              </p>
-            </div>
-
-            <div className="news-card-content">
-              <span className="badge badge-primary">Maharashtra Lead</span>
-              <h1 className="news-title-lead">
-                Nirbhid News Platform Sets Standard for Unbiased Digital Journalism in Maharashtra
-              </h1>
-              <p className="news-excerpt">
-                Comprehensive reporting covering Mumbai, Thane, state politics, crime investigations, business markets, and world affairs. Powered by an enterprise-grade REST architecture and private CMS.
-              </p>
-              <div className="news-meta">
-                <span>By Editorial Bureau</span>
-                <span>•</span>
-                <span>Just Now</span>
-                <span>•</span>
-                <span>Verified Foundation</span>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        {/* Right Sidebar Sections */}
-        <div className="sidebar-section">
-          <div className="section-heading">Top Categories</div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {[
-              { name: 'Maharashtra', count: '13 Articles', slug: 'maharashtra' },
-              { name: 'Mumbai Metro', count: '24 Articles', slug: 'mumbai' },
-              { name: 'Politics & Governance', count: '18 Articles', slug: 'politics' },
-              { name: 'Crime & Investigation', count: '9 Articles', slug: 'crime' },
-              { name: 'World News', count: '15 Articles', slug: 'world' },
-            ].map((cat) => (
-              <Link
-                key={cat.slug}
-                to={`/category/${cat.slug}`}
-                className="sidebar-news-item"
-                style={{ justifyContent: 'space-between', alignItems: 'center' }}
+              borderBottom: '2px solid var(--color-secondary)',
+              paddingBottom: '0.5rem',
+              marginBottom: '1.5rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Clock size={20} color="var(--color-primary)" />
+              <h2
+                style={{
+                  fontSize: '1.35rem',
+                  fontWeight: 800,
+                  color: 'var(--color-secondary)',
+                  margin: 0,
+                  fontFamily: 'var(--font-sans)',
+                }}
               >
-                <div>
-                  <div className="sidebar-news-title">{cat.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
-                    {cat.count}
-                  </div>
-                </div>
-                <ArrowRight size={16} color="#94a3b8" />
-              </Link>
-            ))}
-          </div>
-
-          <div style={{
-            marginTop: '1rem',
-            padding: '1.25rem',
-            backgroundColor: '#ffffff',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-md)'
-          }}>
-            <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem' }}>
-              Admin Control Center
+                ताज्या घडामोडी • Latest News
+              </h2>
             </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
-              Access article publishing, category management, media uploads, and editorial review.
-            </p>
-            <Link to="/admin/login" className="btn btn-secondary" style={{ width: '100%' }}>
-              Launch Admin CMS
+            <Link
+              to="/search"
+              style={{
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: 'var(--color-primary)',
+                textTransform: 'uppercase',
+              }}
+            >
+              सर्व बातम्या →
             </Link>
           </div>
-        </div>
+
+          {/* Latest Articles Grid */}
+          {latestArticles.length === 0 ? (
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '3rem 1.5rem',
+                textAlign: 'center',
+                marginBottom: '2rem',
+              }}
+            >
+              <Newspaper size={40} color="#94a3b8" style={{ marginBottom: '0.75rem' }} />
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-secondary)' }}>
+                अद्याप कोणतीही बातमी प्रकाशित झालेली नाही
+              </h3>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>
+                नवीन बातम्या प्रकाशित करण्यासाठी Admin CMS चा वापर करा.
+              </p>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '1.5rem',
+                marginBottom: '2.5rem',
+              }}
+            >
+              {latestArticles.map((article) => (
+                <ArticleCard key={article.id} article={article} variant="vertical" showExcerpt={true} />
+              ))}
+            </div>
+          )}
+
+          {/* In-feed Ad Slot */}
+          <AdBanner type="inline" />
+
+          {/* Categorized Row 1: Maharashtra */}
+          {maharashtraArticles.length > 0 && (
+            <CategorySection category={maharashtraCategory as any} articles={maharashtraArticles} />
+          )}
+
+          {/* Categorized Row 2: Politics */}
+          {politicsArticles.length > 0 && (
+            <CategorySection category={politicsCategory as any} articles={politicsArticles} />
+          )}
+
+          {/* Categorized Row 3: Mumbai */}
+          {mumbaiArticles.length > 0 && (
+            <CategorySection category={mumbaiCategory as any} articles={mumbaiArticles} />
+          )}
+        </main>
+
+        {/* Right Column: Sidebar (Trending, Categories, CMS Box, Ads) */}
+        <aside style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }} className="homepage-sidebar">
+          {/* Trending / Top Stories Widget */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--color-border)',
+              padding: '1.25rem',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                borderBottom: '2px solid var(--color-primary)',
+                paddingBottom: '0.5rem',
+                marginBottom: '1rem',
+              }}
+            >
+              <TrendingUp size={18} color="var(--color-primary)" />
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0, textTransform: 'uppercase' }}>
+                महत्त्वाच्या बातम्या
+              </h3>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {(featuredArticles || latestArticles.slice(0, 5)).map((item) => (
+                <ArticleCard key={item.id} article={item} variant="compact" />
+              ))}
+            </div>
+          </div>
+
+          {/* Sidebar Advertisement */}
+          <AdBanner type="sidebar" />
+
+          {/* Browse Categories Widget */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--color-border)',
+              padding: '1.25rem',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                borderBottom: '2px solid var(--color-primary)',
+                paddingBottom: '0.5rem',
+                marginBottom: '1rem',
+              }}
+            >
+              <Folder size={18} color="var(--color-primary)" />
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0, textTransform: 'uppercase' }}>
+                विभाग • Categories
+              </h3>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {categories?.slice(0, 10).map((cat) => (
+                <Link
+                  key={cat.id}
+                  to={`/category/${cat.slug}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: '#f8fafc',
+                    color: 'var(--color-secondary)',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                  }}
+                  className="sidebar-category-link"
+                >
+                  <span>{cat.name}</span>
+                  <ArrowRight size={14} color="#94a3b8" />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Admin CMS Access Widget */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+              color: 'white',
+              borderRadius: 'var(--radius-lg)',
+              padding: '1.5rem',
+              boxShadow: 'var(--shadow-md)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fca5a5', marginBottom: '0.5rem' }}>
+              <Shield size={18} />
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                पत्रकार व संपादक पोर्टल
+              </span>
+            </div>
+            <h4 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
+              Nirbhid Editorial CMS
+            </h4>
+            <p style={{ fontSize: '0.8125rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+              बातम्या प्रकाशित करण्यासाठी, फोटो अपलोड करण्यासाठी आणि श्रेण्या व्यवस्थापित करण्यासाठी लॉगिन करा.
+            </p>
+            <Link
+              to="/admin/login"
+              className="btn btn-primary"
+              style={{ width: '100%', fontSize: '0.875rem' }}
+            >
+              CMS मध्ये लॉगिन करा
+            </Link>
+          </div>
+        </aside>
       </div>
     </div>
   );

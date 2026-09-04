@@ -3,6 +3,9 @@ import { MainLayout } from '../components/layout/MainLayout';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import { HomePage } from '../pages/public/HomePage';
+import { ArticleDetailPage } from '../pages/public/ArticleDetailPage';
+import { CategoryPage } from '../pages/public/CategoryPage';
+import { SearchPage } from '../pages/public/SearchPage';
 import { AboutPage } from '../pages/public/AboutPage';
 import { ContactPage } from '../pages/public/ContactPage';
 import { PrivacyPolicyPage } from '../pages/public/PrivacyPolicyPage';
@@ -23,8 +26,10 @@ export const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'category/:slug', element: <HomePage /> },
-      { path: 'search', element: <HomePage /> },
+      { path: 'news/:slug', element: <ArticleDetailPage /> },
+      { path: 'articles/:slug', element: <ArticleDetailPage /> },
+      { path: 'category/:slug', element: <CategoryPage /> },
+      { path: 'search', element: <SearchPage /> },
       { path: 'about', element: <AboutPage /> },
       { path: 'contact', element: <ContactPage /> },
       { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
