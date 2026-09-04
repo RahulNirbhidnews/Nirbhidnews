@@ -6,6 +6,7 @@ from app.api.v1.admin_categories import router as admin_categories_router
 from app.api.v1.articles import router as articles_router
 from app.api.v1.admin_articles import router as admin_articles_router
 from app.api.v1.media import router as media_router
+from app.api.v1.admin_stats import router as admin_stats_router
 
 api_router = APIRouter()
 api_router.include_router(health_router, prefix="", tags=["System"])
@@ -15,3 +16,4 @@ api_router.include_router(admin_categories_router, prefix="/admin/categories", t
 api_router.include_router(articles_router, prefix="/articles", tags=["Public Articles"])
 api_router.include_router(admin_articles_router, prefix="/admin/articles", tags=["Admin Articles"])
 api_router.include_router(media_router, prefix="/admin/media", tags=["Admin Media"])
+api_router.include_router(admin_stats_router, prefix="", tags=["Admin Stats"])

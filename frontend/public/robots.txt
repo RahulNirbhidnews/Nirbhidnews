@@ -1,0 +1,18 @@
+# Robots.txt for Nirbhid News (निर्भीड न्यूज)
+User-agent: *
+Allow: /
+Allow: /news/
+Allow: /category/
+Allow: /search
+Allow: /about
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms
+Allow: /disclaimer
+
+# Disallow private editorial portal
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /api/
+
+Sitemap: https://nirbhidnews.com/sitemap.xml

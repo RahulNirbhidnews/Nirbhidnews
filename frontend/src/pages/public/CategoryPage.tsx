@@ -7,6 +7,7 @@ import { articleApi } from '../../api/articles';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { Pagination } from '../../components/common/Pagination';
 import { AdBanner } from '../../components/common/AdBanner';
+import { SEOHead } from '../../components/common/SEOHead';
 
 export const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -102,6 +103,10 @@ export const CategoryPage: React.FC = () => {
 
   return (
     <div className="container" style={{ padding: '1.5rem 1.25rem 4rem 1.25rem' }}>
+      <SEOHead
+        title={`${category.name} - बातम्या`}
+        description={category.description || `${category.name} विभागातील ताज्या घडामोडी आणि सविस्तर बातम्या.`}
+      />
       {/* Breadcrumb Navigation */}
       <nav
         style={{

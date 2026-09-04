@@ -17,6 +17,7 @@ import { HeroFeatured } from '../../components/news/HeroFeatured';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { CategorySection } from '../../components/news/CategorySection';
 import { AdBanner } from '../../components/common/AdBanner';
+import { SEOHead } from '../../components/common/SEOHead';
 
 export const HomePage: React.FC = () => {
   // Fetch Featured Articles for Hero
@@ -82,6 +83,10 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="container" style={{ paddingBottom: '4rem' }}>
+      <SEOHead
+        title="निर्भीड न्यूज - Truth Unfiltered"
+        description="महाराष्ट्र, मुंबई, ठाणे आणि देशातील ताज्या घडामोडी, राजकारण आणि निर्भीड पत्रकारितेचे डिजिटल केंद्र."
+      />
       {/* 1. Breaking News Ticker */}
       <BreakingNewsTicker />
 

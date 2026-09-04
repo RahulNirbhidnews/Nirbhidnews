@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, ChevronRight, Newspaper, Loader2, X } from 'lucide-react';
+import { Search, ChevronRight, Newspaper, Loader2, X, Tag } from 'lucide-react';
 import { articleApi } from '../../api/articles';
 import { categoryApi } from '../../api/categories';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { Pagination } from '../../components/common/Pagination';
+import { SEOHead } from '../../components/common/SEOHead';
+
+const POPULAR_SEARCH_TOPICS = [
+  'महाराष्ट्र',
+  'मुंबई',
+  'ठाणे',
+  'निवडणूक',
+  'अर्थसंकल्प',
+  'गुन्हे',
+  'क्रीडा',
+  'हवामान',
+];
 
 export const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +36,7 @@ export const SearchPage: React.FC = () => {
     setCurrentPage(pageParam);
   }, [qParam, catParam, pageParam]);
 
-  // Fetch Categories for Dropdown
+  // Fetch Categories for Dropdown & Quick Pills
   const { data: categories } = useQuery({
     queryKey: ['public-categories'],
     queryFn: categoryApi.getPublicCategories,
@@ -58,11 +70,18 @@ export const SearchPage: React.FC = () => {
     setSearchParams(newParams);
   };
 
-  const handleCategoryChange = (catSlug: string) => {
+  const handleCategorySelect = (catSlug: string) => {
     setSelectedCategory(catSlug);
     const newParams: Record<string, string> = { page: '1' };
     if (searchTerm.trim()) newParams.q = searchTerm.trim();
     if (catSlug) newParams.category = catSlug;
+    setSearchParams(newParams);
+  };
+
+  const handleTopicClick = (topic: string) => {
+    setSearchTerm(topic);
+    const newParams: Record<string, string> = { page: '1', q: topic };
+    if (selectedCategory) newParams.category = selectedCategory;
     setSearchParams(newParams);
   };
 
@@ -83,6 +102,11 @@ export const SearchPage: React.FC = () => {
 
   return (
     <div className="container" style={{ padding: '1.5rem 1.25rem 4rem 1.25rem' }}>
+      <SEOHead
+        title={qParam ? `'${qParam}' - शोध निकाल` : 'बातम्या शोधा'}
+        description="निर्भीड न्यूजवर ताज्या बातम्या, राजकीय घडामोडी, गुन्हे अन्वेषण आणि स्थानिक वृत्त शोधा."
+      />
+
       {/* Breadcrumb Navigation */}
       <nav
         style={{
@@ -109,10 +133,11 @@ export const SearchPage: React.FC = () => {
           padding: '2.5rem 2rem',
           color: 'white',
           marginBottom: '2rem',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 1rem 0', fontFamily: 'var(--font-brand)' }}>
-          बातम्या शोधा • Search Articles
+        <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 0.75rem 0', fontFamily: 'var(--font-brand)' }}>
+          बातम्या शोधा • Search News
         </h1>
         <p style={{ color: '#cbd5e1', fontSize: '0.9375rem', marginBottom: '1.5rem', maxWidth: '600px' }}>
           महाराष्ट्रातील ताज्या घडामोडी, राजकारण, गुन्हेगारी, क्रीडा आणि स्थानिक बातम्या शोधा.
@@ -150,6 +175,7 @@ export const SearchPage: React.FC = () => {
                   cursor: 'pointer',
                   padding: 0,
                 }}
+                aria-label="Clear search input"
               >
                 <X size={18} />
               </button>
@@ -158,7 +184,7 @@ export const SearchPage: React.FC = () => {
 
           <select
             value={selectedCategory}
-            onChange={(e) => handleCategoryChange(e.target.value)}
+            onChange={(e) => handleCategorySelect(e.target.value)}
             style={{
               padding: '0.875rem 1rem',
               borderRadius: 'var(--radius-md)',
@@ -183,9 +209,35 @@ export const SearchPage: React.FC = () => {
             <Search size={18} /> शोधा
           </button>
         </form>
+
+        {/* Quick Popular Topic Pills */}
+        <div style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <Tag size={12} /> लोकप्रिय शोध:
+          </span>
+          {POPULAR_SEARCH_TOPICS.map((topic) => (
+            <button
+              key={topic}
+              type="button"
+              onClick={() => handleTopicClick(topic)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                color: '#e2e8f0',
+                padding: '0.25rem 0.6rem',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                transition: 'background 0.2s ease',
+              }}
+            >
+              {topic}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Query Stats & Filters */}
+      {/* Query Stats & Active Filters */}
       {(qParam || catParam) && (
         <div
           style={{
@@ -215,6 +267,37 @@ export const SearchPage: React.FC = () => {
         </div>
       )}
 
+      {/* Category Filter Pills (Horizontal Bar) */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '0.5rem',
+          overflowX: 'auto',
+          paddingBottom: '0.75rem',
+          marginBottom: '1.5rem',
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => handleCategorySelect('')}
+          className={`btn btn-sm ${selectedCategory === '' ? 'btn-secondary' : 'btn-outline'}`}
+          style={{ whiteSpace: 'nowrap', borderRadius: 'var(--radius-full)' }}
+        >
+          सर्व बातम्या (All)
+        </button>
+        {categories?.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            onClick={() => handleCategorySelect(cat.slug)}
+            className={`btn btn-sm ${selectedCategory === cat.slug ? 'btn-primary' : 'btn-outline'}`}
+            style={{ whiteSpace: 'nowrap', borderRadius: 'var(--radius-full)' }}
+          >
+            {cat.name}
+          </button>
+        ))}
+      </div>
+
       {/* Search Results */}
       {isLoading || isFetching ? (
         <div style={{ textAlign: 'center', padding: '5rem 1rem' }}>
@@ -237,7 +320,7 @@ export const SearchPage: React.FC = () => {
             कोणतीही बातमी सापडली नाही
           </h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
-            कृपया वेगळे शब्द वापरून पुन्हा प्रयत्न करा किंवा इतर बातम्या पाहा.
+            कृपया वेगळे शब्द वापरून पुन्हा प्रयत्न करा किंवा वरील लोकप्रिय विषयांवर क्लिक करा.
           </p>
           <button type="button" onClick={handleClear} className="btn btn-outline">
             सर्व बातम्या दाखवा

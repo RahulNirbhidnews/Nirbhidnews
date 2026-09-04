@@ -7,6 +7,7 @@ import { MarkdownRenderer } from '../../components/news/MarkdownRenderer';
 import { SocialShareBar } from '../../components/news/SocialShareBar';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { AdBanner } from '../../components/common/AdBanner';
+import { SEOHead } from '../../components/common/SEOHead';
 
 export const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -94,6 +95,15 @@ export const ArticleDetailPage: React.FC = () => {
 
   return (
     <div className="container" style={{ padding: '1.5rem 1.25rem 4rem 1.25rem' }}>
+      <SEOHead
+        title={article.title}
+        description={article.excerpt || article.title}
+        image={article.featured_image_url || undefined}
+        type="article"
+        author={article.author_name || 'Nirbhid Bureau'}
+        publishedTime={article.published_at || article.created_at}
+        category={article.category?.name}
+      />
       {/* Breadcrumb Navigation */}
       <nav
         style={{
