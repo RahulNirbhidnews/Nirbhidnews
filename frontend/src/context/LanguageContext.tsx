@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Language, TranslationDict, translations } from '../utils/translations';
+import { Article } from '../types';
+import { getTranslatedArticle } from '../utils/articleTranslations';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: TranslationDict;
   translateCategory: (slug: string, fallbackName?: string) => string;
+  translateArticle: (article: Article) => Article;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -41,6 +44,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return fallbackName || slug;
   };
 
+  const translateArticle = (article: Article): Article => {
+    return getTranslatedArticle(article, language);
+  };
+
   return (
     <LanguageContext.Provider
       value={{
@@ -48,6 +55,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setLanguage,
         t: currentTranslations,
         translateCategory,
+        translateArticle,
       }}
     >
       {children}

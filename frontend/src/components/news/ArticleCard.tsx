@@ -11,11 +11,12 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({
-  article,
+  article: rawArticle,
   variant = 'vertical',
   showExcerpt = true,
 }) => {
-  const { language, t, translateCategory } = useLanguage();
+  const { language, t, translateCategory, translateArticle } = useLanguage();
+  const article = translateArticle(rawArticle);
 
   const localeMap = { mr: 'mr-IN', en: 'en-IN', hi: 'hi-IN' };
   const currentLocale = localeMap[language] || 'mr-IN';

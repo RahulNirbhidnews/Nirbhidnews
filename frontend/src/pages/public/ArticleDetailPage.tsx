@@ -13,10 +13,10 @@ import { useLanguage } from '../../context/LanguageContext';
 
 export const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { language, t, translateCategory } = useLanguage();
+  const { language, t, translateCategory, translateArticle } = useLanguage();
 
   const {
-    data: article,
+    data: rawArticle,
     isLoading,
     isError,
   } = useQuery({
@@ -24,6 +24,8 @@ export const ArticleDetailPage: React.FC = () => {
     queryFn: () => (slug ? articleApi.getArticleBySlug(slug) : null),
     enabled: Boolean(slug),
   });
+
+  const article = rawArticle ? translateArticle(rawArticle) : null;
 
   // Fetch related articles from same category
   const { data: relatedData } = useQuery({

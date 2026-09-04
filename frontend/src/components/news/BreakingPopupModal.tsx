@@ -6,7 +6,7 @@ import { articleApi } from '../../api/articles';
 import { useLanguage } from '../../context/LanguageContext';
 
 export const BreakingPopupModal: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, translateArticle } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [dismissedId, setDismissedId] = useState<string | null>(null);
 
@@ -16,7 +16,8 @@ export const BreakingPopupModal: React.FC = () => {
     staleTime: 1000 * 60 * 2,
   });
 
-  const topBreaking = breakingArticles && breakingArticles.length > 0 ? breakingArticles[0] : null;
+  const rawTopBreaking = breakingArticles && breakingArticles.length > 0 ? breakingArticles[0] : null;
+  const topBreaking = rawTopBreaking ? translateArticle(rawTopBreaking) : null;
 
   useEffect(() => {
     if (!topBreaking) return;

@@ -9,14 +9,14 @@ interface HeroFeaturedProps {
 }
 
 export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
-  const { language, t, translateCategory } = useLanguage();
+  const { language, t, translateCategory, translateArticle } = useLanguage();
 
   if (!articles || articles.length === 0) {
     return null;
   }
 
-  const primaryArticle = articles[0];
-  const secondaryArticles = articles.slice(1, 4);
+  const primaryArticle = translateArticle(articles[0]);
+  const secondaryArticles = articles.slice(1, 4).map(translateArticle);
 
   const formatPublishDate = (dateStr?: string) => {
     if (!dateStr) return '';

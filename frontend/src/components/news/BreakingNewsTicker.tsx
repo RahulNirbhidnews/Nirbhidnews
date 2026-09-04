@@ -6,7 +6,7 @@ import { articleApi } from '../../api/articles';
 import { useLanguage } from '../../context/LanguageContext';
 
 export const BreakingNewsTicker: React.FC = () => {
-  const { t, translateCategory } = useLanguage();
+  const { t, translateCategory, translateArticle } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -16,7 +16,7 @@ export const BreakingNewsTicker: React.FC = () => {
     refetchInterval: 1000 * 60 * 2, // Auto refresh every 2 mins
   });
 
-  const articles = breakingArticles || [];
+  const articles = (breakingArticles || []).map(translateArticle);
 
   useEffect(() => {
     if (articles.length <= 1 || isPaused) return;
