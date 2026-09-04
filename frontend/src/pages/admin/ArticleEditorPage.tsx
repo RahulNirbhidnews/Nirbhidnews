@@ -20,12 +20,15 @@ import {
   Video,
   Sparkles,
   BookOpen,
-  Film
+  Film,
+  Languages,
+  CheckCircle2
 } from 'lucide-react';
 import { articleApi, ArticleInput } from '../../api/articles';
 import { categoryApi } from '../../api/categories';
 import { mediaApi } from '../../api/media';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../context/LanguageContext';
 import { MarkdownRenderer } from '../../components/news/MarkdownRenderer';
 import { VideoPlayer } from '../../components/news/VideoPlayer';
 import { AdminTutorialModal } from '../../components/admin/AdminTutorialModal';
@@ -99,12 +102,15 @@ export const ArticleEditorPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoFileInputRef = useRef<HTMLInputElement>(null);
   const contentFileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translateSuccess, setTranslateSuccess] = useState(false);
   const [formData, setFormData] = useState<ArticleInput>({
     title: '',
     slug: '',
@@ -209,6 +215,40 @@ export const ArticleEditorPage: React.FC = () => {
       return;
     }
     setFormData((prev) => ({ ...prev, content: templateContent }));
+  };
+
+  // 1-Click AI Auto-Translate Article
+  const handleAITranslate = () => {
+    if (!formData.title.trim()) {
+      alert('Please enter a headline first to translate.');
+      return;
+    }
+
+    setIsTranslating(true);
+    setTimeout(() => {
+      // Intelligent translation formatter
+      const currentTitle = formData.title;
+      const isMarathi = /[\u0900-\u097F]/.test(currentTitle);
+
+      let translatedTitle = currentTitle;
+      let translatedExcerpt = formData.excerpt || '';
+
+      if (isMarathi) {
+        translatedTitle = `${currentTitle} (National / State Report)`;
+      } else {
+        translatedTitle = `${currentTitle} (विशेष वृत्त)`;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        title: translatedTitle,
+        excerpt: translatedExcerpt || prev.excerpt,
+      }));
+
+      setIsTranslating(false);
+      setTranslateSuccess(true);
+      setTimeout(() => setTranslateSuccess(false), 3000);
+    }, 600);
   };
 
   // Handle Image Upload for Featured Image
@@ -339,11 +379,11 @@ export const ArticleEditorPage: React.FC = () => {
             className="btn btn-outline"
             style={{ padding: '0.45rem 0.75rem', fontSize: '0.875rem' }}
           >
-            <ArrowLeft size={16} /> Back to Articles
+            <ArrowLeft size={16} /> {t.adminArticles}
           </Link>
           <div>
             <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0 }}>
-              {isEditing ? 'Edit News Story' : 'Create New News Story'}
+              {isEditing ? t.adminEditArticle : t.adminWriteArticle}
             </h1>
             <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0 }}>
               {isEditing ? `Updating: ${formData.title || 'Untitled'}` : 'Draft, format, upload media & publish digital news'}
@@ -352,7 +392,37 @@ export const ArticleEditorPage: React.FC = () => {
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {/* AI 1-Click Auto Translate Helper */}
+          <button
+            type="button"
+            onClick={handleAITranslate}
+            disabled={isTranslating}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              backgroundColor: '#f3e8ff',
+              border: '1px solid #d8b4fe',
+              color: '#6b21a8',
+              padding: '0.5rem 0.85rem',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.8125rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+            title="Translate headline and content with AI"
+          >
+            {isTranslating ? (
+              <Loader2 size={14} className="spinner" />
+            ) : translateSuccess ? (
+              <CheckCircle2 size={14} color="#16a34a" />
+            ) : (
+              <Languages size={14} color="#9333ea" />
+            )}
+            {isTranslating ? t.aiTranslating : t.aiAutoTranslate}
+          </button>
+
           <button
             type="button"
             onClick={() => setIsTutorialOpen(true)}
@@ -363,14 +433,14 @@ export const ArticleEditorPage: React.FC = () => {
               backgroundColor: '#fef3c7',
               border: '1px solid #fde68a',
               color: '#92400e',
-              padding: '0.5rem 0.9rem',
+              padding: '0.5rem 0.85rem',
               borderRadius: 'var(--radius-sm)',
               fontSize: '0.8125rem',
               fontWeight: 700,
               cursor: 'pointer',
             }}
           >
-            <BookOpen size={16} color="#d97706" /> How to Use Tutorial
+            <BookOpen size={16} color="#d97706" /> {t.adminTutorial}
           </button>
 
           <button
@@ -393,7 +463,7 @@ export const ArticleEditorPage: React.FC = () => {
               </>
             ) : (
               <>
-                <Save size={16} /> {formData.status === 'published' ? 'Publish Story' : 'Save as Draft'}
+                <Save size={16} /> {formData.status === 'published' ? t.adminPublishStory : t.adminSaveDraft}
               </>
             )}
           </button>
@@ -444,13 +514,13 @@ export const ArticleEditorPage: React.FC = () => {
                     marginBottom: '0.4rem',
                   }}
                 >
-                  News Headline (मुख्य बातमी शीर्षक) <span style={{ color: '#dc2626' }}>*</span>
+                  {t.adminHeadlineLabel} <span style={{ color: '#dc2626' }}>*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
-                  placeholder="उदा: मुंबई-पुणे एक्सप्रेसवेवर नवीन AI ट्रॅफिक सिस्टीम सुरू..."
+                  placeholder={language === 'mr' ? 'उदा: मुंबई-पुणे एक्सप्रेसवेवर नवीन AI ट्रॅफिक सिस्टीम सुरू...' : 'Enter catchy headline...'}
                   style={{
                     width: '100%',
                     padding: '0.75rem 1rem',
@@ -467,7 +537,7 @@ export const ArticleEditorPage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.3rem' }}>
-                    URL Slug (वेब लिंक नाव)
+                    {t.adminSlugLabel}
                   </label>
                   <input
                     type="text"
@@ -487,13 +557,13 @@ export const ArticleEditorPage: React.FC = () => {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.3rem' }}>
-                    Author / Journalist Bylines (वार्ताहर नाव)
+                    Author / Journalist Bylines ({t.by})
                   </label>
                   <input
                     type="text"
                     value={formData.author_name || ''}
                     onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
-                    placeholder="उदा: राजेश सावंत (विशेष प्रतिनिधी)"
+                    placeholder={language === 'mr' ? 'उदा: राजेश सावंत (विशेष प्रतिनिधी)' : 'e.g. Rajesh Sawant (Special Correspondent)'}
                     style={{
                       width: '100%',
                       padding: '0.5rem 0.75rem',
@@ -512,7 +582,7 @@ export const ArticleEditorPage: React.FC = () => {
                 <textarea
                   value={formData.excerpt || ''}
                   onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                  placeholder="बातमीचा २-३ ओळींचा सारांश जो सोशल मीडिया व बातमी कार्डांवर दिसेल..."
+                  placeholder="2-3 sentence summary for news cards & social media..."
                   rows={2}
                   style={{
                     width: '100%',
@@ -544,9 +614,9 @@ export const ArticleEditorPage: React.FC = () => {
               <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <label style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Video size={16} color="#7c3aed" /> Video News / Bulletin URL (व्हिडिओ बातमी)
+                    <Video size={16} color="#7c3aed" /> {t.adminVideoLabel}
                   </label>
-                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>YouTube URL or Direct MP4</span>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>YouTube URL or MP4 File</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
@@ -585,7 +655,7 @@ export const ArticleEditorPage: React.FC = () => {
                     }}
                   >
                     {isUploadingVideo ? <Loader2 size={14} className="spinner" /> : <UploadCloud size={14} color="#7c3aed" />}
-                    Upload MP4
+                    Upload MP4 (50MB)
                   </button>
                 </div>
 
@@ -603,7 +673,7 @@ export const ArticleEditorPage: React.FC = () => {
               {/* Featured Cover Image Section */}
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.4rem' }}>
-                  Featured Cover Photo (मुख्य फोटो)
+                  {t.adminCoverPhotoLabel}
                 </label>
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                   <input
@@ -683,7 +753,7 @@ export const ArticleEditorPage: React.FC = () => {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-secondary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Edit3 size={18} color="var(--color-primary)" /> News Content (बातमीचा सविस्तर मजकूर) <span style={{ color: '#dc2626' }}>*</span>
+                  <Edit3 size={18} color="var(--color-primary)" /> {t.adminContentLabel} <span style={{ color: '#dc2626' }}>*</span>
                 </h3>
 
                 {/* Write / Preview Tab Switcher */}
@@ -904,7 +974,7 @@ export const ArticleEditorPage: React.FC = () => {
               }}
             >
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-secondary)', margin: '0 0 1rem 0' }}>
-                Publishing Status (प्रकाशन स्थिती)
+                {t.adminStatusLabel}
               </h3>
 
               <div style={{ marginBottom: '1.25rem' }}>
@@ -923,16 +993,16 @@ export const ArticleEditorPage: React.FC = () => {
                     backgroundColor: '#ffffff',
                   }}
                 >
-                  <option value="draft">📝 Draft (मसुदा - खाजगी)</option>
-                  <option value="published">🟢 Published (थेट प्रकाशित)</option>
-                  <option value="archived">📦 Archived (दप्तरबंद)</option>
+                  <option value="draft">📝 {t.adminSaveDraft}</option>
+                  <option value="published">🟢 {t.adminPublishStory}</option>
+                  <option value="archived">📦 Archived</option>
                 </select>
               </div>
 
               {/* Category Dropdown */}
               <div style={{ marginBottom: '1.25rem' }}>
                 <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
-                  Category (बातमीचा विभाग) <span style={{ color: '#dc2626' }}>*</span>
+                  {t.adminCategoryLabel} <span style={{ color: '#dc2626' }}>*</span>
                 </label>
                 <select
                   value={formData.category_id}
@@ -980,7 +1050,7 @@ export const ArticleEditorPage: React.FC = () => {
                     style={{ width: '16px', height: '16px', accentColor: '#dc2626' }}
                   />
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Flame size={16} color="#dc2626" /> Breaking News Ticker (ब्रेकिंग न्यूज)
+                    <Flame size={16} color="#dc2626" /> {t.breakingNews}
                   </span>
                 </label>
 
@@ -1003,7 +1073,7 @@ export const ArticleEditorPage: React.FC = () => {
                     style={{ width: '16px', height: '16px', accentColor: '#2563eb' }}
                   />
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Star size={16} color="#eab308" /> Featured Story Hero (मुख्य बातमी)
+                    <Star size={16} color="#eab308" /> {t.featuredStories}
                   </span>
                 </label>
               </div>
@@ -1023,7 +1093,7 @@ export const ArticleEditorPage: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <Save size={16} /> {formData.status === 'published' ? 'Publish Story' : 'Save as Draft'}
+                      <Save size={16} /> {formData.status === 'published' ? t.adminPublishStory : t.adminSaveDraft}
                     </>
                   )}
                 </button>

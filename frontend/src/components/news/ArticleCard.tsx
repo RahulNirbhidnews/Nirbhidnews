@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, User, Newspaper, Flame, Play } from 'lucide-react';
+import { Clock, User, Newspaper, Flame, Play, Volume2, VolumeX } from 'lucide-react';
 import { Article } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -17,6 +17,10 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
 }) => {
   const { language, t, translateCategory, translateArticle } = useLanguage();
   const article = translateArticle(rawArticle);
+
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const localeMap = { mr: 'mr-IN', en: 'en-IN', hi: 'hi-IN' };
   const currentLocale = localeMap[language] || 'mr-IN';
@@ -37,9 +41,48 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   const wordCount = article.content ? article.content.split(/\s+/).length : 0;
   const readTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
 
+  const isDirectVideo =
+    article.video_url &&
+    (article.video_url.endsWith('.mp4') ||
+      article.video_url.endsWith('.webm') ||
+      article.video_url.endsWith('.mov') ||
+      article.video_url.startsWith('/static/'));
+
+  const fullVideoSrc =
+    isDirectVideo && article.video_url?.startsWith('/static/')
+      ? `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:8000'}${article.video_url}`
+      : article.video_url || '';
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (videoRef.current && isDirectVideo) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (videoRef.current && isDirectVideo) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
+
   if (variant === 'horizontal') {
     return (
       <article
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         style={{
           display: 'grid',
           gridTemplateColumns: '180px 1fr',
@@ -63,7 +106,16 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
             minHeight: '130px',
           }}
         >
-          {article.featured_image_url ? (
+          {isDirectVideo && isHovered ? (
+            <video
+              ref={videoRef}
+              src={fullVideoSrc}
+              muted={isMuted}
+              loop
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : article.featured_image_url ? (
             <img
               src={article.featured_image_url}
               alt={article.title}
@@ -92,6 +144,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               <Newspaper size={28} />
             </div>
           )}
+
           {article.is_breaking && (
             <span
               style={{
@@ -107,11 +160,13 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.2rem',
+                zIndex: 2,
               }}
             >
               <Flame size={10} /> {t.breakingNews}
             </span>
           )}
+
           {article.video_url && (
             <span
               style={{
@@ -129,10 +184,36 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
                 alignItems: 'center',
                 gap: '0.2rem',
                 border: '1px solid rgba(239, 68, 68, 0.5)',
+                zIndex: 2,
               }}
             >
               <Play size={10} fill="#ef4444" color="#ef4444" /> VIDEO
             </span>
+          )}
+
+          {isDirectVideo && isHovered && (
+            <button
+              type="button"
+              onClick={toggleMute}
+              style={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: '24px',
+                height: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 5,
+              }}
+            >
+              {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+            </button>
           )}
         </Link>
 
@@ -312,9 +393,11 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
     );
   }
 
-  // Default: Vertical Card
+  // Default: Vertical Card with Hover Auto-Play
   return (
     <article
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       style={{
         backgroundColor: '#fff',
         borderRadius: 'var(--radius-lg)',
@@ -337,7 +420,16 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           display: 'block',
         }}
       >
-        {article.featured_image_url ? (
+        {isDirectVideo && isHovered ? (
+          <video
+            ref={videoRef}
+            src={fullVideoSrc}
+            muted={isMuted}
+            loop
+            playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : article.featured_image_url ? (
           <img
             src={article.featured_image_url}
             alt={article.title}
@@ -386,6 +478,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               alignItems: 'center',
               gap: '0.25rem',
               boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              zIndex: 2,
             }}
           >
             <Flame size={12} /> {t.breakingNews}
@@ -405,6 +498,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               padding: '0.2rem 0.5rem',
               borderRadius: '3px',
               boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              zIndex: 2,
             }}
           >
             {t.featuredStories}
@@ -429,10 +523,36 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               gap: '0.3rem',
               boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
               border: '1px solid rgba(220, 38, 38, 0.5)',
+              zIndex: 2,
             }}
           >
             <Play size={10} fill="#ef4444" color="#ef4444" /> VIDEO
           </span>
+        )}
+
+        {isDirectVideo && isHovered && (
+          <button
+            type="button"
+            onClick={toggleMute}
+            style={{
+              position: 'absolute',
+              bottom: '10px',
+              right: '10px',
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 5,
+            }}
+          >
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
         )}
       </Link>
 

@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Clock, User, Calendar, ChevronRight, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Clock, User, Calendar, ChevronRight, ArrowLeft, AlertCircle, Sparkles } from 'lucide-react';
 import { articleApi } from '../../api/articles';
 import { MarkdownRenderer } from '../../components/news/MarkdownRenderer';
 import { SocialShareBar } from '../../components/news/SocialShareBar';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { VideoPlayer } from '../../components/news/VideoPlayer';
+import { AISummarizerModal } from '../../components/news/AISummarizerModal';
+import { AIAudioReader } from '../../components/news/AIAudioReader';
 import { AdBanner } from '../../components/common/AdBanner';
 import { SEOHead } from '../../components/common/SEOHead';
 import { SkeletonLoader } from '../../components/common/SkeletonLoader';
@@ -15,6 +17,7 @@ import { useLanguage } from '../../context/LanguageContext';
 export const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { language, t, translateCategory, translateArticle } = useLanguage();
+  const [isAISummaryOpen, setIsAISummaryOpen] = useState(false);
 
   const {
     data: rawArticle,
@@ -225,7 +228,34 @@ export const ArticleDetailPage: React.FC = () => {
                 <Clock size={14} /> {readTimeMinutes} {t.minutesRead}
               </span>
             </div>
+
+            {/* AI Summary Button */}
+            <button
+              type="button"
+              onClick={() => setIsAISummaryOpen(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                backgroundColor: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
+                background: '#4f46e5',
+                color: '#ffffff',
+                border: 'none',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '9999px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 2px 4px rgba(79, 70, 229, 0.3)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <Sparkles size={13} color="#facc15" /> {t.aiSummary}
+            </button>
           </div>
+
+          {/* AI Voice Audio Reader */}
+          <AIAudioReader textToRead={article.content} title={article.title} />
 
           {/* Social Share Bar Top */}
           <SocialShareBar title={article.title} />
@@ -364,6 +394,14 @@ export const ArticleDetailPage: React.FC = () => {
           </div>
         </aside>
       </div>
+      {/* AI Summary Modal */}
+      {article && (
+        <AISummarizerModal
+          isOpen={isAISummaryOpen}
+          onClose={() => setIsAISummaryOpen(false)}
+          article={article}
+        />
+      )}
     </div>
   );
 };
