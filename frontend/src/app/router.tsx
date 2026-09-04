@@ -11,6 +11,8 @@ import { DisclaimerPage } from '../pages/public/DisclaimerPage';
 import { AdminLoginPage } from '../pages/admin/AdminLoginPage';
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 import { AdminCategoriesPage } from '../pages/admin/AdminCategoriesPage';
+import { AdminArticlesPage } from '../pages/admin/AdminArticlesPage';
+import { ArticleEditorPage } from '../pages/admin/ArticleEditorPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -45,7 +47,9 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboardPage /> },
       { path: 'categories', element: <AdminCategoriesPage /> },
-      { path: 'articles', element: <AdminDashboardPage /> },
+      { path: 'articles', element: <AdminArticlesPage /> },
+      { path: 'articles/new', element: <ArticleEditorPage /> },
+      { path: 'articles/:id/edit', element: <ArticleEditorPage /> },
       { path: 'media', element: <AdminDashboardPage /> },
     ],
   },

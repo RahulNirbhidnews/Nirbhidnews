@@ -205,6 +205,9 @@ button {
   .editorial-grid {
     grid-template-columns: 1fr;
   }
+  .editor-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .news-card-lead {

@@ -1,10 +1,28 @@
 import React from 'react';
-import { LayoutDashboard, FileText, FolderTree, Image, CheckCircle, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, FileText, FolderTree, Image, CheckCircle, ShieldCheck, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
+import { articleApi } from '../../api/articles';
+import { categoryApi } from '../../api/categories';
 
 export const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
+
+  const { data: articlesData } = useQuery({
+    queryKey: ['admin-dashboard-articles'],
+    queryFn: () => articleApi.getAdminArticles({ limit: 1 }),
+  });
+
+  const { data: publishedData } = useQuery({
+    queryKey: ['admin-dashboard-published'],
+    queryFn: () => articleApi.getAdminArticles({ status: 'published', limit: 1 }),
+  });
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ['admin-dashboard-categories'],
+    queryFn: () => categoryApi.getAdminCategories({ limit: 1 }),
+  });
 
   return (
     <div className="container" style={{ padding: '2.5rem 1.25rem' }}>
@@ -38,6 +56,9 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <Link to="/admin/articles/new" className="btn btn-primary">
+            <Plus size={16} /> Write Article
+          </Link>
           <Link to="/" target="_blank" className="btn btn-outline" style={{ backgroundColor: 'transparent', color: '#e2e8f0', borderColor: '#475569' }}>
             Preview Public Site
           </Link>
@@ -52,9 +73,9 @@ export const AdminDashboardPage: React.FC = () => {
         marginBottom: '2.5rem'
       }}>
         {[
-          { label: 'Total Articles', value: '0', icon: FileText, color: '#3b82f6' },
-          { label: 'Published News', value: '0', icon: LayoutDashboard, color: '#22c55e' },
-          { label: 'Configured Categories', value: '13', icon: FolderTree, color: '#eab308' },
+          { label: 'Total Articles', value: articlesData?.total ?? '...', icon: FileText, color: '#3b82f6' },
+          { label: 'Published News', value: publishedData?.total ?? '...', icon: LayoutDashboard, color: '#22c55e' },
+          { label: 'Configured Categories', value: categoriesData?.total ?? '13', icon: FolderTree, color: '#eab308' },
           { label: 'Media Assets', value: '0', icon: Image, color: '#a855f7' },
         ].map((item, idx) => {
           const Icon = item.icon;
@@ -87,17 +108,17 @@ export const AdminDashboardPage: React.FC = () => {
           padding: '1.5rem',
         }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem' }}>
-            Category Management (Phase 3)
+            Article CMS (Phase 4 Active)
           </h3>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            Manage editorial news sections: Maharashtra, Mumbai, Thane, Crime, Politics, Business, World news, etc.
+            Create drafts, schedule releases, mark breaking headlines, and manage verified news publications.
           </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#16a34a', fontSize: '0.8125rem', fontWeight: 600 }}>
-              <CheckCircle size={16} /> 13 Initial categories active
+              <CheckCircle size={16} /> Ready & Operational
             </div>
-            <Link to="/admin/categories" className="btn btn-sm btn-primary">
-              Manage Categories
+            <Link to="/admin/articles" className="btn btn-sm btn-primary">
+              Manage Articles
             </Link>
           </div>
         </div>
@@ -109,13 +130,18 @@ export const AdminDashboardPage: React.FC = () => {
           padding: '1.5rem',
         }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem' }}>
-            Article CMS (Phase 4)
+            Category Management (Phase 3 Active)
           </h3>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            Create drafts, schedule releases, mark breaking headlines, and publish verified stories.
+            Manage editorial news sections: Maharashtra, Mumbai, Thane, Crime, Politics, Business, World news, etc.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', fontSize: '0.8125rem' }}>
-            <span>Next Phase Ready</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#16a34a', fontSize: '0.8125rem', fontWeight: 600 }}>
+              <CheckCircle size={16} /> 13 Categories active
+            </div>
+            <Link to="/admin/categories" className="btn btn-sm btn-outline">
+              Manage Categories
+            </Link>
           </div>
         </div>
       </div>

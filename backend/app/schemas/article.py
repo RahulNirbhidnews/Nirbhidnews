@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 from app.schemas.category import CategoryResponse
@@ -59,3 +59,12 @@ class ArticleResponse(ArticleBase):
     created_at: datetime
     updated_at: datetime
     category: Optional[CategoryResponse] = None
+    author: Optional[UserResponse] = None
+
+
+class ArticleListResponse(BaseModel):
+    items: List[ArticleResponse]
+    page: int
+    limit: int
+    total: int
+    total_pages: int
