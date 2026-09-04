@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
+import { BreakingPopupModal } from '../news/BreakingPopupModal';
 
 export const MainLayout: React.FC = () => {
   return (
@@ -11,6 +12,8 @@ export const MainLayout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
+      <BreakingPopupModal />
     </div>
   );
 };
+

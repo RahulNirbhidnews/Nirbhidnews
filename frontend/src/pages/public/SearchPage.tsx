@@ -1,25 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, ChevronRight, Newspaper, Loader2, X, Tag } from 'lucide-react';
+import { Search, ChevronRight, Newspaper, X, Tag } from 'lucide-react';
 import { articleApi } from '../../api/articles';
 import { categoryApi } from '../../api/categories';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { Pagination } from '../../components/common/Pagination';
 import { SEOHead } from '../../components/common/SEOHead';
-
-const POPULAR_SEARCH_TOPICS = [
-  'महाराष्ट्र',
-  'मुंबई',
-  'ठाणे',
-  'निवडणूक',
-  'अर्थसंकल्प',
-  'गुन्हे',
-  'क्रीडा',
-  'हवामान',
-];
+import { SkeletonLoader } from '../../components/common/SkeletonLoader';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const SearchPage: React.FC = () => {
+  const { language, t, translateCategory } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const qParam = searchParams.get('q') || '';
   const catParam = searchParams.get('category') || '';
@@ -28,6 +20,14 @@ export const SearchPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(qParam);
   const [selectedCategory, setSelectedCategory] = useState(catParam);
   const [currentPage, setCurrentPage] = useState(pageParam);
+
+  const popularTopicsByLang: Record<string, string[]> = {
+    mr: ['महाराष्ट्र', 'मुंबई', 'ठाणे', 'निवडणूक', 'अर्थसंकल्प', 'गुन्हे', 'क्रीडा', 'हवामान'],
+    en: ['Maharashtra', 'Mumbai', 'Thane', 'Elections', 'Budget', 'Crime', 'Cricket', 'Weather'],
+    hi: ['महाराष्ट्र', 'मुंबई', 'ठाणे', 'चुनाव', 'बजट', 'अपराध', 'खेल', 'मौसम'],
+  };
+
+  const popularTopics = popularTopicsByLang[language] || popularTopicsByLang.mr;
 
   // Sync state with URL params
   useEffect(() => {
@@ -103,8 +103,8 @@ export const SearchPage: React.FC = () => {
   return (
     <div className="container" style={{ padding: '1.5rem 1.25rem 4rem 1.25rem' }}>
       <SEOHead
-        title={qParam ? `'${qParam}' - शोध निकाल` : 'बातम्या शोधा'}
-        description="निर्भीड न्यूजवर ताज्या बातम्या, राजकीय घडामोडी, गुन्हे अन्वेषण आणि स्थानिक वृत्त शोधा."
+        title={qParam ? `'${qParam}' - ${t.searchNews}` : t.searchNews}
+        description={t.editorialDisclaimer}
       />
 
       {/* Breadcrumb Navigation */}
@@ -119,10 +119,10 @@ export const SearchPage: React.FC = () => {
         }}
       >
         <Link to="/" style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>
-          Home
+          {t.home}
         </Link>
         <ChevronRight size={14} />
-        <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Search News</span>
+        <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{t.searchNews}</span>
       </nav>
 
       {/* Search Header Banner */}
@@ -137,10 +137,10 @@ export const SearchPage: React.FC = () => {
         }}
       >
         <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 0.75rem 0', fontFamily: 'var(--font-brand)' }}>
-          बातम्या शोधा • Search News
+          {t.searchNews}
         </h1>
         <p style={{ color: '#cbd5e1', fontSize: '0.9375rem', marginBottom: '1.5rem', maxWidth: '600px' }}>
-          महाराष्ट्रातील ताज्या घडामोडी, राजकारण, गुन्हेगारी, क्रीडा आणि स्थानिक बातम्या शोधा.
+          {t.editorialDisclaimer}
         </p>
 
         {/* Search Input Bar */}
@@ -148,7 +148,7 @@ export const SearchPage: React.FC = () => {
           <div style={{ position: 'relative', flex: '1', minWidth: '260px' }}>
             <input
               type="text"
-              placeholder="शोध शब्द प्रविष्ट करा (उदा. मुंबई, कायदा, निवडणूक)..."
+              placeholder={t.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -197,25 +197,25 @@ export const SearchPage: React.FC = () => {
               fontWeight: 600,
             }}
           >
-            <option value="">सर्व विभाग (All Categories)</option>
+            <option value="">{t.allCategories}</option>
             {categories?.map((cat) => (
               <option key={cat.id} value={cat.slug}>
-                {cat.name}
+                {translateCategory(cat.slug, cat.name)}
               </option>
             ))}
           </select>
 
           <button type="submit" className="btn btn-primary" style={{ padding: '0.875rem 1.75rem', fontSize: '1rem' }}>
-            <Search size={18} /> शोधा
+            <Search size={18} /> {t.searchNews}
           </button>
         </form>
 
         {/* Quick Popular Topic Pills */}
         <div style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            <Tag size={12} /> लोकप्रिय शोध:
+            <Tag size={12} /> {t.popularTopics}
           </span>
-          {POPULAR_SEARCH_TOPICS.map((topic) => (
+          {popularTopics.map((topic) => (
             <button
               key={topic}
               type="button"
@@ -252,8 +252,8 @@ export const SearchPage: React.FC = () => {
           }}
         >
           <div style={{ fontSize: '0.9375rem', color: 'var(--color-text-main)' }}>
-            <strong>{totalArticles}</strong> निकाल सापडले {qParam && <span>'<em>{qParam}</em>' साठी</span>}
-            {catParam && <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}> ({catParam})</span>}
+            <strong>{totalArticles}</strong> {t.resultsFound} {qParam && <span>'<em>{qParam}</em>' {t.forQuery}</span>}
+            {catParam && <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}> ({translateCategory(catParam)})</span>}
           </div>
 
           <button
@@ -262,7 +262,7 @@ export const SearchPage: React.FC = () => {
             className="btn btn-sm btn-outline"
             style={{ fontSize: '0.75rem' }}
           >
-            फिल्टर साफ करा
+            {t.clearFilter}
           </button>
         </div>
       )}
@@ -283,7 +283,7 @@ export const SearchPage: React.FC = () => {
           className={`btn btn-sm ${selectedCategory === '' ? 'btn-secondary' : 'btn-outline'}`}
           style={{ whiteSpace: 'nowrap', borderRadius: 'var(--radius-full)' }}
         >
-          सर्व बातम्या (All)
+          {t.allCategories}
         </button>
         {categories?.map((cat) => (
           <button
@@ -293,17 +293,14 @@ export const SearchPage: React.FC = () => {
             className={`btn btn-sm ${selectedCategory === cat.slug ? 'btn-primary' : 'btn-outline'}`}
             style={{ whiteSpace: 'nowrap', borderRadius: 'var(--radius-full)' }}
           >
-            {cat.name}
+            {translateCategory(cat.slug, cat.name)}
           </button>
         ))}
       </div>
 
       {/* Search Results */}
       {isLoading || isFetching ? (
-        <div style={{ textAlign: 'center', padding: '5rem 1rem' }}>
-          <Loader2 size={36} color="#dc2626" className="animate-spin" style={{ margin: '0 auto 1rem auto' }} />
-          <p style={{ color: '#64748b' }}>बातमी निकाल शोधत आहोत...</p>
-        </div>
+        <SkeletonLoader variant="card-vertical" count={6} />
       ) : articles.length === 0 ? (
         <div
           style={{
@@ -317,13 +314,13 @@ export const SearchPage: React.FC = () => {
         >
           <Newspaper size={48} color="#94a3b8" style={{ marginBottom: '1rem' }} />
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem' }}>
-            कोणतीही बातमी सापडली नाही
+            {t.noArticlesFound}
           </h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', maxWidth: '500px', margin: '0 auto 1.5rem auto' }}>
-            कृपया वेगळे शब्द वापरून पुन्हा प्रयत्न करा किंवा वरील लोकप्रिय विषयांवर क्लिक करा.
+            {t.noArticlesDesc}
           </p>
           <button type="button" onClick={handleClear} className="btn btn-outline">
-            सर्व बातम्या दाखवा
+            {t.showAllNews}
           </button>
         </div>
       ) : (

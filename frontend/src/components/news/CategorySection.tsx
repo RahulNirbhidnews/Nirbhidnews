@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Article, Category } from '../../types';
 import { ArticleCard } from './ArticleCard';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface CategorySectionProps {
   category: Category;
@@ -10,11 +11,14 @@ interface CategorySectionProps {
 }
 
 export const CategorySection: React.FC<CategorySectionProps> = ({ category, articles }) => {
+  const { t, translateCategory } = useLanguage();
+
   if (!articles || articles.length === 0) {
     return null;
   }
 
   const [leadArticle, ...otherArticles] = articles;
+  const translatedName = translateCategory(category.slug, category.name);
 
   return (
     <section className="category-news-section" style={{ margin: '3rem 0' }}>
@@ -49,7 +53,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ category, arti
               letterSpacing: '-0.2px',
             }}
           >
-            {category.name}
+            {translatedName}
             {category.slug && (
               <span
                 style={{
@@ -80,7 +84,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ category, arti
           }}
           className="hover-underline"
         >
-          सर्व बातम्या <ChevronRight size={14} />
+          {t.viewAll} <ChevronRight size={14} />
         </Link>
       </div>
 

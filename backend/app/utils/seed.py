@@ -70,7 +70,12 @@ def seed_admin_user(db: Session) -> User:
         return existing_admin
 
 
+from app.utils.seed_articles import seed_articles
+
+
 def seed_all(db: Session):
-    """Seed all initial data."""
+    """Seed all initial data including categories, admin, and realistic sample articles."""
     seed_categories(db)
-    seed_admin_user(db)
+    admin = seed_admin_user(db)
+    seed_articles(db, admin)
+

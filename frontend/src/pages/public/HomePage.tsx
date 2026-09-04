@@ -7,7 +7,6 @@ import {
   ArrowRight,
   Shield,
   Newspaper,
-  Loader2,
   Clock
 } from 'lucide-react';
 import { articleApi } from '../../api/articles';
@@ -18,8 +17,12 @@ import { ArticleCard } from '../../components/news/ArticleCard';
 import { CategorySection } from '../../components/news/CategorySection';
 import { AdBanner } from '../../components/common/AdBanner';
 import { SEOHead } from '../../components/common/SEOHead';
+import { SkeletonLoader } from '../../components/common/SkeletonLoader';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const HomePage: React.FC = () => {
+  const { t, translateCategory } = useLanguage();
+
   // Fetch Featured Articles for Hero
   const { data: featuredArticles, isLoading: loadingFeatured } = useQuery({
     queryKey: ['featured-articles'],
@@ -63,19 +66,19 @@ export const HomePage: React.FC = () => {
 
   const maharashtraCategory = categories?.find((c) => c.slug === 'maharashtra') || {
     id: 'maharashtra',
-    name: 'महाराष्ट्र',
+    name: 'Maharashtra',
     slug: 'maharashtra',
   };
 
   const politicsCategory = categories?.find((c) => c.slug === 'politics') || {
     id: 'politics',
-    name: 'राजकारण',
+    name: 'Politics',
     slug: 'politics',
   };
 
   const mumbaiCategory = categories?.find((c) => c.slug === 'mumbai') || {
     id: 'mumbai',
-    name: 'मुंबई मेट्रो',
+    name: 'Mumbai',
     slug: 'mumbai',
   };
 
@@ -84,18 +87,16 @@ export const HomePage: React.FC = () => {
   return (
     <div className="container" style={{ paddingBottom: '4rem' }}>
       <SEOHead
-        title="निर्भीड न्यूज - Truth Unfiltered"
-        description="महाराष्ट्र, मुंबई, ठाणे आणि देशातील ताज्या घडामोडी, राजकारण आणि निर्भीड पत्रकारितेचे डिजिटल केंद्र."
+        title={`${t.brandName} - ${t.brandTagline}`}
+        description={t.editorialDisclaimer}
       />
+
       {/* 1. Breaking News Ticker */}
       <BreakingNewsTicker />
 
       {/* 2. Hero Featured Stories Section */}
       {isInitialLoading ? (
-        <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-          <Loader2 size={36} color="#dc2626" className="animate-spin" style={{ margin: '0 auto 1rem auto' }} />
-          <p style={{ color: '#64748b' }}>ताज्या महत्त्वाच्या बातम्या लोड होत आहेत...</p>
-        </div>
+        <SkeletonLoader variant="hero" />
       ) : (
         <HeroFeatured articles={featuredArticles || []} />
       )}
@@ -137,7 +138,7 @@ export const HomePage: React.FC = () => {
                   fontFamily: 'var(--font-sans)',
                 }}
               >
-                ताज्या घडामोडी • Latest News
+                {t.latestNews}
               </h2>
             </div>
             <Link
@@ -149,12 +150,14 @@ export const HomePage: React.FC = () => {
                 textTransform: 'uppercase',
               }}
             >
-              सर्व बातम्या →
+              {t.viewAll} →
             </Link>
           </div>
 
-          {/* Latest Articles Grid */}
-          {latestArticles.length === 0 ? (
+          {/* Latest Articles Grid / Loading Skeleton */}
+          {loadingLatest ? (
+            <SkeletonLoader variant="card-vertical" count={4} />
+          ) : latestArticles.length === 0 ? (
             <div
               style={{
                 backgroundColor: '#ffffff',
@@ -167,10 +170,10 @@ export const HomePage: React.FC = () => {
             >
               <Newspaper size={40} color="#94a3b8" style={{ marginBottom: '0.75rem' }} />
               <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-secondary)' }}>
-                अद्याप कोणतीही बातमी प्रकाशित झालेली नाही
+                {t.noArticlesFound}
               </h3>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>
-                नवीन बातम्या प्रकाशित करण्यासाठी Admin CMS चा वापर करा.
+                {t.noArticlesDesc}
               </p>
             </div>
           ) : (
@@ -231,7 +234,7 @@ export const HomePage: React.FC = () => {
             >
               <TrendingUp size={18} color="var(--color-primary)" />
               <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0, textTransform: 'uppercase' }}>
-                महत्त्वाच्या बातम्या
+                {t.topStories}
               </h3>
             </div>
 
@@ -267,7 +270,7 @@ export const HomePage: React.FC = () => {
             >
               <Folder size={18} color="var(--color-primary)" />
               <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0, textTransform: 'uppercase' }}>
-                विभाग • Categories
+                {t.categories}
               </h3>
             </div>
 
@@ -290,7 +293,7 @@ export const HomePage: React.FC = () => {
                   }}
                   className="sidebar-category-link"
                 >
-                  <span>{cat.name}</span>
+                  <span>{translateCategory(cat.slug, cat.name)}</span>
                   <ArrowRight size={14} color="#94a3b8" />
                 </Link>
               ))}
@@ -310,21 +313,21 @@ export const HomePage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fca5a5', marginBottom: '0.5rem' }}>
               <Shield size={18} />
               <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                पत्रकार व संपादक पोर्टल
+                {t.editorialPortal}
               </span>
             </div>
             <h4 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
               Nirbhid Editorial CMS
             </h4>
             <p style={{ fontSize: '0.8125rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-              बातम्या प्रकाशित करण्यासाठी, फोटो अपलोड करण्यासाठी आणि श्रेण्या व्यवस्थापित करण्यासाठी लॉगिन करा.
+              Publish verified news, upload multimedia assets, and manage journalistic bureaus.
             </p>
             <Link
               to="/admin/login"
               className="btn btn-primary"
               style={{ width: '100%', fontSize: '0.875rem' }}
             >
-              CMS मध्ये लॉगिन करा
+              {t.adminLogin}
             </Link>
           </div>
         </aside>

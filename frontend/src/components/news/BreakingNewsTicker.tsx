@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Flame, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Flame, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { articleApi } from '../../api/articles';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const BreakingNewsTicker: React.FC = () => {
+  const { t, translateCategory } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const { data: breakingArticles, isLoading } = useQuery({
     queryKey: ['breaking-articles'],
@@ -16,21 +19,22 @@ export const BreakingNewsTicker: React.FC = () => {
   const articles = breakingArticles || [];
 
   useEffect(() => {
-    if (articles.length <= 1) return;
+    if (articles.length <= 1 || isPaused) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % articles.length);
-    }, 5000);
+    }, 4500);
     return () => clearInterval(interval);
-  }, [articles.length]);
+  }, [articles.length, isPaused]);
 
   if (isLoading) {
     return (
       <div className="breaking-ticker">
         <div className="breaking-badge">
-          <Flame size={15} /> ब्रेकिंग न्यूज
+          <Flame size={15} className="ticker-flame-icon" />
+          <span>{t.breakingNews}</span>
         </div>
         <div className="breaking-text" style={{ color: '#64748b' }}>
-          ताज्या घडामोडी लोड होत आहेत...
+          {t.latestNews}...
         </div>
       </div>
     );
@@ -40,10 +44,11 @@ export const BreakingNewsTicker: React.FC = () => {
     return (
       <div className="breaking-ticker">
         <div className="breaking-badge">
-          <Flame size={15} /> ब्रेकिंग न्यूज
+          <Flame size={15} className="ticker-flame-icon" />
+          <span>{t.breakingNews}</span>
         </div>
         <div className="breaking-text">
-          <span style={{ fontWeight: 600 }}>निर्भीड न्यूज:</span> महाराष्ट्रातील अग्रगण्य, विश्वासार्ह आणि निर्भीड डिजिटल वृत्तवाहिनी.
+          <span style={{ fontWeight: 700 }}>{t.brandName}:</span> {t.brandTagline}
         </div>
       </div>
     );
@@ -52,10 +57,14 @@ export const BreakingNewsTicker: React.FC = () => {
   const currentArticle = articles[currentIndex];
 
   return (
-    <div className="breaking-ticker">
+    <div
+      className="breaking-ticker"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div className="breaking-badge">
         <Flame size={15} className="ticker-flame-icon" />
-        <span>ब्रेकिंग न्यूज</span>
+        <span>{t.breakingNews}</span>
       </div>
 
       <div className="breaking-text-container" style={{ flex: 1, overflow: 'hidden', padding: '0 1rem' }}>
@@ -78,22 +87,41 @@ export const BreakingNewsTicker: React.FC = () => {
               style={{
                 backgroundColor: '#dc2626',
                 color: 'white',
-                padding: '0.15rem 0.4rem',
+                padding: '0.15rem 0.45rem',
                 borderRadius: '3px',
                 fontSize: '0.7rem',
                 textTransform: 'uppercase',
                 fontWeight: 700,
+                letterSpacing: '0.5px',
               }}
             >
-              {currentArticle.category.name}
+              {translateCategory(currentArticle.category.slug, currentArticle.category.name)}
             </span>
           )}
-          <span>{currentArticle.title}</span>
+          <span className="ticker-title-animated">{currentArticle.title}</span>
         </Link>
       </div>
 
       {articles.length > 1 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', paddingRight: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', paddingRight: '0.75rem' }}>
+          <button
+            type="button"
+            onClick={() => setIsPaused(!isPaused)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#9f1239',
+              cursor: 'pointer',
+              padding: '0.2rem',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            title={isPaused ? 'Resume auto-scroll' : 'Pause ticker'}
+            aria-label={isPaused ? 'Resume' : 'Pause'}
+          >
+            {isPaused ? <Play size={14} /> : <Pause size={14} />}
+          </button>
+
           <button
             type="button"
             onClick={() => setCurrentIndex((prev) => (prev - 1 + articles.length) % articles.length)}
@@ -102,17 +130,19 @@ export const BreakingNewsTicker: React.FC = () => {
               border: 'none',
               color: '#9f1239',
               cursor: 'pointer',
-              padding: '0.25rem',
+              padding: '0.2rem',
               display: 'flex',
               alignItems: 'center',
             }}
-            aria-label="Previous breaking news"
+            aria-label="Previous breaking headline"
           >
             <ChevronLeft size={16} />
           </button>
-          <span style={{ fontSize: '0.75rem', color: '#9f1239', fontWeight: 600 }}>
+
+          <span style={{ fontSize: '0.75rem', color: '#9f1239', fontWeight: 700, minWidth: '32px', textAlign: 'center' }}>
             {currentIndex + 1}/{articles.length}
           </span>
+
           <button
             type="button"
             onClick={() => setCurrentIndex((prev) => (prev + 1) % articles.length)}
@@ -121,11 +151,11 @@ export const BreakingNewsTicker: React.FC = () => {
               border: 'none',
               color: '#9f1239',
               cursor: 'pointer',
-              padding: '0.25rem',
+              padding: '0.2rem',
               display: 'flex',
               alignItems: 'center',
             }}
-            aria-label="Next breaking news"
+            aria-label="Next breaking headline"
           >
             <ChevronRight size={16} />
           </button>

@@ -2,12 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, User, Sparkles, Newspaper } from 'lucide-react';
 import { Article } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface HeroFeaturedProps {
   articles: Article[];
 }
 
 export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
+  const { language, t, translateCategory } = useLanguage();
+
   if (!articles || articles.length === 0) {
     return null;
   }
@@ -17,7 +20,8 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
 
   const formatPublishDate = (dateStr?: string) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('mr-IN', {
+    const localeMap = { mr: 'mr-IN', en: 'en-IN', hi: 'hi-IN' };
+    return new Date(dateStr).toLocaleDateString(localeMap[language] || 'mr-IN', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -45,7 +49,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
             color: 'var(--color-secondary)',
           }}
         >
-          प्रमुख घडामोडी • Featured Stories
+          {t.featuredStories}
         </span>
       </div>
 
@@ -69,6 +73,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
             flexDirection: 'column',
             justifyContent: 'flex-end',
             boxShadow: 'var(--shadow-md)',
+            transition: 'box-shadow 0.3s ease',
           }}
           className="hero-primary-card"
         >
@@ -114,7 +119,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.6) 50%, rgba(15, 23, 42, 0.95) 100%)',
+              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.55) 45%, rgba(15, 23, 42, 0.95) 100%)',
             }}
           />
 
@@ -143,7 +148,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
                   letterSpacing: '0.5px',
                 }}
               >
-                {primaryArticle.category.name}
+                {translateCategory(primaryArticle.category.slug, primaryArticle.category.name)}
               </Link>
             )}
 
@@ -278,7 +283,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
                         marginBottom: '0.25rem',
                       }}
                     >
-                      {article.category.name}
+                      {translateCategory(article.category.slug, article.category.name)}
                     </Link>
                   )}
 

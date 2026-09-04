@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, User, Newspaper, Flame } from 'lucide-react';
 import { Article } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface ArticleCardProps {
   article: Article;
@@ -14,13 +15,18 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   variant = 'vertical',
   showExcerpt = true,
 }) => {
+  const { language, t, translateCategory } = useLanguage();
+
+  const localeMap = { mr: 'mr-IN', en: 'en-IN', hi: 'hi-IN' };
+  const currentLocale = localeMap[language] || 'mr-IN';
+
   const publishedDate = article.published_at
-    ? new Date(article.published_at).toLocaleDateString('mr-IN', {
+    ? new Date(article.published_at).toLocaleDateString(currentLocale, {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
       })
-    : new Date(article.created_at).toLocaleDateString('mr-IN', {
+    : new Date(article.created_at).toLocaleDateString(currentLocale, {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
@@ -41,7 +47,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--color-border)',
           overflow: 'hidden',
-          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          transition: 'transform 0.25s ease, box-shadow 0.25s ease',
         }}
         className="article-card-horizontal"
       >
@@ -65,7 +71,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
                 height: '100%',
                 objectFit: 'cover',
                 display: 'block',
-                transition: 'transform 0.3s ease',
+                transition: 'transform 0.35s ease',
               }}
               className="article-img-hover"
               loading="lazy"
@@ -102,7 +108,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
                 gap: '0.2rem',
               }}
             >
-              <Flame size={10} /> ब्रेकिंग
+              <Flame size={10} /> {t.breakingNews}
             </span>
           )}
         </Link>
@@ -122,7 +128,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
                 width: 'fit-content',
               }}
             >
-              {article.category.name}
+              {translateCategory(article.category.slug, article.category.name)}
             </Link>
           )}
 
@@ -237,7 +243,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
                 textTransform: 'uppercase',
               }}
             >
-              {article.category.name}
+              {translateCategory(article.category.slug, article.category.name)}
             </span>
           )}
           <h4
@@ -276,7 +282,6 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
         boxShadow: 'var(--shadow-sm)',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       }}
       className="article-card-vertical"
     >
@@ -300,7 +305,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               height: '100%',
               objectFit: 'cover',
               display: 'block',
-              transition: 'transform 0.3s ease',
+              transition: 'transform 0.35s ease',
             }}
             className="article-img-hover"
             loading="lazy"
@@ -320,7 +325,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
             }}
           >
             <Newspaper size={36} color="#dc2626" />
-            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>NIRBHID NEWS</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{t.brandName}</span>
           </div>
         )}
 
@@ -342,7 +347,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
             }}
           >
-            <Flame size={12} /> ब्रेकिंग
+            <Flame size={12} /> {t.breakingNews}
           </span>
         )}
 
@@ -361,7 +366,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
             }}
           >
-            विशेष बातमी
+            {t.featuredStories}
           </span>
         )}
       </Link>
@@ -381,14 +386,14 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               className="badge badge-primary"
               style={{ textDecoration: 'none' }}
             >
-              {article.category.name}
+              {translateCategory(article.category.slug, article.category.name)}
             </Link>
           ) : (
             <span className="badge badge-outline">General</span>
           )}
 
           <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            <Clock size={12} /> {readTimeMinutes} मि. वाचन
+            <Clock size={12} /> {readTimeMinutes} {t.minutesRead}
           </span>
         </div>
 
@@ -438,7 +443,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           }}
         >
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontWeight: 500 }}>
-            <User size={12} /> {article.author_name || 'प्रतिनिधी'}
+            <User size={12} /> {article.author_name || t.by}
           </span>
           <span>{publishedDate}</span>
         </div>

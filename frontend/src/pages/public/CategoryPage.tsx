@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Folder, Newspaper, ArrowLeft, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
+import { Folder, Newspaper, ArrowLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { categoryApi } from '../../api/categories';
 import { articleApi } from '../../api/articles';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { Pagination } from '../../components/common/Pagination';
 import { AdBanner } from '../../components/common/AdBanner';
 import { SEOHead } from '../../components/common/SEOHead';
+import { SkeletonLoader } from '../../components/common/SkeletonLoader';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { t, translateCategory } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const pageParam = parseInt(searchParams.get('page') || '1', 10);
   const [currentPage, setCurrentPage] = useState(pageParam);
@@ -59,13 +62,14 @@ export const CategoryPage: React.FC = () => {
   const totalPages = articleData?.total_pages || 1;
   const totalArticles = articleData?.total || 0;
 
+  const translatedCategoryName = category
+    ? translateCategory(category.slug, category.name)
+    : (slug || '');
+
   if (isLoading) {
     return (
-      <div className="container" style={{ padding: '6rem 1rem', textAlign: 'center' }}>
-        <Loader2 size={40} color="#dc2626" className="animate-spin" style={{ margin: '0 auto 1.5rem auto' }} />
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-secondary)' }}>
-          विभाग लोड होत आहे...
-        </h2>
+      <div className="container" style={{ padding: '2rem 1.25rem' }}>
+        <SkeletonLoader variant="card-vertical" count={6} />
       </div>
     );
   }
@@ -89,13 +93,13 @@ export const CategoryPage: React.FC = () => {
           <AlertCircle size={32} />
         </div>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-secondary)', marginBottom: '0.75rem' }}>
-          विभाग सापडला नाही
+          {t.noArticlesFound}
         </h1>
         <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
-          आपण शोधत असलेला बातमी विभाग अस्तित्वात नाही किंवा हटवला गेला आहे.
+          {t.noArticlesDesc}
         </p>
         <Link to="/" className="btn btn-primary">
-          <ArrowLeft size={16} /> मुख्य पृष्ठावर जा
+          <ArrowLeft size={16} /> {t.home}
         </Link>
       </div>
     );
@@ -104,9 +108,10 @@ export const CategoryPage: React.FC = () => {
   return (
     <div className="container" style={{ padding: '1.5rem 1.25rem 4rem 1.25rem' }}>
       <SEOHead
-        title={`${category.name} - बातम्या`}
-        description={category.description || `${category.name} विभागातील ताज्या घडामोडी आणि सविस्तर बातम्या.`}
+        title={`${translatedCategoryName} - ${t.brandName}`}
+        description={category.description || `${translatedCategoryName} ${t.categories}`}
       />
+
       {/* Breadcrumb Navigation */}
       <nav
         style={{
@@ -119,10 +124,10 @@ export const CategoryPage: React.FC = () => {
         }}
       >
         <Link to="/" style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>
-          Home
+          {t.home}
         </Link>
         <ChevronRight size={14} />
-        <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{category.name}</span>
+        <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{translatedCategoryName}</span>
       </nav>
 
       {/* Category Header Banner */}
@@ -139,12 +144,12 @@ export const CategoryPage: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fca5a5', marginBottom: '0.5rem' }}>
           <Folder size={18} />
           <span style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
-            News Category • बातमी विभाग
+            {t.categories}
           </span>
         </div>
 
         <h1 style={{ fontSize: '2.25rem', fontWeight: 800, margin: 0, fontFamily: 'var(--font-brand)' }}>
-          {category.name}
+          {translatedCategoryName}
         </h1>
 
         {category.description && (
@@ -154,7 +159,7 @@ export const CategoryPage: React.FC = () => {
         )}
 
         <div style={{ fontSize: '0.8125rem', color: '#94a3b8', marginTop: '1rem' }}>
-          एकूण बातम्या: <strong>{totalArticles}</strong>
+          {totalArticles} {t.resultsFound}
         </div>
       </div>
 
@@ -175,13 +180,13 @@ export const CategoryPage: React.FC = () => {
         >
           <Newspaper size={48} color="#94a3b8" style={{ marginBottom: '1rem' }} />
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem' }}>
-            या विभागात अद्याप कोणतीही बातमी उपलब्ध नाही
+            {t.noArticlesFound}
           </h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-            आमचे प्रतिनिधी ताज्या बातम्या संकलित करत आहेत. लवकरच येथे अपडेट्स दिसतील.
+            {t.noArticlesDesc}
           </p>
           <Link to="/" className="btn btn-outline">
-            मुख्य पृष्ठावरील इतर बातम्या पाहा
+            {t.showAllNews}
           </Link>
         </div>
       ) : (

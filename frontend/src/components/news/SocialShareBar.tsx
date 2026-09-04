@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Share2, Check, Copy } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface SocialShareBarProps {
   title: string;
@@ -12,6 +13,7 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
   url,
   className = '',
 }) => {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
   const encodedUrl = encodeURIComponent(shareUrl);
@@ -23,7 +25,6 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback
       setCopied(false);
     }
   };
@@ -83,7 +84,7 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
           marginRight: '0.5rem',
         }}
       >
-        <Share2 size={16} color="var(--color-primary)" /> शेअर करा:
+        <Share2 size={16} color="var(--color-primary)" /> {t.share}:
       </span>
 
       {shareLinks.map((item) => (
@@ -127,15 +128,15 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
           cursor: 'pointer',
           transition: 'all 0.2s ease',
         }}
-        title="Copy article link"
+        title={t.copyLink}
       >
         {copied ? (
           <>
-            <Check size={14} color="#15803d" /> लिंक कॉपी झाली!
+            <Check size={14} color="#15803d" /> {t.linkCopied}
           </>
         ) : (
           <>
-            <Copy size={14} /> लिंक कॉपी
+            <Copy size={14} /> {t.copyLink}
           </>
         )}
       </button>

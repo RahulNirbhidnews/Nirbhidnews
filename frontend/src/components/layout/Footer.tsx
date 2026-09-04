@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Shield, Mail, Phone, MapPin } from 'lucide-react';
 import { categoryApi } from '../../api/categories';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const Footer: React.FC = () => {
+  const { t, translateCategory } = useLanguage();
+
   const { data: categories } = useQuery({
     queryKey: ['public-categories'],
     queryFn: categoryApi.getPublicCategories,
@@ -13,12 +16,12 @@ export const Footer: React.FC = () => {
   const displayCategories = categories && categories.length > 0
     ? categories.slice(0, 6)
     : [
-        { name: 'महाराष्ट्र', slug: 'maharashtra' },
-        { name: 'मुंबई', slug: 'mumbai' },
-        { name: 'राजकारण', slug: 'politics' },
-        { name: 'गुन्हेगारी', slug: 'crime' },
-        { name: 'व्यापार', slug: 'business' },
-        { name: 'क्रीडा', slug: 'sports' },
+        { name: 'Maharashtra', slug: 'maharashtra' },
+        { name: 'Mumbai', slug: 'mumbai' },
+        { name: 'Politics', slug: 'politics' },
+        { name: 'Crime', slug: 'crime' },
+        { name: 'Business', slug: 'business' },
+        { name: 'Sports', slug: 'sports' },
       ];
 
   return (
@@ -31,75 +34,77 @@ export const Footer: React.FC = () => {
               NIRBHID <span>NEWS</span>
             </div>
             <div style={{ color: '#fca5a5', fontSize: '0.8125rem', fontWeight: 600, marginTop: '0.25rem' }}>
-              निष्पक्ष आणि निर्भीड पत्रकारिता
+              {t.brandTagline}
             </div>
             <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', lineHeight: 1.6, color: '#94a3b8' }}>
-              निर्भीड न्यूज हे महाराष्ट्रातील अग्रगण्य डिजिटल वृत्त माध्यम असून सत्य, पारदर्शकता आणि जनहिताच्या पत्रकारितेसाठी कटिबद्ध आहे.
+              {t.editorialDisclaimer}
             </p>
             <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.8125rem', color: '#cbd5e1' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <MapPin size={13} color="#fca5a5" /> मुंबई / ठाणे, महाराष्ट्र
+                <MapPin size={13} color="#fca5a5" /> Mumbai / Thane, Maharashtra
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Mail size={13} color="#fca5a5" /> editor@nirbhidnews.com
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Phone size={13} color="#fca5a5" /> +91 98765 43210 (बातम्या व जाहिरातींसाठी)
+                <Phone size={13} color="#fca5a5" /> +91 98765 43210
               </span>
             </div>
           </div>
 
           {/* Categories */}
           <div>
-            <div className="footer-title">बातम्या विभाग</div>
+            <div className="footer-title">{t.categories}</div>
             <ul className="footer-links">
               {displayCategories.map((cat) => (
                 <li key={cat.slug}>
-                  <Link to={`/category/${cat.slug}`}>{cat.name}</Link>
+                  <Link to={`/category/${cat.slug}`}>
+                    {translateCategory(cat.slug, cat.name)}
+                  </Link>
                 </li>
               ))}
               <li>
-                <Link to="/search" style={{ color: '#fca5a5', fontWeight: 600 }}>सर्व विभाग पाहा →</Link>
+                <Link to="/search" style={{ color: '#fca5a5', fontWeight: 600 }}>{t.viewAll} →</Link>
               </li>
             </ul>
           </div>
 
           {/* Links */}
           <div>
-            <div className="footer-title">माहिती व कायदेशीर</div>
+            <div className="footer-title">{t.aboutUs} & {t.disclaimer}</div>
             <ul className="footer-links">
-              <li><Link to="/about">आमच्याबद्दल (About Us)</Link></li>
-              <li><Link to="/contact">संपर्क (Contact Us)</Link></li>
-              <li><Link to="/privacy-policy">गोपनीयता धोरण (Privacy Policy)</Link></li>
-              <li><Link to="/terms">नियम व अटी (Terms & Conditions)</Link></li>
-              <li><Link to="/disclaimer">संपादकीय डिस्क्लेमर (Disclaimer)</Link></li>
+              <li><Link to="/about">{t.aboutUs}</Link></li>
+              <li><Link to="/contact">{t.contactUs}</Link></li>
+              <li><Link to="/privacy-policy">{t.privacyPolicy}</Link></li>
+              <li><Link to="/terms">{t.terms}</Link></li>
+              <li><Link to="/disclaimer">{t.disclaimer}</Link></li>
             </ul>
           </div>
 
           {/* Editorial CMS Portal */}
           <div>
-            <div className="footer-title">संपादकीय पोर्टल</div>
+            <div className="footer-title">{t.editorialPortal}</div>
             <p style={{ fontSize: '0.875rem', marginBottom: '1rem', color: '#94a3b8' }}>
-              अधिकृत बातमीदार आणि उपसंपादकांसाठी बातमी संकलन आणि व्यवस्थापन प्रणाली.
+              Secure administrative access for journalists, editors, and news bureau correspondents.
             </p>
             <Link
               to="/admin/login"
               className="btn btn-primary"
               style={{ fontSize: '0.8125rem', padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
             >
-              <Shield size={14} /> Admin Login
+              <Shield size={14} /> {t.adminLogin}
             </Link>
           </div>
         </div>
 
         <div className="footer-bottom">
           <div>
-            &copy; {new Date().getFullYear()} Nirbhid News (निर्भीड न्यूज). All rights reserved.
+            &copy; {new Date().getFullYear()} {t.brandName}. {t.allRightsReserved}
           </div>
           <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-            <Link to="/privacy-policy">Privacy</Link>
-            <Link to="/terms">Terms</Link>
-            <Link to="/disclaimer">Disclaimer</Link>
+            <Link to="/privacy-policy">{t.privacyPolicy}</Link>
+            <Link to="/terms">{t.terms}</Link>
+            <Link to="/disclaimer">{t.disclaimer}</Link>
           </div>
         </div>
       </div>

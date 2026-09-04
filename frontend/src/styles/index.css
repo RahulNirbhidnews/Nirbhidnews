@@ -565,9 +565,26 @@ button {
 }
 
 /* Animations & Interactive Micro-Effects */
+.article-card-vertical {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.2s ease !important;
+}
+
+.article-card-vertical:hover {
+  transform: translateY(-4px) scale(1.015) !important;
+  box-shadow: 0 14px 25px -6px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
+  border-color: #cbd5e1 !important;
+}
+
+.article-card-horizontal:hover,
+.hero-secondary-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-md) !important;
+  border-color: #cbd5e1 !important;
+}
+
 .article-img-hover:hover,
 .hero-primary-card:hover .hero-img-zoom {
-  transform: scale(1.04);
+  transform: scale(1.05) !important;
 }
 
 .article-title-hover:hover {
@@ -587,6 +604,50 @@ button {
 
 .hover-underline:hover {
   text-decoration: underline;
+}
+
+/* Shimmer Loading Skeleton */
+.skeleton-pulse {
+  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Slide Up Breaking Popup */
+@keyframes slideUpPopup {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Flame Icon Pulse */
+.ticker-flame-icon {
+  animation: flamePulse 1.8s infinite ease-in-out;
+}
+
+@keyframes flamePulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
+  }
+  50% {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 6px rgba(255, 200, 0, 0.9));
+  }
 }
 
 /* Responsive Rules for Mobile & Tablets */
@@ -630,4 +691,5 @@ button {
     font-size: 1.625rem !important;
   }
 }
+
 

@@ -1,16 +1,19 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Clock, User, Calendar, ChevronRight, ArrowLeft, Newspaper, AlertCircle, Loader2 } from 'lucide-react';
+import { Clock, User, Calendar, ChevronRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import { articleApi } from '../../api/articles';
 import { MarkdownRenderer } from '../../components/news/MarkdownRenderer';
 import { SocialShareBar } from '../../components/news/SocialShareBar';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { AdBanner } from '../../components/common/AdBanner';
 import { SEOHead } from '../../components/common/SEOHead';
+import { SkeletonLoader } from '../../components/common/SkeletonLoader';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { language, t, translateCategory } = useLanguage();
 
   const {
     data: article,
@@ -36,11 +39,8 @@ export const ArticleDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="container" style={{ padding: '6rem 1rem', textAlign: 'center' }}>
-        <Loader2 size={40} color="#dc2626" className="animate-spin" style={{ margin: '0 auto 1.5rem auto' }} />
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-secondary)' }}>
-          बातमी लोड होत आहे...
-        </h2>
+      <div className="container" style={{ padding: '2rem 1.25rem' }}>
+        <SkeletonLoader variant="article-detail" />
       </div>
     );
   }
@@ -64,26 +64,29 @@ export const ArticleDetailPage: React.FC = () => {
           <AlertCircle size={32} />
         </div>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-secondary)', marginBottom: '0.75rem' }}>
-          बातमी सापडली नाही
+          {t.noArticlesFound}
         </h1>
         <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
-          ही बातमी उपलब्ध नाही किंवा मसुदा स्वरूपात असू शकते. कृपया मुख्य पृष्ठावर परत जा.
+          {t.noArticlesDesc}
         </p>
         <Link to="/" className="btn btn-primary">
-          <ArrowLeft size={16} /> मुख्य पृष्ठावर जा
+          <ArrowLeft size={16} /> {t.home}
         </Link>
       </div>
     );
   }
 
+  const localeMap = { mr: 'mr-IN', en: 'en-IN', hi: 'hi-IN' };
+  const currentLocale = localeMap[language] || 'mr-IN';
+
   const publishedDate = article.published_at
-    ? new Date(article.published_at).toLocaleDateString('mr-IN', {
+    ? new Date(article.published_at).toLocaleDateString(currentLocale, {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
         year: 'numeric',
       })
-    : new Date(article.created_at).toLocaleDateString('mr-IN', {
+    : new Date(article.created_at).toLocaleDateString(currentLocale, {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -104,6 +107,7 @@ export const ArticleDetailPage: React.FC = () => {
         publishedTime={article.published_at || article.created_at}
         category={article.category?.name}
       />
+
       {/* Breadcrumb Navigation */}
       <nav
         style={{
@@ -118,7 +122,7 @@ export const ArticleDetailPage: React.FC = () => {
         aria-label="Breadcrumbs"
       >
         <Link to="/" style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>
-          Home
+          {t.home}
         </Link>
         <ChevronRight size={14} />
         {article.category && (
@@ -127,7 +131,7 @@ export const ArticleDetailPage: React.FC = () => {
               to={`/category/${article.category.slug}`}
               style={{ color: 'var(--color-primary)', fontWeight: 600 }}
             >
-              {article.category.name}
+              {translateCategory(article.category.slug, article.category.name)}
             </Link>
             <ChevronRight size={14} />
           </>
@@ -155,7 +159,7 @@ export const ArticleDetailPage: React.FC = () => {
               className="badge badge-primary"
               style={{ marginBottom: '1rem', textDecoration: 'none' }}
             >
-              {article.category.name}
+              {translateCategory(article.category.slug, article.category.name)}
             </Link>
           )}
 
@@ -209,13 +213,13 @@ export const ArticleDetailPage: React.FC = () => {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600, color: 'var(--color-secondary)' }}>
-                <User size={14} color="var(--color-primary)" /> {article.author_name || 'विशेष प्रतिनिधी'}
+                <User size={14} color="var(--color-primary)" /> {article.author_name || t.specialCorrespondent}
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                 <Calendar size={14} /> {publishedDate}
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Clock size={14} /> {readTimeMinutes} मिनिटे वाचन
+                <Clock size={14} /> {readTimeMinutes} {t.minutesRead}
               </span>
             </div>
           </div>
@@ -248,7 +252,7 @@ export const ArticleDetailPage: React.FC = () => {
                 }}
               >
                 <span>{article.title}</span>
-                <span>फोटो: निर्भीड ब्युरो</span>
+                <span>Photo: Nirbhid Bureau</span>
               </figcaption>
             </figure>
           )}
@@ -279,7 +283,7 @@ export const ArticleDetailPage: React.FC = () => {
               marginBottom: '3rem',
             }}
           >
-            <strong>संपादकीय टिप:</strong> निर्भीड न्यूजच्या सर्व बातम्या निष्पक्ष आणि वस्तुनिष्ठ पुराव्यांवर आधारित असतात. कोणत्याही बातमीबाबत आक्षेप किंवा स्पष्टीकरणासाठी संपादक मंडळाशी editor@nirbhidnews.com वर संपर्क साधावा.
+            {t.editorialDisclaimer}
           </div>
 
           {/* Related Articles Section */}
@@ -303,7 +307,7 @@ export const ArticleDetailPage: React.FC = () => {
                     margin: 0,
                   }}
                 >
-                  संबंधित बातम्या • Related News
+                  {t.relatedNews}
                 </h3>
               </div>
 
@@ -337,14 +341,11 @@ export const ArticleDetailPage: React.FC = () => {
               boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <Newspaper size={20} color="var(--color-primary)" />
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0 }}>
-                निर्भीड न्यूज
-              </h4>
-            </div>
+            <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-secondary)', margin: '0 0 0.5rem 0' }}>
+              {t.brandName}
+            </h4>
             <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, margin: 0 }}>
-              महाराष्ट्राच्या जनतेचा निर्भीड आवाज. ताज्या बातम्या, राजकीय विश्लेषण आणि सखोल शोध पत्रकारितेसाठी आमच्याशी जोडलेले राहा.
+              {t.editorialDisclaimer}
             </p>
           </div>
         </aside>
