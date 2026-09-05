@@ -221,3 +221,5 @@ npm run dev
 ## 📜 License & Copyright
 
 © 2026 Nirbhid News (निर्भीड न्यूज). Truth Unfiltered • निष्पक्ष आणि निर्भीड पत्रकारिता. All Rights Reserved.
+#   N i r b h i d n e w s  
+ 
