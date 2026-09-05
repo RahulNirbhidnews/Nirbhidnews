@@ -5,7 +5,6 @@ import {
   TrendingUp,
   Folder,
   ArrowRight,
-  Shield,
   Newspaper,
   Clock
 } from 'lucide-react';
@@ -16,6 +15,7 @@ import { HeroFeatured } from '../../components/news/HeroFeatured';
 import { ArticleCard } from '../../components/news/ArticleCard';
 import { CategorySection } from '../../components/news/CategorySection';
 import { AdBanner } from '../../components/common/AdBanner';
+import { ChiefEditorSpotlight } from '../../components/news/ChiefEditorSpotlight';
 import { SEOHead } from '../../components/common/SEOHead';
 import { SkeletonLoader } from '../../components/common/SkeletonLoader';
 import { useLanguage } from '../../context/LanguageContext';
@@ -27,12 +27,14 @@ export const HomePage: React.FC = () => {
   const { data: featuredArticles, isLoading: loadingFeatured } = useQuery({
     queryKey: ['featured-articles'],
     queryFn: () => articleApi.getFeaturedArticles(4),
+    refetchInterval: 1000 * 5, // Fast 5s live updates
   });
 
   // Fetch Latest Published Articles for Main Feed
   const { data: latestData, isLoading: loadingLatest } = useQuery({
     queryKey: ['latest-public-articles'],
     queryFn: () => articleApi.getPublicArticles({ limit: 8, page: 1 }),
+    refetchInterval: 1000 * 5, // Fast 5s live updates
   });
 
   // Fetch Categories
@@ -45,22 +47,33 @@ export const HomePage: React.FC = () => {
   const { data: maharashtraData } = useQuery({
     queryKey: ['category-news-maharashtra'],
     queryFn: () => articleApi.getPublicArticles({ category: 'maharashtra', limit: 4 }),
+    refetchInterval: 1000 * 5,
+  });
+
+  // Fetch World Category News
+  const { data: worldData } = useQuery({
+    queryKey: ['category-news-world'],
+    queryFn: () => articleApi.getPublicArticles({ category: 'world', limit: 4 }),
+    refetchInterval: 1000 * 5,
   });
 
   // Fetch Politics Category News
   const { data: politicsData } = useQuery({
     queryKey: ['category-news-politics'],
     queryFn: () => articleApi.getPublicArticles({ category: 'politics', limit: 4 }),
+    refetchInterval: 1000 * 5,
   });
 
   // Fetch Mumbai Category News
   const { data: mumbaiData } = useQuery({
     queryKey: ['category-news-mumbai'],
     queryFn: () => articleApi.getPublicArticles({ category: 'mumbai', limit: 4 }),
+    refetchInterval: 1000 * 5,
   });
 
   const latestArticles = latestData?.items || [];
   const maharashtraArticles = maharashtraData?.items || [];
+  const worldArticles = worldData?.items || [];
   const politicsArticles = politicsData?.items || [];
   const mumbaiArticles = mumbaiData?.items || [];
 
@@ -68,6 +81,12 @@ export const HomePage: React.FC = () => {
     id: 'maharashtra',
     name: 'Maharashtra',
     slug: 'maharashtra',
+  };
+
+  const worldCategory = categories?.find((c) => c.slug === 'world') || {
+    id: 'world',
+    name: 'World (आंतरराष्ट्रीय)',
+    slug: 'world',
   };
 
   const politicsCategory = categories?.find((c) => c.slug === 'politics') || {
@@ -94,15 +113,18 @@ export const HomePage: React.FC = () => {
       {/* 1. Breaking News Ticker */}
       <BreakingNewsTicker />
 
-      {/* 2. Hero Featured Stories Section */}
+      {/* 2. Top Header Ad Banner */}
+      <AdBanner placement="top_header" />
+
+      {/* 3. Hero Featured Stories Section */}
       {isInitialLoading ? (
         <SkeletonLoader variant="hero" />
       ) : (
         <HeroFeatured articles={featuredArticles || []} />
       )}
 
-      {/* 3. Top Leaderboard Advertisement Banner */}
-      <AdBanner type="leaderboard" />
+      {/* 4. Chief Editor & Founder Spotlight (Rahul Baburao Jogdand) */}
+      <ChiefEditorSpotlight />
 
       {/* 4. Main Editorial Layout Grid (70% News Feed / 30% Sidebar) */}
       <div
@@ -192,19 +214,24 @@ export const HomePage: React.FC = () => {
           )}
 
           {/* In-feed Ad Slot */}
-          <AdBanner type="inline" />
+          <AdBanner placement="in_article" />
 
           {/* Categorized Row 1: Maharashtra */}
           {maharashtraArticles.length > 0 && (
             <CategorySection category={maharashtraCategory as any} articles={maharashtraArticles} />
           )}
 
-          {/* Categorized Row 2: Politics */}
+          {/* Categorized Row 2: World News */}
+          {worldArticles.length > 0 && (
+            <CategorySection category={worldCategory as any} articles={worldArticles} />
+          )}
+
+          {/* Categorized Row 3: Politics */}
           {politicsArticles.length > 0 && (
             <CategorySection category={politicsCategory as any} articles={politicsArticles} />
           )}
 
-          {/* Categorized Row 3: Mumbai */}
+          {/* Categorized Row 4: Mumbai */}
           {mumbaiArticles.length > 0 && (
             <CategorySection category={mumbaiCategory as any} articles={mumbaiArticles} />
           )}
@@ -246,7 +273,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* Sidebar Advertisement */}
-          <AdBanner type="sidebar" />
+          <AdBanner placement="sidebar" />
 
           {/* Browse Categories Widget */}
           <div
@@ -300,36 +327,6 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Admin CMS Access Widget */}
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-              color: 'white',
-              borderRadius: 'var(--radius-lg)',
-              padding: '1.5rem',
-              boxShadow: 'var(--shadow-md)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fca5a5', marginBottom: '0.5rem' }}>
-              <Shield size={18} />
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                {t.editorialPortal}
-              </span>
-            </div>
-            <h4 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
-              Nirbhid Editorial CMS
-            </h4>
-            <p style={{ fontSize: '0.8125rem', color: '#cbd5e1', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-              Publish verified news, upload multimedia assets, and manage journalistic bureaus.
-            </p>
-            <Link
-              to="/admin/login"
-              className="btn btn-primary"
-              style={{ width: '100%', fontSize: '0.875rem' }}
-            >
-              {t.adminLogin}
-            </Link>
-          </div>
         </aside>
       </div>
     </div>

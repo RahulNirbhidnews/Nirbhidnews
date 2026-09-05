@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Shield, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { categoryApi } from '../../api/categories';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -40,15 +40,18 @@ export const Footer: React.FC = () => {
               {t.editorialDisclaimer}
             </p>
             <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.8125rem', color: '#cbd5e1' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <MapPin size={13} color="#fca5a5" /> Mumbai / Thane, Maharashtra
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#facc15', fontWeight: 700 }}>
+                {t.editorTitle}: {t.editorName}
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Mail size={13} color="#fca5a5" /> editor@nirbhidnews.com
+                <MapPin size={13} color="#fca5a5" /> {t.editorOffice}
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Phone size={13} color="#fca5a5" /> +91 98765 43210
+                <Mail size={13} color="#fca5a5" /> {t.editorEmail}
               </span>
+              <a href="tel:9922299027" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#f87171', fontWeight: 700, textDecoration: 'none' }}>
+                <Phone size={13} color="#fca5a5" /> 📞 {t.editorPhone}
+              </a>
             </div>
           </div>
 
@@ -81,19 +84,21 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Editorial CMS Portal */}
+          {/* Editorial Office & Inquiries */}
           <div>
-            <div className="footer-title">{t.editorialPortal}</div>
-            <p style={{ fontSize: '0.875rem', marginBottom: '1rem', color: '#94a3b8' }}>
-              Secure administrative access for journalists, editors, and news bureau correspondents.
+            <div className="footer-title">वृत्तसंपादक व कार्यालय</div>
+            <p style={{ fontSize: '0.875rem', marginBottom: '1rem', color: '#94a3b8', lineHeight: 1.5 }}>
+              बातम्या, प्रेस रिलीज किंवा जाहिरातीसाठी निर्भीड न्यूज मुख्य कार्यालयाशी थेट संपर्क साधा.
             </p>
-            <Link
-              to="/admin/login"
-              className="btn btn-primary"
-              style={{ fontSize: '0.8125rem', padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-            >
-              <Shield size={14} /> {t.adminLogin}
-            </Link>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8125rem' }}>
+              <a
+                href="tel:9922299027"
+                className="btn btn-primary"
+                style={{ fontSize: '0.8125rem', padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontWeight: 700 }}
+              >
+                <Phone size={14} /> 9922299027 वर कॉल करा
+              </a>
+            </div>
           </div>
         </div>
 

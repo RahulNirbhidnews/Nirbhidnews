@@ -13,11 +13,16 @@ import { AdBanner } from '../../components/common/AdBanner';
 import { SEOHead } from '../../components/common/SEOHead';
 import { SkeletonLoader } from '../../components/common/SkeletonLoader';
 import { useLanguage } from '../../context/LanguageContext';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 export const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { language, t, translateCategory, translateArticle } = useLanguage();
   const [isAISummaryOpen, setIsAISummaryOpen] = useState(false);
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  }, [slug]);
 
   const {
     data: rawArticle,
@@ -275,7 +280,7 @@ export const ArticleDetailPage: React.FC = () => {
           {article.featured_image_url && !article.video_url && (
             <figure style={{ margin: '1.5rem 0 2rem 0' }}>
               <img
-                src={article.featured_image_url}
+                src={resolveMediaUrl(article.featured_image_url)}
                 alt={article.title}
                 style={{
                   width: '100%',
@@ -307,7 +312,7 @@ export const ArticleDetailPage: React.FC = () => {
           </article>
 
           {/* In-article Ad Banner */}
-          <AdBanner type="inline" label="Sponsored Story / प्रायोजित बातमी" />
+          <AdBanner placement="in_article" />
 
           {/* Bottom Social Share Bar */}
           <div style={{ borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)', padding: '1rem 0', margin: '2rem 0' }}>
@@ -372,8 +377,46 @@ export const ArticleDetailPage: React.FC = () => {
 
         {/* Right Sidebar: Categories, Trending, Ads */}
         <aside className="article-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          {/* Chief Editor Spotlight Mini Card */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+              border: '2px solid rgba(234, 179, 8, 0.4)',
+              borderRadius: 'var(--radius-md)',
+              padding: '1.25rem',
+              color: '#ffffff',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+              <img
+                src="/assets/editor-rahul-jogdand.png"
+                alt="Rahul Jogdand"
+                style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px solid #eab308', objectFit: 'cover' }}
+              />
+              <div>
+                <span style={{ fontSize: '0.6875rem', color: '#facc15', fontWeight: 800, textTransform: 'uppercase' }}>
+                  मुख्य संपादक व संस्थापक
+                </span>
+                <h4 style={{ margin: '0.1rem 0', fontSize: '1rem', fontWeight: 800, color: '#f8fafc' }}>
+                  राहुल बाबुराव जोगदंड
+                </h4>
+              </div>
+            </div>
+            <p style={{ margin: '0 0 0.85rem 0', fontSize: '0.78125rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+              निर्भीड आणि निष्पक्ष पत्रकारितेचा विश्वास. कोणत्याही बातमीसाठी किंवा जाहिरातीसाठी थेट संपर्क करा.
+            </p>
+            <a
+              href="tel:9922299027"
+              className="btn btn-primary"
+              style={{ width: '100%', fontSize: '0.8125rem', justifyContent: 'center', fontWeight: 700 }}
+            >
+              📞 9922299027 वर संपर्क करा
+            </a>
+          </div>
+
           {/* Ad Slot */}
-          <AdBanner type="sidebar" />
+          <AdBanner placement="sidebar" />
 
           {/* About Channel Box */}
           <div

@@ -92,6 +92,10 @@ def get_public_article_by_slug(db: Session, slug: str) -> Article:
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Article '{slug}' not found or is not currently published.",
         )
+    # Increment actual database view count
+    article.view_count = (article.view_count or 0) + 1
+    db.commit()
+    db.refresh(article)
     return article
 
 

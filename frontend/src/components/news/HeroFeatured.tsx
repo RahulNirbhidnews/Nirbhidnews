@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, User, Sparkles, Newspaper } from 'lucide-react';
+import { Clock, User, Sparkles } from 'lucide-react';
 import { Article } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 interface HeroFeaturedProps {
   articles: Article[];
@@ -68,60 +69,56 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
             backgroundColor: '#0f172a',
-            minHeight: '420px',
+            minHeight: '400px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
             boxShadow: 'var(--shadow-md)',
             transition: 'box-shadow 0.3s ease',
+            border: !primaryArticle.featured_image_url ? '1px solid #334155' : 'none',
           }}
           className="hero-primary-card"
         >
           {primaryArticle.featured_image_url ? (
-            <img
-              src={primaryArticle.featured_image_url}
-              alt={primaryArticle.title}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                opacity: 0.85,
-                transition: 'transform 0.4s ease',
-              }}
-              className="hero-img-zoom"
-            />
+            <>
+              <img
+                src={resolveMediaUrl(primaryArticle.featured_image_url)}
+                alt={primaryArticle.title}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  opacity: 0.85,
+                  transition: 'transform 0.4s ease',
+                }}
+                className="hero-img-zoom"
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.6) 45%, rgba(15, 23, 42, 0.95) 100%)',
+                }}
+              />
+            </>
           ) : (
             <div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                right: 0,
+                height: '5px',
+                background: 'linear-gradient(90deg, #dc2626 0%, #ea580c 100%)',
               }}
-            >
-              <Newspaper size={64} color="#334155" />
-            </div>
+            />
           )}
-
-          {/* Gradient Overlay for Text Legibility */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.55) 45%, rgba(15, 23, 42, 0.95) 100%)',
-            }}
-          />
 
           {/* Content inside Primary Card */}
           <div
@@ -216,102 +213,93 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
               justifyContent: 'space-between',
             }}
           >
-            {secondaryArticles.map((article) => (
-              <article
-                key={article.id}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '130px 1fr',
-                  gap: '1rem',
-                  backgroundColor: '#ffffff',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--color-border)',
-                  overflow: 'hidden',
-                  padding: '0.75rem',
-                  boxShadow: 'var(--shadow-sm)',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                }}
-                className="hero-secondary-card"
-              >
-                <Link
-                  to={`/news/${article.slug}`}
+            {secondaryArticles.map((article) => {
+              const hasImg = Boolean(article.featured_image_url && article.featured_image_url.trim() !== '');
+              return (
+                <article
+                  key={article.id}
                   style={{
-                    backgroundColor: '#0f172a',
-                    borderRadius: 'var(--radius-sm)',
+                    display: hasImg ? 'grid' : 'block',
+                    gridTemplateColumns: hasImg ? '130px 1fr' : '1fr',
+                    gap: '1rem',
+                    backgroundColor: '#ffffff',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-border)',
+                    borderLeft: !hasImg ? '4px solid var(--color-primary)' : '1px solid var(--color-border)',
                     overflow: 'hidden',
-                    display: 'block',
-                    height: '100px',
+                    padding: '0.85rem',
+                    boxShadow: 'var(--shadow-sm)',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                   }}
+                  className="hero-secondary-card"
                 >
-                  {article.featured_image_url ? (
-                    <img
-                      src={article.featured_image_url}
-                      alt={article.title}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: '#1e293b',
-                        color: '#64748b',
-                      }}
-                    >
-                      <Newspaper size={20} />
-                    </div>
-                  )}
-                </Link>
-
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  {article.category && (
+                  {hasImg && (
                     <Link
-                      to={`/category/${article.category.slug}`}
+                      to={`/news/${article.slug}`}
                       style={{
-                        fontSize: '0.6875rem',
-                        fontWeight: 700,
-                        color: 'var(--color-primary)',
-                        textTransform: 'uppercase',
-                        marginBottom: '0.25rem',
+                        backgroundColor: '#0f172a',
+                        borderRadius: 'var(--radius-sm)',
+                        overflow: 'hidden',
+                        display: 'block',
+                        height: '100px',
                       }}
                     >
-                      {translateCategory(article.category.slug, article.category.name)}
+                      <img
+                        src={resolveMediaUrl(article.featured_image_url!)}
+                        alt={article.title}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                        loading="lazy"
+                      />
                     </Link>
                   )}
 
-                  <h3
-                    style={{
-                      fontFamily: 'var(--font-serif)',
-                      fontSize: '0.9375rem',
-                      fontWeight: 700,
-                      lineHeight: 1.35,
-                      color: 'var(--color-secondary)',
-                      margin: '0 0 0.35rem 0',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <Link to={`/news/${article.slug}`} style={{ color: 'inherit' }} className="article-title-hover">
-                      {article.title}
-                    </Link>
-                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    {article.category && (
+                      <Link
+                        to={`/category/${article.category.slug}`}
+                        style={{
+                          fontSize: '0.6875rem',
+                          fontWeight: 700,
+                          color: 'var(--color-primary)',
+                          textTransform: 'uppercase',
+                          marginBottom: '0.25rem',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {translateCategory(article.category.slug, article.category.name)}
+                      </Link>
+                    )}
 
-                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
-                    {formatPublishDate(article.published_at || article.created_at)}
-                  </span>
-                </div>
-              </article>
-            ))}
+                    <h3
+                      style={{
+                        fontFamily: 'var(--font-serif)',
+                        fontSize: '0.9375rem',
+                        fontWeight: 700,
+                        lineHeight: 1.35,
+                        color: 'var(--color-secondary)',
+                        margin: '0 0 0.35rem 0',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Link to={`/news/${article.slug}`} style={{ color: 'inherit' }} className="article-title-hover">
+                        {article.title}
+                      </Link>
+                    </h3>
+
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
+                      {formatPublishDate(article.published_at || article.created_at)}
+                    </span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </div>

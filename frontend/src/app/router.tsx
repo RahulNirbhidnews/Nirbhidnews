@@ -17,6 +17,9 @@ import { AdminCategoriesPage } from '../pages/admin/AdminCategoriesPage';
 import { AdminArticlesPage } from '../pages/admin/AdminArticlesPage';
 import { ArticleEditorPage } from '../pages/admin/ArticleEditorPage';
 import { AdminMediaPage } from '../pages/admin/AdminMediaPage';
+import { AdminAdsPage } from '../pages/admin/AdminAdsPage';
+import { AdminFeedSyncPage } from '../pages/admin/AdminFeedSyncPage';
+import { AdminBroadcastPage } from '../pages/admin/AdminBroadcastPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -56,7 +59,10 @@ export const router = createBrowserRouter([
       { path: 'articles', element: <AdminArticlesPage /> },
       { path: 'articles/new', element: <ArticleEditorPage /> },
       { path: 'articles/:id/edit', element: <ArticleEditorPage /> },
+      { path: 'broadcast', element: <AdminBroadcastPage /> },
       { path: 'media', element: <AdminMediaPage /> },
+      { path: 'ads', element: <AdminAdsPage /> },
+      { path: 'feeds', element: <AdminFeedSyncPage /> },
     ],
   },
   // Fallback 404 Route
@@ -65,3 +71,4 @@ export const router = createBrowserRouter([
     element: <NotFoundPage />,
   },
 ]);
+

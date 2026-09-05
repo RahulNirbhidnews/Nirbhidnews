@@ -1,6 +1,6 @@
 import logging
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.models.category import Category
 from app.models.user import User
 from app.core.config import settings
@@ -70,12 +70,61 @@ def seed_admin_user(db: Session) -> User:
         return existing_admin
 
 
+from app.models.advertisement import Advertisement
 from app.utils.seed_articles import seed_articles
 
 
+def seed_advertisements(db: Session) -> int:
+    """Seed initial sample banner advertisements."""
+    existing_count = db.scalar(select(func.count()).select_from(Advertisement)) or 0
+    if existing_count > 0:
+        return 0
+
+    sample_ads = [
+        Advertisement(
+            title="महाराष्ट्र शासन - मुख्यमंत्री माझी लाडकी बहीण योजना",
+            client_name="Government of Maharashtra",
+            image_url="https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80",
+            target_url="https://maharashtra.gov.in",
+            placement="top_header",
+            is_active=True,
+            impressions=1240,
+            clicks=185,
+        ),
+        Advertisement(
+            title="निर्भीड न्यूज विशेष जाहिरात जागा - व्यवसाय वाढवा डिजिटल स्वरूपात",
+            client_name="Nirbhid Media House (राहुल बाबुराव जोगदंड)",
+            image_url="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+            target_url="tel:9922299027",
+            placement="sidebar",
+            is_active=True,
+            impressions=3410,
+            clicks=412,
+        ),
+        Advertisement(
+            title="महाराष्ट्र महाकृषी विकास प्रदर्शन २०२६ - विशेष व्यापारी दालन",
+            client_name="Maha Krishi Agro Expo",
+            image_url="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1200&q=80",
+            target_url="https://mahaexpo.in",
+            placement="in_article",
+            is_active=True,
+            impressions=920,
+            clicks=94,
+        ),
+    ]
+
+    for ad in sample_ads:
+        db.add(ad)
+    db.commit()
+    logger.info(f"Seeded {len(sample_ads)} sample advertisements.")
+    return len(sample_ads)
+
+
 def seed_all(db: Session):
-    """Seed all initial data including categories, admin, and realistic sample articles."""
+    """Seed all initial data including categories, admin, realistic sample articles, and ads."""
     seed_categories(db)
     admin = seed_admin_user(db)
     seed_articles(db, admin)
+    seed_advertisements(db)
+
 

@@ -19,6 +19,7 @@ class ArticleBase(BaseModel):
     status: str = "draft"
     is_featured: bool = False
     is_breaking: bool = False
+    view_count: int = 0
     published_at: Optional[datetime] = None
 
 

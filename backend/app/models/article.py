@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING
-from sqlalchemy import String, Text, Boolean, DateTime, ForeignKey, Index
+from sqlalchemy import String, Text, Boolean, DateTime, Integer, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base, GUID, TimestampMixin
 
@@ -80,6 +80,12 @@ class Article(Base, TimestampMixin):
         Boolean,
         nullable=False,
         default=False,
+        index=True,
+    )
+    view_count: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
         index=True,
     )
     published_at: Mapped[Optional[datetime]] = mapped_column(

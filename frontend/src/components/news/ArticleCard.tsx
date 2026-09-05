@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, User, Newspaper, Flame, Play, Volume2, VolumeX } from 'lucide-react';
+import { Clock, User, Flame, Play, Volume2, VolumeX } from 'lucide-react';
 import { Article } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 interface ArticleCardProps {
   article: Article;
@@ -20,6 +21,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
 
   const [isHovered, setIsHovered] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const localeMap = { mr: 'mr-IN', en: 'en-IN', hi: 'hi-IN' };
@@ -41,12 +43,16 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   const wordCount = article.content ? article.content.split(/\s+/).length : 0;
   const readTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
 
+  const hasVideo = Boolean(article.video_url && article.video_url.trim() !== '');
+  const rawImageUrl = article.featured_image_url ? article.featured_image_url.trim() : '';
+  const hasImage = Boolean(rawImageUrl && !imageError);
+
   const isDirectVideo =
-    article.video_url &&
-    (article.video_url.endsWith('.mp4') ||
-      article.video_url.endsWith('.webm') ||
-      article.video_url.endsWith('.mov') ||
-      article.video_url.startsWith('/static/'));
+    hasVideo &&
+    (article.video_url!.endsWith('.mp4') ||
+      article.video_url!.endsWith('.webm') ||
+      article.video_url!.endsWith('.mov') ||
+      article.video_url!.startsWith('/static/'));
 
   const fullVideoSrc =
     isDirectVideo && article.video_url?.startsWith('/static/')
@@ -78,163 +84,278 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
     }
   };
 
+  // ==========================================
+  // VARIANT 1: COMPACT (SIDEBAR / QUICK FEED)
+  // ==========================================
+  if (variant === 'compact') {
+    return (
+      <article
+        style={{
+          display: 'flex',
+          gap: hasImage ? '0.75rem' : '0.5rem',
+          padding: '0.85rem 0',
+          borderBottom: '1px solid var(--color-border)',
+          alignItems: 'center',
+        }}
+        className="article-card-compact"
+      >
+        {/* If Image exists, show thumbnail; if no image, skip and show clean headline-only */}
+        {hasImage && (
+          <Link
+            to={`/news/${article.slug}`}
+            style={{
+              position: 'relative',
+              width: '80px',
+              height: '65px',
+              flexShrink: 0,
+              borderRadius: 'var(--radius-sm)',
+              overflow: 'hidden',
+              backgroundColor: '#0f172a',
+            }}
+          >
+            <img
+              src={resolveMediaUrl(rawImageUrl)}
+              alt={article.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              loading="lazy"
+              onError={() => setImageError(true)}
+            />
+            {hasVideo && (
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '2px',
+                  right: '2px',
+                  backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                  color: '#ef4444',
+                  padding: '1px 4px',
+                  borderRadius: '2px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Play size={8} fill="#ef4444" />
+              </span>
+            )}
+          </Link>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+            {article.category && (
+              <span
+                style={{
+                  fontSize: '0.6875rem',
+                  fontWeight: 700,
+                  color: 'var(--color-primary)',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {translateCategory(article.category.slug, article.category.name)}
+              </span>
+            )}
+            {hasVideo && !hasImage && (
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#ef4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                <Play size={8} fill="#ef4444" /> VIDEO
+              </span>
+            )}
+          </div>
+
+          <h4
+            style={{
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              lineHeight: 1.35,
+              color: 'var(--color-secondary)',
+              margin: '0 0 0.25rem 0',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}
+          >
+            <Link to={`/news/${article.slug}`} style={{ color: 'inherit' }} className="article-title-hover">
+              {article.title}
+            </Link>
+          </h4>
+
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-text-light)' }}>
+            {publishedDate}
+          </span>
+        </div>
+      </article>
+    );
+  }
+
+  // ==========================================
+  // VARIANT 2: HORIZONTAL ROW CARD
+  // ==========================================
   if (variant === 'horizontal') {
     return (
       <article
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{
-          display: 'grid',
-          gridTemplateColumns: '180px 1fr',
+          display: hasImage ? 'grid' : 'block',
+          gridTemplateColumns: hasImage ? '180px 1fr' : '1fr',
           gap: '1.25rem',
           backgroundColor: '#fff',
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--color-border)',
+          borderLeft: !hasImage ? '4px solid var(--color-primary)' : '1px solid var(--color-border)',
           overflow: 'hidden',
           transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+          padding: !hasImage ? '1.25rem' : '0',
         }}
         className="article-card-horizontal"
       >
-        <Link
-          to={`/news/${article.slug}`}
-          style={{
-            position: 'relative',
-            backgroundColor: '#0f172a',
-            overflow: 'hidden',
-            display: 'block',
-            height: '100%',
-            minHeight: '130px',
-          }}
-        >
-          {isDirectVideo && isHovered ? (
-            <video
-              ref={videoRef}
-              src={fullVideoSrc}
-              muted={isMuted}
-              loop
-              playsInline
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : article.featured_image_url ? (
-            <img
-              src={article.featured_image_url}
-              alt={article.title}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                display: 'block',
-                transition: 'transform 0.35s ease',
-              }}
-              className="article-img-hover"
-              loading="lazy"
-            />
-          ) : (
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                color: '#94a3b8',
-              }}
-            >
-              <Newspaper size={28} />
-            </div>
-          )}
+        {/* If Image exists, show left column image/video */}
+        {hasImage && (
+          <Link
+            to={`/news/${article.slug}`}
+            style={{
+              position: 'relative',
+              backgroundColor: '#0f172a',
+              overflow: 'hidden',
+              display: 'block',
+              height: '100%',
+              minHeight: '130px',
+            }}
+          >
+            {isDirectVideo && isHovered ? (
+              <video
+                ref={videoRef}
+                src={fullVideoSrc}
+                muted={isMuted}
+                loop
+                playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <img
+                src={resolveMediaUrl(rawImageUrl)}
+                alt={article.title}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                  transition: 'transform 0.35s ease',
+                }}
+                className="article-img-hover"
+                loading="lazy"
+                onError={() => setImageError(true)}
+              />
+            )}
 
-          {article.is_breaking && (
-            <span
-              style={{
-                position: 'absolute',
-                top: '8px',
-                left: '8px',
-                backgroundColor: '#dc2626',
-                color: 'white',
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                padding: '0.15rem 0.4rem',
-                borderRadius: '3px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.2rem',
-                zIndex: 2,
-              }}
-            >
-              <Flame size={10} /> {t.breakingNews}
-            </span>
-          )}
+            {article.is_breaking && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  left: '8px',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  fontSize: '0.6875rem',
+                  fontWeight: 700,
+                  padding: '0.15rem 0.4rem',
+                  borderRadius: '3px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.2rem',
+                  zIndex: 2,
+                }}
+              >
+                <Flame size={10} /> {t.breakingNews}
+              </span>
+            )}
 
-          {article.video_url && (
-            <span
-              style={{
-                position: 'absolute',
-                top: '8px',
-                right: '8px',
-                backgroundColor: 'rgba(15, 23, 42, 0.85)',
-                backdropFilter: 'blur(2px)',
-                color: '#ffffff',
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                padding: '0.15rem 0.4rem',
-                borderRadius: '3px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.2rem',
-                border: '1px solid rgba(239, 68, 68, 0.5)',
-                zIndex: 2,
-              }}
-            >
-              <Play size={10} fill="#ef4444" color="#ef4444" /> VIDEO
-            </span>
-          )}
+            {hasVideo && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                  color: '#ffffff',
+                  fontSize: '0.6875rem',
+                  fontWeight: 700,
+                  padding: '0.15rem 0.4rem',
+                  borderRadius: '3px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.2rem',
+                  border: '1px solid rgba(239, 68, 68, 0.5)',
+                  zIndex: 2,
+                }}
+              >
+                <Play size={10} fill="#ef4444" color="#ef4444" /> VIDEO
+              </span>
+            )}
 
-          {isDirectVideo && isHovered && (
-            <button
-              type="button"
-              onClick={toggleMute}
-              style={{
-                position: 'absolute',
-                bottom: '8px',
-                right: '8px',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50%',
-                width: '24px',
-                height: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                zIndex: 5,
-              }}
-            >
-              {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
-            </button>
-          )}
-        </Link>
+            {isDirectVideo && isHovered && (
+              <button
+                type="button"
+                onClick={toggleMute}
+                style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '8px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '24px',
+                  height: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  zIndex: 5,
+                }}
+              >
+                {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+              </button>
+            )}
+          </Link>
+        )}
 
-        <div style={{ padding: '1rem 1rem 1rem 0', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          {article.category && (
-            <Link
-              to={`/category/${article.category.slug}`}
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                color: 'var(--color-primary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                marginBottom: '0.35rem',
-                display: 'inline-block',
-                width: 'fit-content',
-              }}
-            >
-              {translateCategory(article.category.slug, article.category.name)}
-            </Link>
-          )}
+        <div style={{ padding: hasImage ? '1rem 1rem 1rem 0' : '0', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+            {article.category && (
+              <Link
+                to={`/category/${article.category.slug}`}
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: 'var(--color-primary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  display: 'inline-block',
+                }}
+              >
+                {translateCategory(article.category.slug, article.category.name)}
+              </Link>
+            )}
+
+            {hasVideo && !hasImage && (
+              <span
+                style={{
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  color: '#dc2626',
+                  padding: '1px 6px',
+                  borderRadius: '3px',
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                }}
+              >
+                <Play size={10} fill="#dc2626" /> VIDEO
+              </span>
+            )}
+          </div>
 
           <h3
             style={{
@@ -268,132 +389,21 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
             </p>
           )}
 
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              fontSize: '0.75rem',
-              color: 'var(--color-text-light)',
-              flexWrap: 'wrap',
-            }}
-          >
-            {article.author_name && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                <User size={12} /> {article.author_name}
-              </span>
-            )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-              <Clock size={12} /> {publishedDate}
+              <User size={12} /> {article.author_name || t.by}
             </span>
+            <span>•</span>
+            <span>{publishedDate}</span>
           </div>
         </div>
       </article>
     );
   }
 
-  if (variant === 'compact') {
-    return (
-      <article
-        style={{
-          display: 'flex',
-          gap: '0.75rem',
-          padding: '0.75rem 0',
-          borderBottom: '1px solid var(--color-border)',
-        }}
-      >
-        <Link
-          to={`/news/${article.slug}`}
-          style={{
-            position: 'relative',
-            width: '80px',
-            height: '65px',
-            flexShrink: 0,
-            borderRadius: 'var(--radius-sm)',
-            overflow: 'hidden',
-            backgroundColor: '#0f172a',
-          }}
-        >
-          {article.featured_image_url ? (
-            <img
-              src={article.featured_image_url}
-              alt={article.title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              loading="lazy"
-            />
-          ) : (
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#1e293b',
-                color: '#64748b',
-              }}
-            >
-              <Newspaper size={18} />
-            </div>
-          )}
-          {article.video_url && (
-            <span
-              style={{
-                position: 'absolute',
-                bottom: '2px',
-                right: '2px',
-                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                color: '#ef4444',
-                padding: '1px 3px',
-                borderRadius: '2px',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <Play size={8} fill="#ef4444" />
-            </span>
-          )}
-        </Link>
-
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          {article.category && (
-            <span
-              style={{
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                color: 'var(--color-primary)',
-                textTransform: 'uppercase',
-              }}
-            >
-              {translateCategory(article.category.slug, article.category.name)}
-            </span>
-          )}
-          <h4
-            style={{
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              lineHeight: 1.3,
-              color: 'var(--color-secondary)',
-              margin: '0.2rem 0',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
-            <Link to={`/news/${article.slug}`} style={{ color: 'inherit' }} className="article-title-hover">
-              {article.title}
-            </Link>
-          </h4>
-          <span style={{ fontSize: '0.7rem', color: 'var(--color-text-light)' }}>
-            {publishedDate}
-          </span>
-        </div>
-      </article>
-    );
-  }
-
-  // Default: Vertical Card with Hover Auto-Play
+  // =========================================================================
+  // VARIANT 3: DEFAULT VERTICAL CARD (SMART MEDIA: IMAGE / VIDEO / TEXT-FIRST)
+  // ==========================================================
   return (
     <article
       onMouseEnter={handleMouseEnter}
@@ -406,156 +416,157 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
         boxShadow: 'var(--shadow-sm)',
         display: 'flex',
         flexDirection: 'column',
+        position: 'relative',
+        transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
       }}
       className="article-card-vertical"
     >
-      <Link
-        to={`/news/${article.slug}`}
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '200px',
-          backgroundColor: '#0f172a',
-          overflow: 'hidden',
-          display: 'block',
-        }}
-      >
-        {isDirectVideo && isHovered ? (
-          <video
-            ref={videoRef}
-            src={fullVideoSrc}
-            muted={isMuted}
-            loop
-            playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        ) : article.featured_image_url ? (
-          <img
-            src={article.featured_image_url}
-            alt={article.title}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: 'block',
-              transition: 'transform 0.35s ease',
-            }}
-            className="article-img-hover"
-            loading="lazy"
-          />
-        ) : (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-              color: '#94a3b8',
-              gap: '0.5rem',
-            }}
-          >
-            <Newspaper size={36} color="#dc2626" />
-            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{t.brandName}</span>
-          </div>
-        )}
+      {/* Top Accent Gradient Bar for No-Image Headline Cards */}
+      {!hasImage && (
+        <div
+          style={{
+            height: '4px',
+            background: 'linear-gradient(90deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%)',
+            width: '100%',
+          }}
+        />
+      )}
 
-        {article.is_breaking && (
-          <span
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              backgroundColor: '#dc2626',
-              color: 'white',
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              padding: '0.2rem 0.5rem',
-              borderRadius: '3px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-              zIndex: 2,
-            }}
-          >
-            <Flame size={12} /> {t.breakingNews}
-          </span>
-        )}
+      {/* 1. MEDIA CONTAINER (RENDER ONLY IF ARTICLE HAS VALID IMAGE OR VIDEO) */}
+      {hasImage && (
+        <Link
+          to={`/news/${article.slug}`}
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: '200px',
+            backgroundColor: '#0f172a',
+            overflow: 'hidden',
+            display: 'block',
+          }}
+        >
+          {isDirectVideo && isHovered ? (
+            <video
+              ref={videoRef}
+              src={fullVideoSrc}
+              muted={isMuted}
+              loop
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <img
+              src={resolveMediaUrl(rawImageUrl)}
+              alt={article.title}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block',
+                transition: 'transform 0.35s ease',
+              }}
+              className="article-img-hover"
+              loading="lazy"
+              onError={() => setImageError(true)}
+            />
+          )}
 
-        {article.is_featured && !article.is_breaking && (
-          <span
-            style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              backgroundColor: 'var(--color-secondary)',
-              color: 'white',
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              padding: '0.2rem 0.5rem',
-              borderRadius: '3px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-              zIndex: 2,
-            }}
-          >
-            {t.featuredStories}
-          </span>
-        )}
+          {article.is_breaking && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                backgroundColor: '#dc2626',
+                color: 'white',
+                fontSize: '0.6875rem',
+                fontWeight: 700,
+                padding: '0.2rem 0.5rem',
+                borderRadius: '3px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                zIndex: 2,
+              }}
+            >
+              <Flame size={12} /> {t.breakingNews}
+            </span>
+          )}
 
-        {article.video_url && (
-          <span
-            style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              backgroundColor: 'rgba(15, 23, 42, 0.9)',
-              backdropFilter: 'blur(3px)',
-              color: '#ffffff',
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              padding: '0.2rem 0.5rem',
-              borderRadius: '3px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
-              border: '1px solid rgba(220, 38, 38, 0.5)',
-              zIndex: 2,
-            }}
-          >
-            <Play size={10} fill="#ef4444" color="#ef4444" /> VIDEO
-          </span>
-        )}
+          {article.is_featured && !article.is_breaking && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                backgroundColor: 'var(--color-secondary)',
+                color: 'white',
+                fontSize: '0.6875rem',
+                fontWeight: 700,
+                padding: '0.2rem 0.5rem',
+                borderRadius: '3px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                zIndex: 2,
+              }}
+            >
+              {t.featuredStories}
+            </span>
+          )}
 
-        {isDirectVideo && isHovered && (
-          <button
-            type="button"
-            onClick={toggleMute}
-            style={{
-              position: 'absolute',
-              bottom: '10px',
-              right: '10px',
-              backgroundColor: 'rgba(0, 0, 0, 0.75)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              width: '28px',
-              height: '28px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 5,
-            }}
-          >
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-        )}
-      </Link>
+          {hasVideo && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                backdropFilter: 'blur(3px)',
+                color: '#ffffff',
+                fontSize: '0.6875rem',
+                fontWeight: 700,
+                padding: '0.2rem 0.5rem',
+                borderRadius: '3px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+                border: '1px solid rgba(220, 38, 38, 0.5)',
+                zIndex: 2,
+              }}
+            >
+              <Play size={10} fill="#ef4444" color="#ef4444" /> VIDEO
+            </span>
+          )}
 
+          {isDirectVideo && isHovered && (
+            <button
+              type="button"
+              onClick={toggleMute}
+              style={{
+                position: 'absolute',
+                bottom: '10px',
+                right: '10px',
+                backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: '28px',
+                height: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 5,
+              }}
+            >
+              {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            </button>
+          )}
+        </Link>
+      )}
+
+      {/* 2. TEXT CONTENT & BYLINE */}
       <div
         style={{
           padding: '1.25rem',
@@ -564,29 +575,71 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           flex: 1,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-          {article.category ? (
-            <Link
-              to={`/category/${article.category.slug}`}
-              className="badge badge-primary"
-              style={{ textDecoration: 'none' }}
-            >
-              {translateCategory(article.category.slug, article.category.name)}
-            </Link>
-          ) : (
-            <span className="badge badge-outline">General</span>
-          )}
+        {/* Header Badges */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            {article.category ? (
+              <Link
+                to={`/category/${article.category.slug}`}
+                className="badge badge-primary"
+                style={{ textDecoration: 'none' }}
+              >
+                {translateCategory(article.category.slug, article.category.name)}
+              </Link>
+            ) : (
+              <span className="badge badge-outline">General</span>
+            )}
+
+            {/* Video Badge on Text-Only Cards */}
+            {hasVideo && !hasImage && (
+              <span
+                style={{
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  color: '#dc2626',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                }}
+              >
+                <Play size={10} fill="#dc2626" /> VIDEO
+              </span>
+            )}
+
+            {/* Breaking Badge on Text-Only Cards */}
+            {article.is_breaking && !hasImage && (
+              <span
+                style={{
+                  backgroundColor: '#fee2e2',
+                  color: '#dc2626',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                }}
+              >
+                <Flame size={10} /> BREAKING
+              </span>
+            )}
+          </div>
 
           <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
             <Clock size={12} /> {readTimeMinutes} {t.minutesRead}
           </span>
         </div>
 
+        {/* Headline */}
         <h3
           style={{
             fontFamily: 'var(--font-serif)',
-            fontSize: '1.15rem',
-            fontWeight: 700,
+            fontSize: !hasImage ? '1.25rem' : '1.15rem',
+            fontWeight: 800,
             lineHeight: 1.35,
             color: 'var(--color-secondary)',
             margin: '0.25rem 0 0.5rem 0',
@@ -597,6 +650,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           </Link>
         </h3>
 
+        {/* Excerpt */}
         {showExcerpt && article.excerpt && (
           <p
             style={{
@@ -605,16 +659,19 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
               lineHeight: 1.55,
               margin: '0 0 1rem 0',
               display: '-webkit-box',
-              WebkitLineClamp: 3,
+              WebkitLineClamp: !hasImage ? 4 : 3,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
               flex: 1,
+              borderLeft: !hasImage ? '2px solid #e2e8f0' : 'none',
+              paddingLeft: !hasImage ? '0.65rem' : '0',
             }}
           >
             {article.excerpt}
           </p>
         )}
 
+        {/* Card Footer Byline */}
         <div
           style={{
             display: 'flex',

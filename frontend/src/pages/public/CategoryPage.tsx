@@ -55,6 +55,7 @@ export const CategoryPage: React.FC = () => {
           })
         : null,
     enabled: Boolean(slug),
+    refetchInterval: 1000 * 5, // Live auto-refresh every 5 seconds
   });
 
   const isLoading = loadingCategory || loadingArticles;

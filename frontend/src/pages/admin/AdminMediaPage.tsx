@@ -11,10 +11,13 @@ import {
   X
 } from 'lucide-react';
 import { mediaApi } from '../../api/media';
+import { useLanguage } from '../../context/LanguageContext';
 import { Media } from '../../types';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 export const AdminMediaPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { t, language } = useLanguage();
   const [page, setPage] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
@@ -88,7 +91,7 @@ export const AdminMediaPage: React.FC = () => {
   const handleCopyUrl = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
     setCopiedId(id);
-    setToastMessage({ text: 'Public URL copied to clipboard!', type: 'success' });
+    setToastMessage({ text: t.linkCopied, type: 'success' });
     setTimeout(() => setCopiedId(null), 2500);
   };
 
@@ -136,11 +139,15 @@ export const AdminMediaPage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <ImageIcon size={24} color="#dc2626" />
             <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
-              Media Assets Library
+              {t.adminMedia}
             </h1>
           </div>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Upload, organize, and attach news images to editorial articles
+            {language === 'mr'
+              ? 'बातम्यांसाठी आवश्यक फोटो, ग्राफिक्स व मीडिया अपलोड करा आणि व्यवस्थापित करा.'
+              : language === 'hi'
+              ? 'समाचारों के लिए फोटो, ग्राफिक्स और मीडिया अपलोड करें व प्रबंधित करें।'
+              : 'Upload, organize, and attach news images to editorial articles'}
           </p>
         </div>
       </div>
@@ -177,7 +184,7 @@ export const AdminMediaPage: React.FC = () => {
             <>
               <Loader2 size={44} color="#dc2626" className="animate-spin" style={{ marginBottom: '1rem' }} />
               <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-secondary)' }}>
-                Uploading image to storage...
+                {language === 'mr' ? 'फोटो अपलोड होत आहे...' : language === 'hi' ? 'फोटो अपलोड हो रहा है...' : 'Uploading image to storage...'}
               </h3>
               <p style={{ color: '#64748b', fontSize: '0.8125rem', marginTop: '0.25rem' }}>
                 Validating MIME and creating storage record
@@ -187,7 +194,11 @@ export const AdminMediaPage: React.FC = () => {
             <>
               <UploadCloud size={44} color="#dc2626" style={{ marginBottom: '0.75rem' }} />
               <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-secondary)' }}>
-                Click or Drag & Drop Image Here to Upload
+                {language === 'mr'
+                  ? 'फोटो अपलोड करण्यासाठी येथे क्लिक करा किंवा फाईल ड्रॅग करा'
+                  : language === 'hi'
+                  ? 'फोटो अपलोड करने के लिए यहां क्लिक करें या फाइल ड्रैग करें'
+                  : 'Click or Drag & Drop Image Here to Upload'}
               </h3>
               <p style={{ color: '#64748b', fontSize: '0.8125rem', marginTop: '0.25rem' }}>
                 Supports JPEG, PNG, WebP (Max size: 5 MB)
@@ -223,8 +234,8 @@ export const AdminMediaPage: React.FC = () => {
       {!isLoading && !error && data && data.items.length > 0 && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '1.25rem',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+          gap: '1rem',
           marginBottom: '2rem',
         }}>
           {data.items.map((media) => (
@@ -243,15 +254,16 @@ export const AdminMediaPage: React.FC = () => {
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
             >
-              <div style={{ width: '100%', height: '140px', backgroundColor: '#e2e8f0', position: 'relative' }}>
+              <div style={{ width: '100%', height: '120px', backgroundColor: '#e2e8f0', position: 'relative' }}>
                 <img
-                  src={media.public_url}
+                  src={resolveMediaUrl(media.public_url)}
                   alt={media.file_name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  loading="lazy"
                 />
               </div>
 
-              <div style={{ padding: '0.75rem' }}>
+              <div style={{ padding: '0.65rem' }}>
                 <div style={{
                   fontSize: '0.8125rem',
                   fontWeight: 600,
@@ -267,8 +279,8 @@ export const AdminMediaPage: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginTop: '0.5rem',
-                  fontSize: '0.75rem',
+                  marginTop: '0.35rem',
+                  fontSize: '0.725rem',
                   color: '#94a3b8',
                 }}>
                   <span>{formatFileSize(media.file_size)}</span>
@@ -359,7 +371,7 @@ export const AdminMediaPage: React.FC = () => {
                 marginBottom: '1.25rem',
               }}>
                 <img
-                  src={selectedMedia.public_url}
+                  src={resolveMediaUrl(selectedMedia.public_url)}
                   alt={selectedMedia.file_name}
                   style={{ maxHeight: '300px', maxWidth: '100%', objectFit: 'contain' }}
                 />

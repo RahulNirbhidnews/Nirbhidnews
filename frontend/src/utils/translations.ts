@@ -63,7 +63,7 @@ export interface TranslationDict {
   enableAlerts: string;
   maybeLater: string;
 
-  // Admin CMS
+  // Admin CMS & Extended Keys
   adminDashboard: string;
   adminArticles: string;
   adminCategories: string;
@@ -82,6 +82,44 @@ export interface TranslationDict {
   adminVideoLabel: string;
   adminCoverPhotoLabel: string;
   adminStatusLabel: string;
+  totalArticles: string;
+  totalArticlesDesc: string;
+  publishedArticles: string;
+  publishedDesc: string;
+  draftArticles: string;
+  draftDesc: string;
+  activeCategories: string;
+  activeCategoriesDesc: string;
+  mediaAssets: string;
+  recentActivity: string;
+  viewAllArticles: string;
+  createCategory: string;
+  uploadMedia: string;
+  searchArticlesPlaceholder: string;
+  actions: string;
+  status: string;
+  author: string;
+  date: string;
+  edit: string;
+  delete: string;
+  publish: string;
+  archive: string;
+  welcome: string;
+
+  // Leadership & Chief Editor
+  editorName: string;
+  editorTitle: string;
+  editorQuote: string;
+  editorPhone: string;
+  editorEmail: string;
+  editorOffice: string;
+
+  // Advertisement
+  adSpaceAvailable: string;
+  adSpaceDesc: string;
+  adContactLeader: string;
+  bookAdWhatsApp: string;
+  callDirect: string;
 
   categoryNames: Record<string, string>;
 }
@@ -169,6 +207,44 @@ export const translations: Record<Language, TranslationDict> = {
     adminVideoLabel: 'व्हिडिओ बातमी (YouTube किंवा MP4)',
     adminCoverPhotoLabel: 'मुख्य कव्हर फोटो',
     adminStatusLabel: 'प्रकाशन स्थिती',
+    totalArticles: 'एकूण बातम्या',
+    totalArticlesDesc: 'सर्व प्रकाशित व मसुदा बातम्या',
+    publishedArticles: 'प्रकाशित (Live)',
+    publishedDesc: 'वाचकांसाठी थेट उपलब्ध',
+    draftArticles: 'मसुदा (Drafts)',
+    draftDesc: 'संपादकीय पुनरावलोकन बाकी',
+    activeCategories: 'बातम्या विभाग',
+    activeCategoriesDesc: 'सक्रिय श्रेण्या',
+    mediaAssets: 'मीडिया / फोटो',
+    recentActivity: 'अलीकडील बातम्या • Recent Editorial Activity',
+    viewAllArticles: 'सर्व बातम्या व्यवस्थापित करा →',
+    createCategory: 'नवीन विभाग तयार करा',
+    uploadMedia: 'नवीन फोटो/व्हिडिओ अपलोड करा',
+    searchArticlesPlaceholder: 'शीर्षक, सारांश किंवा बातमीदार शोधा...',
+    actions: 'कृती',
+    status: 'स्थिती',
+    author: 'बातमीदार / प्रतिनिधी',
+    date: 'तारीख',
+    edit: 'संपादित करा',
+    delete: 'हटवा',
+    publish: 'प्रकाशित करा',
+    archive: 'आर्काइव्ह करा',
+    welcome: 'स्वागत आहे',
+
+    // Leadership & Chief Editor
+    editorName: 'राहुल बाबुराव जोगदंड',
+    editorTitle: 'मुख्य संपादक व संस्थापक',
+    editorQuote: '"सत्य, निर्भीड आणि जनसामान्यांच्या हक्काचा निर्भीड आवाज!"',
+    editorPhone: '९९२२२९९०२७',
+    editorEmail: 'nirbhidnews.admin@gmail.com',
+    editorOffice: 'मुंबई व ठाणे ब्युरो, महाराष्ट्र',
+
+    // Advertisement
+    adSpaceAvailable: '📢 येथे जाहिरात उपलब्ध आहे',
+    adSpaceDesc: 'आपल्या व्यवसायाची, संस्थेची किंवा राजकीय कार्याची जाहिरात लाखो वाचकांपर्यंत पोहोचवा!',
+    adContactLeader: 'संपादकीय व जाहिरात बुकिंग कक्ष',
+    bookAdWhatsApp: 'WhatsApp द्वारे जाहिरात बुक करा',
+    callDirect: 'थेट फोन संपर्क',
 
     categoryNames: {
       maharashtra: 'महाराष्ट्र',
@@ -269,6 +345,44 @@ export const translations: Record<Language, TranslationDict> = {
     adminVideoLabel: 'Video Bulletin (YouTube / MP4)',
     adminCoverPhotoLabel: 'Featured Cover Image',
     adminStatusLabel: 'Publication Status',
+    totalArticles: 'Total Articles',
+    totalArticlesDesc: 'All published & draft stories',
+    publishedArticles: 'Published (Live)',
+    publishedDesc: 'Live on public portal',
+    draftArticles: 'Drafts',
+    draftDesc: 'Pending editorial review',
+    activeCategories: 'Categories',
+    activeCategoriesDesc: 'Active news topics',
+    mediaAssets: 'Media Assets',
+    recentActivity: 'Recent Editorial Activity',
+    viewAllArticles: 'Manage All Articles →',
+    createCategory: 'Add Category',
+    uploadMedia: 'Upload Media',
+    searchArticlesPlaceholder: 'Search headline, excerpt, or reporter...',
+    actions: 'Actions',
+    status: 'Status',
+    author: 'Author / Reporter',
+    date: 'Date',
+    edit: 'Edit',
+    delete: 'Delete',
+    publish: 'Publish',
+    archive: 'Archive',
+    welcome: 'Welcome',
+
+    // Leadership & Chief Editor
+    editorName: 'Rahul Baburao Jogdand',
+    editorTitle: 'Chief Editor & Founder',
+    editorQuote: '"Truth, Unfiltered and the Fearless Voice of the People!"',
+    editorPhone: '9922299027',
+    editorEmail: 'nirbhidnews.admin@gmail.com',
+    editorOffice: 'Mumbai & Thane Bureau, Maharashtra',
+
+    // Advertisement
+    adSpaceAvailable: '📢 Advertisement Space Available Here',
+    adSpaceDesc: 'Reach thousands of daily active readers across Maharashtra and India with high-impact promotions!',
+    adContactLeader: 'Editorial & Ad Booking Desk',
+    bookAdWhatsApp: 'Book Ad on WhatsApp',
+    callDirect: 'Call Editor Directly',
 
     categoryNames: {
       maharashtra: 'Maharashtra',
@@ -369,6 +483,44 @@ export const translations: Record<Language, TranslationDict> = {
     adminVideoLabel: 'वीडियो बुलेटिन (YouTube / MP4)',
     adminCoverPhotoLabel: 'कवर फोटो',
     adminStatusLabel: 'प्रकाशन स्थिति',
+    totalArticles: 'कुल समाचार',
+    totalArticlesDesc: 'सभी प्रकाशित और ड्राफ्ट समाचार',
+    publishedArticles: 'प्रकाशित (Live)',
+    publishedDesc: 'पाठकों के लिए उपलब्ध',
+    draftArticles: 'ड्राफ्ट',
+    draftDesc: 'संपादकीय समीक्षा लंबित',
+    activeCategories: 'श्रेणियां',
+    activeCategoriesDesc: 'सक्रिय श्रेणियां',
+    mediaAssets: 'मीडिया / फोटो',
+    recentActivity: 'हालिया संपादकीय गतिविधियां',
+    viewAllArticles: 'सभी समाचार प्रबंधित करें →',
+    createCategory: 'नई श्रेणी जोड़ें',
+    uploadMedia: 'फोटो/वीडियो अपलोड करें',
+    searchArticlesPlaceholder: 'शीर्षक या संवाददाता खोजें...',
+    actions: 'कार्रवाई',
+    status: 'स्थिति',
+    author: 'संवाददाता',
+    date: 'तारीख',
+    edit: 'संपादित करें',
+    delete: 'हटाएं',
+    publish: 'प्रकाशित करें',
+    archive: 'संग्रहित करें',
+    welcome: 'स्वागत है',
+
+    // Leadership & Chief Editor
+    editorName: 'राहुल बाबूराव जोगदंड',
+    editorTitle: 'मुख्य संपादक एवं संस्थापक',
+    editorQuote: '"सत्य, निर्भीक और जनसामान्य के अधिकारों की बुलंद आवाज़!"',
+    editorPhone: '9922299027',
+    editorEmail: 'nirbhidnews.admin@gmail.com',
+    editorOffice: 'मुंबई एवं ठाणे ब्यूरो, महाराष्ट्र',
+
+    // Advertisement
+    adSpaceAvailable: '📢 यहां विज्ञापन स्थान उपलब्ध है',
+    adSpaceDesc: 'अपने व्यवसाय, संगठन या राजनीतिक कार्य का विज्ञापन लाखों पाठकों तक पहुंचाएं!',
+    adContactLeader: 'संपादकीय एवं विज्ञापन बुकिंग कक्ष',
+    bookAdWhatsApp: 'WhatsApp पर विज्ञापन बुक करें',
+    callDirect: 'सीधे फोन संपर्क',
 
     categoryNames: {
       maharashtra: 'महाराष्ट्र',

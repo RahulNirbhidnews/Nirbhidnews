@@ -15,9 +15,11 @@ import {
   Filter
 } from 'lucide-react';
 import { categoryApi, CategoryAdminItem, CategoryInput } from '../../api/categories';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const AdminCategoriesPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { t, language, translateCategory } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [page, setPage] = useState(1);
@@ -193,16 +195,20 @@ export const AdminCategoriesPage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <FolderTree size={24} color="#dc2626" />
             <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
-              Category Management
+              {t.adminCategories}
             </h1>
           </div>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Create, organize, and manage editorial news sections
+            {language === 'mr'
+              ? 'बातम्यांचे विभाग (Categories) तयार करा, संपादित करा आणि चालू/बंद करा.'
+              : language === 'hi'
+              ? 'समाचार श्रेणियां बनाएं, संपादित करें और सक्रिय/निष्क्रिय करें।'
+              : 'Create, organize, and manage editorial news sections'}
           </p>
         </div>
 
         <button onClick={handleOpenCreate} className="btn btn-primary">
-          <Plus size={16} /> Add Category
+          <Plus size={16} /> {t.createCategory}
         </button>
       </div>
 
@@ -219,7 +225,7 @@ export const AdminCategoriesPage: React.FC = () => {
         alignItems: 'center',
         gap: '1rem',
       }}>
-        <div style={{ position: 'relative', flex: '1', minWidth: '240px', maxWidth: '420px' }}>
+        <div style={{ position: 'relative', flex: '1', minWidth: '180px', maxWidth: '420px' }}>
           <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)' }} />
           <input
             type="text"
@@ -288,18 +294,21 @@ export const AdminCategoriesPage: React.FC = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Category</th>
-                <th>Slug</th>
+                <th>{t.adminCategoryLabel}</th>
+                <th>{t.adminSlugLabel}</th>
                 <th>Description</th>
-                <th>Articles</th>
-                <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th>{t.totalArticles}</th>
+                <th>{t.status}</th>
+                <th style={{ textAlign: 'right' }}>{t.actions}</th>
               </tr>
             </thead>
             <tbody>
               {data.items.map((cat) => (
                 <tr key={cat.id}>
-                  <td style={{ fontWeight: 600 }}>{cat.name}</td>
+                  <td style={{ fontWeight: 600 }}>
+                    {translateCategory(cat.slug, cat.name)}
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>({cat.name})</span>
+                  </td>
                   <td>
                     <code style={{ fontSize: '0.8125rem', background: '#f1f5f9', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>
                       {cat.slug}
@@ -349,16 +358,16 @@ export const AdminCategoriesPage: React.FC = () => {
                       <button
                         onClick={() => handleOpenEdit(cat)}
                         className="btn btn-sm btn-outline"
-                        title="Edit Category"
+                        title={t.edit}
                       >
-                        <Edit2 size={13} /> Edit
+                        <Edit2 size={13} /> {t.edit}
                       </button>
                       <button
                         onClick={() => setDeletingCategory(cat)}
                         className="btn btn-sm btn-danger-outline"
-                        title="Delete Category"
+                        title={t.delete}
                       >
-                        <Trash2 size={13} /> Delete
+                        <Trash2 size={13} /> {t.delete}
                       </button>
                     </div>
                   </td>
@@ -377,7 +386,7 @@ export const AdminCategoriesPage: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-secondary)' }}>
-                    {cat.name}
+                    {translateCategory(cat.slug, cat.name)}
                   </h3>
                   <code style={{ fontSize: '0.75rem', color: '#64748b' }}>/{cat.slug}</code>
                 </div>
@@ -408,15 +417,15 @@ export const AdminCategoriesPage: React.FC = () => {
                 marginTop: '0.5rem',
               }}>
                 <span style={{ fontSize: '0.8125rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <FileText size={14} color="#94a3b8" /> {cat.article_count} article(s)
+                  <FileText size={14} color="#94a3b8" /> {cat.article_count} {t.totalArticles}
                 </span>
 
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button onClick={() => handleOpenEdit(cat)} className="btn btn-sm btn-outline">
-                    <Edit2 size={13} /> Edit
+                    <Edit2 size={13} /> {t.edit}
                   </button>
                   <button onClick={() => setDeletingCategory(cat)} className="btn btn-sm btn-danger-outline">
-                    <Trash2 size={13} /> Delete
+                    <Trash2 size={13} /> {t.delete}
                   </button>
                 </div>
               </div>

@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   Save,
   Star,
-  Flame,
   Image as ImageIcon,
   UploadCloud,
   AlertCircle,
@@ -32,6 +31,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { MarkdownRenderer } from '../../components/news/MarkdownRenderer';
 import { VideoPlayer } from '../../components/news/VideoPlayer';
 import { AdminTutorialModal } from '../../components/admin/AdminTutorialModal';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const ARTICLE_TEMPLATES = [
   {
@@ -361,38 +361,29 @@ export const ArticleEditorPage: React.FC = () => {
   }
 
   return (
-    <div className="container" style={{ padding: '2rem 1rem 5rem 1rem', maxWidth: '1100px' }}>
+    <div className="container editor-page-container" style={{ padding: '1.5rem 0.75rem 5rem 0.75rem', maxWidth: '1100px', width: '100%', boxSizing: 'border-box' }}>
       {/* Top Header Bar */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div className="editor-header-bar">
+        <div className="editor-header-left">
           <Link
             to="/admin/articles"
             className="btn btn-outline"
-            style={{ padding: '0.45rem 0.75rem', fontSize: '0.875rem' }}
+            style={{ padding: '0.45rem 0.75rem', fontSize: '0.875rem', flexShrink: 0 }}
           >
             <ArrowLeft size={16} /> {t.adminArticles}
           </Link>
           <div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0 }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0, lineHeight: 1.2 }}>
               {isEditing ? t.adminEditArticle : t.adminWriteArticle}
             </h1>
-            <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0 }}>
+            <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: '0.2rem 0 0 0' }}>
               {isEditing ? `Updating: ${formData.title || 'Untitled'}` : 'Draft, format, upload media & publish digital news'}
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="editor-header-actions">
           {/* AI 1-Click Auto Translate Helper */}
           <button
             type="button"
@@ -401,6 +392,7 @@ export const ArticleEditorPage: React.FC = () => {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '0.4rem',
               backgroundColor: '#f3e8ff',
               border: '1px solid #d8b4fe',
@@ -429,6 +421,7 @@ export const ArticleEditorPage: React.FC = () => {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '0.4rem',
               backgroundColor: '#fef3c7',
               border: '1px solid #fde68a',
@@ -451,6 +444,7 @@ export const ArticleEditorPage: React.FC = () => {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '0.5rem',
               padding: '0.55rem 1.25rem',
               fontSize: '0.9rem',
@@ -491,19 +485,11 @@ export const ArticleEditorPage: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit}>
-        <div style={{ display: 'grid', gridTemplateColumns: '7fr 3fr', gap: '1.75rem' }} className="article-editor-grid">
+        <div className="article-editor-grid">
           {/* Main Left Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0, width: '100%' }}>
             {/* 1. Headline & Slug Card */}
-            <div
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                padding: '1.5rem',
-                boxShadow: 'var(--shadow-sm)',
-              }}
-            >
+            <div className="editor-card">
               <div style={{ marginBottom: '1.25rem' }}>
                 <label
                   style={{
@@ -529,12 +515,13 @@ export const ArticleEditorPage: React.FC = () => {
                     borderRadius: 'var(--radius-sm)',
                     border: '1px solid var(--color-border)',
                     fontFamily: 'var(--font-serif)',
+                    boxSizing: 'border-box',
                   }}
                   required
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="editor-two-col">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: '#475569', marginBottom: '0.3rem' }}>
                     {t.adminSlugLabel}
@@ -598,6 +585,7 @@ export const ArticleEditorPage: React.FC = () => {
 
             {/* 2. Visual Media & Video Bulletin Card */}
             <div
+              className="editor-card"
               style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid var(--color-border)',
@@ -619,7 +607,7 @@ export const ArticleEditorPage: React.FC = () => {
                   <span style={{ fontSize: '0.75rem', color: '#64748b' }}>YouTube URL or MP4 File</span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <div className="editor-upload-row" style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                   <input
                     type="url"
                     value={formData.video_url || ''}
@@ -627,6 +615,7 @@ export const ArticleEditorPage: React.FC = () => {
                     placeholder="https://www.youtube.com/watch?v=... or MP4 URL"
                     style={{
                       flex: 1,
+                      minWidth: '180px',
                       padding: '0.5rem 0.75rem',
                       fontSize: '0.875rem',
                       borderRadius: 'var(--radius-sm)',
@@ -648,10 +637,12 @@ export const ArticleEditorPage: React.FC = () => {
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '0.4rem',
                       padding: '0.5rem 0.85rem',
                       fontSize: '0.8125rem',
                       backgroundColor: '#ffffff',
+                      flexShrink: 0,
                     }}
                   >
                     {isUploadingVideo ? <Loader2 size={14} className="spinner" /> : <UploadCloud size={14} color="#7c3aed" />}
@@ -675,7 +666,7 @@ export const ArticleEditorPage: React.FC = () => {
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.4rem' }}>
                   {t.adminCoverPhotoLabel}
                 </label>
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <div className="editor-upload-row" style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                   <input
                     type="url"
                     value={formData.featured_image_url || ''}
@@ -686,6 +677,7 @@ export const ArticleEditorPage: React.FC = () => {
                     placeholder="https://images.unsplash.com/... or upload image"
                     style={{
                       flex: 1,
+                      minWidth: '180px',
                       padding: '0.5rem 0.75rem',
                       fontSize: '0.875rem',
                       borderRadius: 'var(--radius-sm)',
@@ -707,10 +699,12 @@ export const ArticleEditorPage: React.FC = () => {
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '0.4rem',
                       padding: '0.5rem 0.85rem',
                       fontSize: '0.8125rem',
                       backgroundColor: '#ffffff',
+                      flexShrink: 0,
                     }}
                   >
                     {isUploadingImage ? <Loader2 size={14} className="spinner" /> : <UploadCloud size={14} color="#0284c7" />}
@@ -724,17 +718,18 @@ export const ArticleEditorPage: React.FC = () => {
                     style={{
                       position: 'relative',
                       width: '100%',
-                      maxHeight: '220px',
+                      maxHeight: '260px',
                       overflow: 'hidden',
                       borderRadius: 'var(--radius-sm)',
                       border: '1px solid var(--color-border)',
+                      backgroundColor: '#0f172a',
                     }}
                   >
                     <img
-                      src={formData.featured_image_url}
+                      src={resolveMediaUrl(formData.featured_image_url)}
                       alt="Cover Preview"
                       onError={() => setImagePreviewError(true)}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      style={{ width: '100%', maxHeight: '260px', objectFit: 'contain', display: 'block', margin: '0 auto' }}
                     />
                   </div>
                 )}
@@ -743,6 +738,7 @@ export const ArticleEditorPage: React.FC = () => {
 
             {/* 3. Article Content & Quick Templates Card */}
             <div
+              className="editor-card"
               style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid var(--color-border)',
@@ -804,6 +800,7 @@ export const ArticleEditorPage: React.FC = () => {
 
               {/* 1-Click Fast Templates Bar */}
               <div
+                className="editor-templates-row"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -816,7 +813,7 @@ export const ArticleEditorPage: React.FC = () => {
                   overflowX: 'auto',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap', flexShrink: 0 }}>
                   <Sparkles size={14} color="#eab308" /> 1-Click Templates:
                 </div>
                 {ARTICLE_TEMPLATES.map((tpl) => (
@@ -833,6 +830,7 @@ export const ArticleEditorPage: React.FC = () => {
                       borderRadius: '4px',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
+                      flexShrink: 0,
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.3rem',
@@ -847,6 +845,7 @@ export const ArticleEditorPage: React.FC = () => {
                 <div>
                   {/* Markdown Toolbar */}
                   <div
+                    className="editor-toolbar-row"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -940,6 +939,7 @@ export const ArticleEditorPage: React.FC = () => {
                       borderBottomRightRadius: 'var(--radius-sm)',
                       fontFamily: 'monospace',
                       resize: 'vertical',
+                      boxSizing: 'border-box',
                     }}
                     required
                   />
@@ -953,6 +953,7 @@ export const ArticleEditorPage: React.FC = () => {
                     borderRadius: 'var(--radius-sm)',
                     backgroundColor: '#ffffff',
                     minHeight: '380px',
+                    wordBreak: 'break-word',
                   }}
                 >
                   <MarkdownRenderer content={formData.content || '*No content written yet.*'} />
@@ -965,6 +966,7 @@ export const ArticleEditorPage: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Publishing Settings Box */}
             <div
+              className="editor-card"
               style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid var(--color-border)',
@@ -1032,50 +1034,76 @@ export const ArticleEditorPage: React.FC = () => {
               {/* Flags Toggles */}
               <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {/* Breaking News Toggle */}
-                <label
+                <div
+                  onClick={() => setFormData({ ...formData, is_breaking: !formData.is_breaking })}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.6rem',
+                    justifyContent: 'space-between',
+                    padding: '0.75rem',
+                    borderRadius: 'var(--radius-md)',
+                    border: formData.is_breaking ? '1.5px solid #dc2626' : '1px solid var(--color-border)',
+                    backgroundColor: formData.is_breaking ? '#fef2f2' : '#ffffff',
                     cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    color: formData.is_breaking ? '#dc2626' : '#334155',
+                    transition: 'all 0.2s ease',
+                    boxShadow: formData.is_breaking ? '0 0 12px rgba(220, 38, 38, 0.25)' : 'none',
                   }}
                 >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1.25rem' }}>🔥</span>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: formData.is_breaking ? '#dc2626' : '#334155' }}>
+                        {t.breakingNews}
+                      </div>
+                      <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                        {formData.is_breaking ? 'Live Top Ticker & Alert Active' : 'Off'}
+                      </span>
+                    </div>
+                  </div>
                   <input
                     type="checkbox"
                     checked={formData.is_breaking}
                     onChange={(e) => setFormData({ ...formData, is_breaking: e.target.checked })}
-                    style={{ width: '16px', height: '16px', accentColor: '#dc2626' }}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ width: '18px', height: '18px', accentColor: '#dc2626', cursor: 'pointer' }}
                   />
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Flame size={16} color="#dc2626" /> {t.breakingNews}
-                  </span>
-                </label>
+                </div>
 
                 {/* Featured Story Toggle */}
-                <label
+                <div
+                  onClick={() => setFormData({ ...formData, is_featured: !formData.is_featured })}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.6rem',
+                    justifyContent: 'space-between',
+                    padding: '0.75rem',
+                    borderRadius: 'var(--radius-md)',
+                    border: formData.is_featured ? '1.5px solid #2563eb' : '1px solid var(--color-border)',
+                    backgroundColor: formData.is_featured ? '#eff6ff' : '#ffffff',
                     cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    color: formData.is_featured ? '#2563eb' : '#334155',
+                    transition: 'all 0.2s ease',
+                    boxShadow: formData.is_featured ? '0 0 12px rgba(37, 99, 235, 0.2)' : 'none',
                   }}
                 >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Star size={18} color="#eab308" fill={formData.is_featured ? '#eab308' : 'none'} />
+                    <div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: formData.is_featured ? '#2563eb' : '#334155' }}>
+                        {t.featuredStories}
+                      </div>
+                      <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                        {formData.is_featured ? 'Pinned in Hero Section' : 'Standard Feed'}
+                      </span>
+                    </div>
+                  </div>
                   <input
                     type="checkbox"
                     checked={formData.is_featured}
                     onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                    style={{ width: '16px', height: '16px', accentColor: '#2563eb' }}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ width: '18px', height: '18px', accentColor: '#2563eb', cursor: 'pointer' }}
                   />
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Star size={16} color="#eab308" /> {t.featuredStories}
-                  </span>
-                </label>
+                </div>
               </div>
 
               {/* Submit Button in Sidebar */}
@@ -1084,16 +1112,22 @@ export const ArticleEditorPage: React.FC = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={saveMutation.isPending}
-                  className="btn btn-primary"
-                  style={{ width: '100%', justifyContent: 'center' }}
+                  className="btn btn-pulse-red"
+                  style={{
+                    width: '100%',
+                    justifyContent: 'center',
+                    padding: '0.75rem 1rem',
+                    fontSize: '0.9375rem',
+                    fontWeight: 800,
+                  }}
                 >
                   {saveMutation.isPending ? (
                     <>
-                      <Loader2 className="spinner" size={16} /> Saving...
+                      <Loader2 className="spinner" size={18} /> Saving Story...
                     </>
                   ) : (
                     <>
-                      <Save size={16} /> {formData.status === 'published' ? t.adminPublishStory : t.adminSaveDraft}
+                      <Save size={18} /> {formData.status === 'published' ? t.adminPublishStory : t.adminSaveDraft}
                     </>
                   )}
                 </button>
@@ -1102,6 +1136,7 @@ export const ArticleEditorPage: React.FC = () => {
 
             {/* Quick Tips Box */}
             <div
+              className="editor-card"
               style={{
                 backgroundColor: '#eff6ff',
                 border: '1px solid #bfdbfe',

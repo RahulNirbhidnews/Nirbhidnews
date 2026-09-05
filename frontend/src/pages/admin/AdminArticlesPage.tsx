@@ -20,10 +20,13 @@ import {
 } from 'lucide-react';
 import { articleApi, ArticleListParams } from '../../api/articles';
 import { categoryApi } from '../../api/categories';
+import { useLanguage } from '../../context/LanguageContext';
 import { Article } from '../../types';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 export const AdminArticlesPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { t, language, translateCategory, translateArticle } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'archived'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -101,19 +104,19 @@ export const AdminArticlesPage: React.FC = () => {
       case 'published':
         return (
           <span className="badge badge-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-            <CheckCircle size={11} /> Published
+            <CheckCircle size={11} /> {t.publishedArticles}
           </span>
         );
       case 'draft':
         return (
           <span className="badge badge-inactive" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-            <FileText size={11} /> Draft
+            <FileText size={11} /> {t.draftArticles}
           </span>
         );
       case 'archived':
         return (
           <span className="badge" style={{ backgroundColor: '#fed7aa', color: '#9a3412', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-            <Archive size={11} /> Archived
+            <Archive size={11} /> {t.archive}
           </span>
         );
       default:
@@ -159,16 +162,24 @@ export const AdminArticlesPage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <FileText size={24} color="#dc2626" />
             <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
-              News Articles CMS
+              {t.adminArticles}
             </h1>
           </div>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Create, review, publish, and manage editorial news articles
+            {language === 'mr'
+              ? 'बातम्यांचे मसुदे तयार करा, मुख्य बातम्या प्रसिद्ध करा व संपादित करा.'
+              : language === 'hi'
+              ? 'समाचार ड्राफ्ट तैयार करें, मुख्य खबरें प्रकाशित करें और संपादित करें।'
+              : 'Create, review, publish, and manage editorial news articles'}
           </p>
         </div>
 
-        <Link to="/admin/articles/new" className="btn btn-primary">
-          <Plus size={16} /> New Article
+        <Link
+          to="/admin/articles/new"
+          className="btn btn-pulse-red"
+          style={{ fontSize: '0.875rem', fontWeight: 800, padding: '0.65rem 1.25rem', gap: '0.5rem' }}
+        >
+          <Plus size={18} /> {t.adminWriteArticle}
         </Link>
       </div>
 
@@ -195,7 +206,13 @@ export const AdminArticlesPage: React.FC = () => {
               className={`btn btn-sm ${statusFilter === st ? 'btn-secondary' : 'btn-outline'}`}
               style={{ textTransform: 'capitalize' }}
             >
-              {st}
+              {st === 'all'
+                ? t.allCategories
+                : st === 'published'
+                ? t.publishedArticles
+                : st === 'draft'
+                ? t.draftArticles
+                : t.archive}
             </button>
           ))}
         </div>
@@ -208,11 +225,11 @@ export const AdminArticlesPage: React.FC = () => {
           alignItems: 'center',
           gap: '1rem',
         }}>
-          <div style={{ position: 'relative', flex: '1', minWidth: '240px', maxWidth: '420px' }}>
+          <div style={{ position: 'relative', flex: '1', minWidth: '180px', maxWidth: '420px' }}>
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
-              placeholder="Search headline, excerpt, or reporter..."
+              placeholder={t.searchArticlesPlaceholder}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -247,10 +264,10 @@ export const AdminArticlesPage: React.FC = () => {
                 color: 'var(--color-secondary)',
               }}
             >
-              <option value="">All Categories</option>
+              <option value="">{t.allCategories}</option>
               {categories?.map((cat) => (
                 <option key={cat.id} value={cat.id}>
-                  {cat.name}
+                  {translateCategory(cat.slug, cat.name)}
                 </option>
               ))}
             </select>
@@ -286,93 +303,96 @@ export const AdminArticlesPage: React.FC = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th style={{ width: '45%' }}>Headline & Category</th>
-                <th>Status</th>
-                <th>Author</th>
-                <th>Published Date</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ width: '45%' }}>{t.adminHeadlineLabel} & {t.adminCategoryLabel}</th>
+                <th>{t.status}</th>
+                <th>{t.author}</th>
+                <th>{t.date}</th>
+                <th style={{ textAlign: 'right' }}>{t.actions}</th>
               </tr>
             </thead>
             <tbody>
-              {data.items.map((art) => (
-                <tr key={art.id}>
-                  <td>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                      {art.featured_image_url ? (
-                        <img
-                          src={art.featured_image_url}
-                          alt={art.title}
-                          style={{ width: '64px', height: '48px', objectFit: 'cover', borderRadius: '4px', backgroundColor: '#e2e8f0', flexShrink: 0 }}
-                        />
-                      ) : (
-                        <div style={{ width: '64px', height: '48px', backgroundColor: '#e2e8f0', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <ImageIcon size={20} color="#94a3b8" />
-                        </div>
-                      )}
-                      <div>
-                        <div style={{ fontWeight: 700, color: 'var(--color-secondary)', fontSize: '0.9375rem', lineHeight: 1.3 }}>
-                          {art.title}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
-                          <span className="badge badge-primary" style={{ fontSize: '0.6875rem' }}>
-                            {art.category?.name || 'Uncategorized'}
-                          </span>
-                          {art.is_breaking && (
-                            <span style={{ fontSize: '0.6875rem', color: '#dc2626', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                              <Flame size={12} /> Breaking
+              {data.items.map((rawArt) => {
+                const art = translateArticle(rawArt);
+                return (
+                  <tr key={art.id}>
+                    <td>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        {art.featured_image_url ? (
+                          <img
+                            src={resolveMediaUrl(art.featured_image_url)}
+                            alt={art.title}
+                            style={{ width: '64px', height: '48px', objectFit: 'cover', borderRadius: '4px', backgroundColor: '#e2e8f0', flexShrink: 0 }}
+                          />
+                        ) : (
+                          <div style={{ width: '64px', height: '48px', backgroundColor: '#e2e8f0', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <ImageIcon size={20} color="#94a3b8" />
+                          </div>
+                        )}
+                        <div>
+                          <div style={{ fontWeight: 700, color: 'var(--color-secondary)', fontSize: '0.9375rem', lineHeight: 1.3 }}>
+                            {art.title}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
+                            <span className="badge badge-primary" style={{ fontSize: '0.6875rem' }}>
+                              {art.category ? translateCategory(art.category.slug, art.category.name) : 'General'}
                             </span>
-                          )}
-                          {art.is_featured && (
-                            <span style={{ fontSize: '0.6875rem', color: '#d97706', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                              <Star size={12} /> Featured
-                            </span>
-                          )}
+                            {art.is_breaking && (
+                              <span style={{ fontSize: '0.6875rem', color: '#dc2626', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                                <Flame size={12} /> {t.breakingNews}
+                              </span>
+                            )}
+                            {art.is_featured && (
+                              <span style={{ fontSize: '0.6875rem', color: '#d97706', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                                <Star size={12} /> {t.featuredStories}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>{getStatusBadge(art.status)}</td>
-                  <td style={{ fontSize: '0.8125rem', color: '#475569' }}>
-                    {art.author_name || 'Editorial Staff'}
-                  </td>
-                  <td style={{ fontSize: '0.8125rem', color: '#64748b' }}>
-                    {art.published_at ? new Date(art.published_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div style={{ display: 'inline-flex', gap: '0.4rem' }}>
-                      {art.status === 'draft' && (
+                    </td>
+                    <td>{getStatusBadge(art.status)}</td>
+                    <td style={{ fontSize: '0.8125rem', color: '#475569' }}>
+                      {art.author_name || 'Editorial Staff'}
+                    </td>
+                    <td style={{ fontSize: '0.8125rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                      {art.published_at ? new Date(art.published_at).toLocaleDateString(language === 'mr' ? 'mr-IN' : language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'inline-flex', gap: '0.4rem' }}>
+                        {art.status === 'draft' && (
+                          <button
+                            onClick={() => publishMutation.mutate(art.id)}
+                            className="btn btn-sm"
+                            style={{ backgroundColor: '#16a34a', color: 'white' }}
+                            title={t.publish}
+                          >
+                            <Globe size={13} /> {t.publish}
+                          </button>
+                        )}
+                        {art.status === 'published' && (
+                          <button
+                            onClick={() => archiveMutation.mutate(art.id)}
+                            className="btn btn-sm btn-outline"
+                            title={t.archive}
+                          >
+                            <Archive size={13} /> {t.archive}
+                          </button>
+                        )}
+                        <Link to={`/admin/articles/${art.id}/edit`} className="btn btn-sm btn-outline" title={t.edit}>
+                          <Edit2 size={13} /> {t.edit}
+                        </Link>
                         <button
-                          onClick={() => publishMutation.mutate(art.id)}
-                          className="btn btn-sm"
-                          style={{ backgroundColor: '#16a34a', color: 'white' }}
-                          title="Publish Live"
+                          onClick={() => setDeletingArticle(art)}
+                          className="btn btn-sm btn-danger-outline"
+                          title={t.delete}
                         >
-                          <Globe size={13} /> Publish
+                          <Trash2 size={13} />
                         </button>
-                      )}
-                      {art.status === 'published' && (
-                        <button
-                          onClick={() => archiveMutation.mutate(art.id)}
-                          className="btn btn-sm btn-outline"
-                          title="Archive"
-                        >
-                          <Archive size={13} /> Archive
-                        </button>
-                      )}
-                      <Link to={`/admin/articles/${art.id}/edit`} className="btn btn-sm btn-outline" title="Edit Article">
-                        <Edit2 size={13} /> Edit
-                      </Link>
-                      <button
-                        onClick={() => setDeletingArticle(art)}
-                        className="btn btn-sm btn-danger-outline"
-                        title="Delete Article"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -381,56 +401,61 @@ export const AdminArticlesPage: React.FC = () => {
       {/* Mobile Card Layout (< 768px) */}
       {!isLoading && !error && data && data.items.length > 0 && (
         <div className="mobile-card-view">
-          {data.items.map((art) => (
-            <div key={art.id} className="mobile-item-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <span className="badge badge-primary">{art.category?.name}</span>
-                {getStatusBadge(art.status)}
-              </div>
-
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem', lineHeight: 1.3 }}>
-                {art.title}
-              </h3>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem', color: '#64748b', marginBottom: '0.75rem' }}>
-                <span>By {art.author_name || 'Staff'}</span>
-                {art.published_at && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <Calendar size={12} /> {new Date(art.published_at).toLocaleDateString()}
+          {data.items.map((rawArt) => {
+            const art = translateArticle(rawArt);
+            return (
+              <div key={art.id} className="mobile-item-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <span className="badge badge-primary">
+                    {art.category ? translateCategory(art.category.slug, art.category.name) : 'General'}
                   </span>
-                )}
-              </div>
-
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderTop: '1px solid var(--color-border)',
-                paddingTop: '0.75rem',
-                flexWrap: 'wrap',
-                gap: '0.5rem',
-              }}>
-                <div style={{ display: 'flex', gap: '0.35rem' }}>
-                  {art.is_breaking && <span style={{ color: '#dc2626', fontSize: '0.75rem', fontWeight: 700 }}>🔥 Breaking</span>}
-                  {art.is_featured && <span style={{ color: '#d97706', fontSize: '0.75rem', fontWeight: 700 }}>⭐ Featured</span>}
+                  {getStatusBadge(art.status)}
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {art.status === 'draft' && (
-                    <button onClick={() => publishMutation.mutate(art.id)} className="btn btn-sm btn-primary">
-                      Publish
-                    </button>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem', lineHeight: 1.3 }}>
+                  {art.title}
+                </h3>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem', color: '#64748b', marginBottom: '0.75rem' }}>
+                  <span>By {art.author_name || 'Staff'}</span>
+                  {art.published_at && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <Calendar size={12} /> {new Date(art.published_at).toLocaleDateString(language === 'mr' ? 'mr-IN' : language === 'hi' ? 'hi-IN' : 'en-IN')}
+                    </span>
                   )}
-                  <Link to={`/admin/articles/${art.id}/edit`} className="btn btn-sm btn-outline">
-                    Edit
-                  </Link>
-                  <button onClick={() => setDeletingArticle(art)} className="btn btn-sm btn-danger-outline">
-                    <Trash2 size={13} />
-                  </button>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderTop: '1px solid var(--color-border)',
+                  paddingTop: '0.75rem',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
+                }}>
+                  <div style={{ display: 'flex', gap: '0.35rem' }}>
+                    {art.is_breaking && <span style={{ color: '#dc2626', fontSize: '0.75rem', fontWeight: 700 }}>🔥 {t.breakingNews}</span>}
+                    {art.is_featured && <span style={{ color: '#d97706', fontSize: '0.75rem', fontWeight: 700 }}>⭐ {t.featuredStories}</span>}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {art.status === 'draft' && (
+                      <button onClick={() => publishMutation.mutate(art.id)} className="btn btn-sm btn-primary">
+                        {t.publish}
+                      </button>
+                    )}
+                    <Link to={`/admin/articles/${art.id}/edit`} className="btn btn-sm btn-outline">
+                      {t.edit}
+                    </Link>
+                    <button onClick={() => setDeletingArticle(art)} className="btn btn-sm btn-danger-outline">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -445,13 +470,13 @@ export const AdminArticlesPage: React.FC = () => {
         }}>
           <FileText size={44} color="#94a3b8" style={{ margin: '0 auto 1rem auto' }} />
           <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.35rem' }}>
-            No articles found
+            {t.noArticlesFound}
           </h3>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
-            {searchTerm ? `No articles matching "${searchTerm}"` : 'Get started by creating your first news publication.'}
+            {searchTerm ? `${t.noArticlesFound} "${searchTerm}"` : t.noArticlesDesc}
           </p>
           <Link to="/admin/articles/new" className="btn btn-primary">
-            <Plus size={16} /> Write First Article
+            <Plus size={16} /> {t.adminWriteArticle}
           </Link>
         </div>
       )}
@@ -467,7 +492,11 @@ export const AdminArticlesPage: React.FC = () => {
           gap: '1rem',
         }}>
           <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
-            Showing page {data.page} of {data.total_pages} ({data.total} total articles)
+            {language === 'mr'
+              ? `पृष्ठ ${data.page} / ${data.total_pages} (एकूण ${data.total} बातम्या)`
+              : language === 'hi'
+              ? `पृष्ठ ${data.page} / ${data.total_pages} (कुल ${data.total} समाचार)`
+              : `Showing page ${data.page} of ${data.total_pages} (${data.total} total articles)`}
           </span>
 
           <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -477,7 +506,7 @@ export const AdminArticlesPage: React.FC = () => {
               className="btn btn-sm btn-outline"
               style={{ opacity: page === 1 ? 0.5 : 1 }}
             >
-              Previous
+              ← Previous
             </button>
             <button
               onClick={() => setPage((p) => Math.min(data.total_pages, p + 1))}
@@ -485,46 +514,53 @@ export const AdminArticlesPage: React.FC = () => {
               className="btn btn-sm btn-outline"
               style={{ opacity: page === data.total_pages ? 0.5 : 1 }}
             >
-              Next
+              Next →
             </button>
           </div>
         </div>
       )}
 
       {/* DELETE CONFIRMATION MODAL */}
-      {deletingArticle && (
-        <div className="modal-overlay" onClick={() => setDeletingArticle(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <AlertTriangle size={20} /> Delete Article
-              </h2>
-            </div>
-            <div className="modal-body">
-              <p style={{ color: '#334155', fontSize: '0.9375rem', lineHeight: 1.6 }}>
-                Are you sure you want to permanently delete <strong>"{deletingArticle.title}"</strong>?
-              </p>
-              <p style={{ color: '#64748b', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
-                This action is permanent and cannot be undone.
-              </p>
-            </div>
-            <div className="modal-footer">
-              <button type="button" onClick={() => setDeletingArticle(null)} className="btn btn-outline">
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => deleteMutation.mutate(deletingArticle.id)}
-                disabled={deleteMutation.isPending}
-                className="btn btn-primary"
-                style={{ backgroundColor: '#dc2626' }}
-              >
-                {deleteMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : 'Confirm Delete'}
-              </button>
+      {deletingArticle && (() => {
+        const artToDelete = translateArticle(deletingArticle);
+        return (
+          <div className="modal-overlay" onClick={() => setDeletingArticle(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <AlertTriangle size={20} /> {t.delete}
+                </h2>
+              </div>
+              <div className="modal-body">
+                <p style={{ color: '#334155', fontSize: '0.9375rem', lineHeight: 1.6 }}>
+                  {language === 'mr'
+                    ? `तुम्हाला खात्री आहे की आपण "${artToDelete.title}" ही बातमी कायमस्वरूपी हटवू इच्छिता?`
+                    : language === 'hi'
+                    ? `क्या आप वाकई "${artToDelete.title}" को हमेशा के लिए हटाना चाहते हैं?`
+                    : `Are you sure you want to permanently delete "${artToDelete.title}"?`}
+                </p>
+                <p style={{ color: '#64748b', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                  {language === 'mr' ? 'ही कृती पूर्ववत केली जाऊ शकत नाही.' : language === 'hi' ? 'यह कार्रवाई पूर्ववत नहीं की जा सकती।' : 'This action is permanent and cannot be undone.'}
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" onClick={() => setDeletingArticle(null)} className="btn btn-outline">
+                  {t.close}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteMutation.mutate(deletingArticle.id)}
+                  disabled={deleteMutation.isPending}
+                  className="btn btn-primary"
+                  style={{ backgroundColor: '#dc2626' }}
+                >
+                  {deleteMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : t.delete}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };

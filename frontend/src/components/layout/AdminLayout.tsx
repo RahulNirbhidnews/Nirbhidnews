@@ -14,9 +14,14 @@ import {
   BookOpen,
   Languages,
   Menu,
-  X
+  X,
+  Megaphone,
+  Radio,
+  Tv,
 } from 'lucide-react';
 import { AdminTutorialModal } from '../admin/AdminTutorialModal';
+import { RollingTopProgressBar } from '../common/RollingTopProgressBar';
+import { ScrollToTop } from '../common/ScrollToTop';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -35,11 +40,16 @@ export const AdminLayout: React.FC = () => {
     { label: t.adminDashboard, path: '/admin', icon: LayoutDashboard },
     { label: t.adminArticles, path: '/admin/articles', icon: FileText },
     { label: t.adminCategories, path: '/admin/categories', icon: FolderTree },
+    { label: 'Live TV Stream', path: '/admin/broadcast', icon: Tv },
+    { label: 'Live RSS Feeds', path: '/admin/feeds', icon: Radio },
     { label: t.adminMedia, path: '/admin/media', icon: Image },
+    { label: 'Ads Manager', path: '/admin/ads', icon: Megaphone },
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+      <ScrollToTop />
+      <RollingTopProgressBar />
       {/* Top Admin Bar */}
       <header style={{
         backgroundColor: '#0f172a',
@@ -153,44 +163,47 @@ export const AdminLayout: React.FC = () => {
               <Globe size={15} /> {t.adminLiveSite}
             </Link>
 
-            {user && (
-              <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid #334155', paddingLeft: '0.75rem' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#f1f5f9' }}>
-                    {user.full_name || user.email}
-                  </div>
-                  <span style={{
-                    display: 'inline-block',
-                    fontSize: '0.6875rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    padding: '0.1rem 0.4rem',
-                    borderRadius: 'var(--radius-sm)',
-                    backgroundColor: '#374151',
-                    color: '#fca5a5',
-                    fontWeight: 700,
-                  }}>
-                    {user.role}
-                  </span>
+            <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', borderLeft: '1px solid #334155', paddingLeft: '0.75rem' }}>
+              <img
+                src="/assets/editor-rahul-jogdand.png"
+                alt="Rahul Jogdand"
+                style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1.5px solid #eab308', objectFit: 'cover' }}
+              />
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#f1f5f9', lineHeight: 1.1 }}>
+                  {t.editorName}
                 </div>
-
-                <button
-                  onClick={handleLogout}
-                  className="btn btn-outline"
-                  style={{
-                    padding: '0.35rem 0.75rem',
-                    fontSize: '0.75rem',
-                    gap: '0.35rem',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    borderColor: 'rgba(239, 68, 68, 0.3)',
-                    color: '#f87171',
-                  }}
-                  title={t.adminLogout}
-                >
-                  <LogOut size={14} /> {t.adminLogout}
-                </button>
+                <span style={{
+                  display: 'inline-block',
+                  fontSize: '0.625rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  padding: '0.05rem 0.3rem',
+                  borderRadius: 'var(--radius-sm)',
+                  backgroundColor: '#dc2626',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                }}>
+                  {t.editorTitle}
+                </span>
               </div>
-            )}
+
+              <button
+                onClick={handleLogout}
+                className="btn btn-outline"
+                style={{
+                  padding: '0.35rem 0.65rem',
+                  fontSize: '0.75rem',
+                  gap: '0.35rem',
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  borderColor: 'rgba(239, 68, 68, 0.3)',
+                  color: '#f87171',
+                }}
+                title={t.adminLogout}
+              >
+                <LogOut size={14} />
+              </button>
+            </div>
 
             {/* Mobile Hamburger Menu Button */}
             <button

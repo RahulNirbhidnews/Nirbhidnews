@@ -145,7 +145,7 @@ export const SearchPage: React.FC = () => {
 
         {/* Search Input Bar */}
         <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', flex: '1', minWidth: '260px' }}>
+          <div style={{ position: 'relative', flex: '1', minWidth: '200px' }}>
             <input
               type="text"
               placeholder={t.searchPlaceholder}

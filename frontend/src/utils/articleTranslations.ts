@@ -290,27 +290,335 @@ With the State Legislative Assembly elections approaching, major political coali
   },
 };
 
+// Common journalistic titles & bylines dictionary
+const AUTHOR_BYLINES_MAP: Record<string, { en: string; hi: string; mr: string }> = {
+  'राजेश सावंत (विशेष प्रतिनिधी)': {
+    mr: 'राजेश सावंत (विशेष प्रतिनिधी)',
+    en: 'Rajesh Sawant (Special Correspondent)',
+    hi: 'राजेश सावंत (विशेष संवाददाता)',
+  },
+  'नितीन देशमुख': {
+    mr: 'नितीन देशमुख',
+    en: 'Nitin Deshmukh',
+    hi: 'नितिन देशमुख',
+  },
+  'प्रिया कांबळे (मुंबई ब्युरो)': {
+    mr: 'प्रिया कांबळे (मुंबई ब्युरो)',
+    en: 'Priya Kamble (Mumbai Bureau)',
+    hi: 'प्रिया कांबले (मुंबई ब्यूरो)',
+  },
+  'आनंद कुलकर्णी (वरिष्ठ राजकीय विश्लेषक)': {
+    mr: 'आनंद कुलकर्णी (वरिष्ठ राजकीय विश्लेषक)',
+    en: 'Anand Kulkarni (Senior Political Analyst)',
+    hi: 'आनंद कुलकर्णी (वरिष्ठ राजनीतिक विश्लेषक)',
+  },
+  'सुनील पाटील (गुन्हे वार्ताहर)': {
+    mr: 'सुनील पाटील (गुन्हे वार्ताहर)',
+    en: 'Sunil Patil (Crime Reporter)',
+    hi: 'सुनील पाटिल (अपराध संवाददाता)',
+  },
+  'विक्रम मेहता (अर्थविषयक संपादक)': {
+    mr: 'विक्रम मेहता (अर्थविषयक संपादक)',
+    en: 'Vikram Mehta (Business Editor)',
+    hi: 'विक्रम मेहता (व्यापार संपादक)',
+  },
+  'महेश जोशी (क्रीडा प्रतिनिधी)': {
+    mr: 'महेश जोशी (क्रीडा प्रतिनिधी)',
+    en: 'Mahesh Joshi (Sports Desk)',
+    hi: 'महेश जोशी (खेल संवाददाता)',
+  },
+  'अमृता चिटणीस': {
+    mr: 'अमृता चिटणीस',
+    en: 'Amruta Chitnis',
+    hi: 'अमृता चिटणीस',
+  },
+  'डॉ. मंदार वैद्य (विज्ञान वार्ताहर)': {
+    mr: 'डॉ. मंदार वैद्य (विज्ञान वार्ताहर)',
+    en: 'Dr. Mandar Vaidya (Science Desk)',
+    hi: 'डॉ. मंदार वैद्य (विज्ञान संवाददाता)',
+  },
+  'संजय गोखले (आंतरराष्ट्रीय घडामोडी)': {
+    mr: 'संजय गोखले (आंतरराष्ट्रीय घडामोडी)',
+    en: 'Sanjay Gokhale (World Affairs)',
+    hi: 'संजय गोखले (अंतरराष्ट्रीय मामले)',
+  },
+  'प्रा. शशिकांत कुलकर्णी': {
+    mr: 'प्रा. शशिकांत कुलकर्णी',
+    en: 'Prof. Shashikant Kulkarni',
+    hi: 'प्रो. शशिकांत कुलकर्णी',
+  },
+  'डॉ. स्मिता पाटील (आरोग्य तज्ज्ञ)': {
+    mr: 'डॉ. स्मिता पाटील (आरोग्य तज्ज्ञ)',
+    en: 'Dr. Smita Patil (Health Specialist)',
+    hi: 'डॉ. स्मिता पाटिल (स्वास्थ्य विशेषज्ञ)',
+  },
+};
+
+// ============================================================================
+// DYNAMIC TRANSLATION ENGINE (CACHE + DEDUPLICATION + NOTIFICATION SUBSCRIBERS)
+// ============================================================================
+const MEMORY_CACHE = new Map<string, TranslatedArticleFields>();
+const IN_FLIGHT = new Map<string, Promise<TranslatedArticleFields | null>>();
+type TranslationListener = () => void;
+const listeners = new Set<TranslationListener>();
+
+let notifyTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleNotify() {
+  if (notifyTimer) return;
+  notifyTimer = setTimeout(() => {
+    notifyTimer = null;
+    listeners.forEach((fn) => {
+      try {
+        fn();
+      } catch (e) {
+        console.error('Translation listener error:', e);
+      }
+    });
+  }, 80);
+}
+
+export function subscribeToTranslations(listener: TranslationListener): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+/**
+ * Strips HTML tags, unescapes common HTML entities, and removes tag artifacts.
+ */
+export function stripHtml(raw: string | undefined | null): string {
+  if (!raw) return '';
+  // 1. Unescape common HTML entities
+  let text = raw
+    .replace(/&quot;/gi, '"')
+    .replace(/&amp;/gi, '&')
+    .replace(/&#39;/gi, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#(\d+);/g, (_, dec) => {
+      try {
+        return String.fromCharCode(parseInt(dec, 10));
+      } catch {
+        return '';
+      }
+    });
+
+  // 2. Strip HTML tags
+  text = text.replace(/<[^>]*>?/gm, '');
+
+  // 3. Remove leftover broken angle bracket artifacts
+  text = text.replace(/<.*$/g, '').replace(/^.*>/g, '');
+
+  // 4. Normalize spaces
+  text = text.replace(/\s+/g, ' ').trim();
+  return text;
+}
+
+/**
+ * Translates a single string using Google Translate client-side API.
+ */
+export async function translateText(text: string, targetLang: Language): Promise<string> {
+  const cleanInput = stripHtml(text);
+  if (!cleanInput) return text || '';
+
+  const cacheKey = `tr_${targetLang}_${cleanInput.slice(0, 80)}_${cleanInput.length}`;
+
+  try {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) return cached;
+  } catch {}
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(cleanInput)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (Array.isArray(data) && Array.isArray(data[0])) {
+      const rawTranslated = data[0]
+        .map((item: any) => (item && item[0] ? item[0] : ''))
+        .filter(Boolean)
+        .join('');
+
+      const translated = stripHtml(rawTranslated);
+      if (translated) {
+        try {
+          sessionStorage.setItem(cacheKey, translated);
+        } catch {}
+        return translated;
+      }
+    }
+  } catch (err) {
+    console.warn('Dynamic translateText error:', err);
+  }
+  return cleanInput;
+}
+
+/**
+ * Translates long markdown content chunked by paragraphs for optimal accuracy.
+ */
+async function translateLongText(content: string, targetLang: Language): Promise<string> {
+  if (!content || !content.trim()) return content;
+  if (content.length <= 2000) {
+    return translateText(content, targetLang);
+  }
+
+  const paragraphs = content.split(/\n\n+/);
+  const translatedParagraphs = await Promise.all(
+    paragraphs.map((p) => {
+      if (p.trim().length === 0) return Promise.resolve(p);
+      return translateText(p, targetLang);
+    })
+  );
+  return translatedParagraphs.join('\n\n');
+}
+
+/**
+ * Asynchronously fetches translation for dynamic/live RSS articles.
+ */
+export async function fetchDynamicTranslation(
+  article: Article,
+  targetLang: Language
+): Promise<TranslatedArticleFields | null> {
+  const articleKey = article.slug || String(article.id);
+  const cacheKey = `${articleKey}_${targetLang}`;
+
+  if (IN_FLIGHT.has(cacheKey)) {
+    return IN_FLIGHT.get(cacheKey)!;
+  }
+
+  const cleanTitle = stripHtml(article.title);
+  const cleanExcerpt = article.excerpt ? stripHtml(article.excerpt) : '';
+
+  const promise = (async () => {
+    try {
+      const [transTitle, transExcerpt, transContent] = await Promise.all([
+        cleanTitle ? translateText(cleanTitle, targetLang) : Promise.resolve(''),
+        cleanExcerpt ? translateText(cleanExcerpt, targetLang) : Promise.resolve(''),
+        article.content ? translateLongText(article.content, targetLang) : Promise.resolve(''),
+      ]);
+
+      const result: TranslatedArticleFields = {
+        title: stripHtml(transTitle) || cleanTitle,
+        excerpt: transExcerpt ? stripHtml(transExcerpt) : (cleanExcerpt || undefined),
+        content: transContent || (article.content ?? undefined),
+      };
+
+      MEMORY_CACHE.set(cacheKey, result);
+      try {
+        sessionStorage.setItem(`art_trans_${cacheKey}`, JSON.stringify(result));
+      } catch {}
+
+      scheduleNotify();
+      return result;
+    } catch (e) {
+      console.error('Dynamic translation failed:', e);
+      return null;
+    } finally {
+      IN_FLIGHT.delete(cacheKey);
+    }
+  })();
+
+  IN_FLIGHT.set(cacheKey, promise);
+  return promise;
+}
+
 /**
  * Returns translated article fields based on the current language.
+ * Checks static dictionary first -> memory cache -> session cache -> fires background dynamic translation.
  */
 export function getTranslatedArticle(article: Article, language: Language): Article {
   if (!article) return article;
 
-  const translationForSlug = ARTICLE_TRANSLATIONS[article.slug];
-  if (!translationForSlug) {
-    return article;
+  const articleKey = article.slug || String(article.id);
+  const dynamicKey = `${articleKey}_${language}`;
+
+  // 1. Direct Static Dictionary Slug Match
+  let translationForSlug = ARTICLE_TRANSLATIONS[article.slug];
+
+  // 2. Fuzzy Slug Match
+  if (!translationForSlug && article.slug) {
+    const slugKey = Object.keys(ARTICLE_TRANSLATIONS).find(
+      (k) => article.slug.includes(k) || k.includes(article.slug)
+    );
+    if (slugKey) {
+      translationForSlug = ARTICLE_TRANSLATIONS[slugKey];
+    }
   }
 
-  const langFields = translationForSlug[language] || translationForSlug.mr;
-  if (!langFields) {
-    return article;
+  // 3. Title Content Match in static presets
+  if (!translationForSlug && article.title) {
+    const cleanSrcTitle = stripHtml(article.title);
+    const matchedKey = Object.keys(ARTICLE_TRANSLATIONS).find((k) => {
+      const entry = ARTICLE_TRANSLATIONS[k];
+      return (
+        stripHtml(entry.mr?.title) === cleanSrcTitle ||
+        stripHtml(entry.en?.title) === cleanSrcTitle ||
+        stripHtml(entry.hi?.title) === cleanSrcTitle
+      );
+    });
+    if (matchedKey) {
+      translationForSlug = ARTICLE_TRANSLATIONS[matchedKey];
+    }
   }
+
+  let finalAuthor = article.author_name;
+  if (article.author_name && AUTHOR_BYLINES_MAP[article.author_name.trim()]) {
+    finalAuthor = AUTHOR_BYLINES_MAP[article.author_name.trim()][language] || article.author_name;
+  }
+
+  // If found in static dictionary, return immediately
+  if (translationForSlug) {
+    const langFields = translationForSlug[language] || translationForSlug.mr;
+    if (langFields) {
+      return {
+        ...article,
+        title: stripHtml(langFields.title || article.title),
+        excerpt: langFields.excerpt !== undefined ? stripHtml(langFields.excerpt) : (article.excerpt ? stripHtml(article.excerpt) : undefined),
+        content: langFields.content || article.content,
+        author_name: langFields.author_name || finalAuthor || article.author_name,
+      };
+    }
+  }
+
+  // 4. Check In-Memory Dynamic Cache
+  if (MEMORY_CACHE.has(dynamicKey)) {
+    const cached = MEMORY_CACHE.get(dynamicKey)!;
+    return {
+      ...article,
+      title: stripHtml(cached.title || article.title),
+      excerpt: cached.excerpt !== undefined ? stripHtml(cached.excerpt) : (article.excerpt ? stripHtml(article.excerpt) : undefined),
+      content: cached.content || article.content,
+      author_name: finalAuthor || article.author_name,
+    };
+  }
+
+  // 5. Check Session Storage Dynamic Cache
+  try {
+    const sessionData = sessionStorage.getItem(`art_trans_${dynamicKey}`);
+    if (sessionData) {
+      const parsed: TranslatedArticleFields = JSON.parse(sessionData);
+      MEMORY_CACHE.set(dynamicKey, parsed);
+      return {
+        ...article,
+        title: stripHtml(parsed.title || article.title),
+        excerpt: parsed.excerpt !== undefined ? stripHtml(parsed.excerpt) : (article.excerpt ? stripHtml(article.excerpt) : undefined),
+        content: parsed.content || article.content,
+        author_name: finalAuthor || article.author_name,
+      };
+    }
+  } catch {}
+
+  // 6. Not yet cached: Trigger dynamic background translation
+  fetchDynamicTranslation(article, language);
 
   return {
     ...article,
-    title: langFields.title || article.title,
-    excerpt: langFields.excerpt !== undefined ? langFields.excerpt : article.excerpt,
-    content: langFields.content || article.content,
-    author_name: langFields.author_name || article.author_name,
+    title: stripHtml(article.title),
+    excerpt: article.excerpt ? stripHtml(article.excerpt) : undefined,
+    author_name: finalAuthor || article.author_name,
   };
 }
+

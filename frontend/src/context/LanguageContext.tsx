@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Language, TranslationDict, translations } from '../utils/translations';
 import { Article } from '../types';
-import { getTranslatedArticle } from '../utils/articleTranslations';
+import { getTranslatedArticle, subscribeToTranslations } from '../utils/articleTranslations';
 
 interface LanguageContextType {
   language: Language;
@@ -9,6 +9,7 @@ interface LanguageContextType {
   t: TranslationDict;
   translateCategory: (slug: string, fallbackName?: string) => string;
   translateArticle: (article: Article) => Article;
+  translationVersion: number;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -23,6 +24,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     return 'mr'; // Marathi by default
   });
+
+  const [translationVersion, setTranslationVersion] = useState<number>(0);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToTranslations(() => {
+      setTranslationVersion((prev) => prev + 1);
+    });
+    return unsubscribe;
+  }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -56,6 +66,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         t: currentTranslations,
         translateCategory,
         translateArticle,
+        translationVersion,
       }}
     >
       {children}

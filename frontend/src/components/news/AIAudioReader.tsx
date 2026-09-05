@@ -25,7 +25,7 @@ export const AIAudioReader: React.FC<AIAudioReaderProps> = ({
   }, []);
 
   const cleanTextForSpeech = (raw: string): string => {
-    return `${title}. ${raw.replace(/[#*`_>\[\]\(\)]/g, ' ').replace(/\s+/g, ' ')}`;
+    return `${title}. ${raw.replace(/<\/?[^>]+(>|$)/g, ' ').replace(/[#*`_>\[\]\(\)]/g, ' ').replace(/\s+/g, ' ')}`;
   };
 
   const handleTogglePlay = () => {

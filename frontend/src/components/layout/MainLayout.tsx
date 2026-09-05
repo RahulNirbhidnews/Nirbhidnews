@@ -6,10 +6,14 @@ import { LiveMarketWeatherTicker } from './LiveMarketWeatherTicker';
 import { BreakingPopupModal } from '../news/BreakingPopupModal';
 import { LiveBroadcastBar } from '../news/LiveBroadcastBar';
 import { NewsAlertsToast } from '../news/NewsAlertsToast';
+import { RollingTopProgressBar } from '../common/RollingTopProgressBar';
+import { ScrollToTop } from '../common/ScrollToTop';
 
 export const MainLayout: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <ScrollToTop />
+      <RollingTopProgressBar />
       <LiveMarketWeatherTicker />
       <Navbar />
       <main style={{ flex: 1 }}>
@@ -22,3 +26,4 @@ export const MainLayout: React.FC = () => {
     </div>
   );
 };
+
