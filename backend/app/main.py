@@ -17,7 +17,11 @@ import app.models  # noqa: F401
 
 
 import asyncio
-from app.services.news_ingest_service import start_background_news_scheduler
+from app.db.session import SessionLocal
+from app.models.user import User
+from app.models.category import Category
+from app.models.broadcast import BroadcastSetting
+from app.core.security import get_password_hash
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,6 +34,58 @@ async def lifespan(app: FastAPI):
             logger.info("Database initialization and migration check completed.")
     except Exception as e:
         logger.warning(f"Database migration check notice: {e}")
+
+    # Auto-seed initial Admin User, Categories, and Broadcast settings in new database
+    try:
+        with SessionLocal() as db:
+            admin_email = (settings.ADMIN_EMAIL or "nirbhidnews.admin@gmail.com").strip().lower()
+            admin_pwd = settings.ADMIN_PASSWORD or "admin12345"
+            
+            existing_admin = db.query(User).filter(User.email == admin_email).first()
+            if not existing_admin:
+                new_admin = User(
+                    email=admin_email,
+                    password_hash=get_password_hash(admin_pwd),
+                    full_name="Nirbhid Chief Editor",
+                    role="admin",
+                    is_active=True,
+                )
+                db.add(new_admin)
+                logger.info(f"Created primary admin user: {admin_email}")
+            else:
+                # Update password to ensure it matches current config
+                existing_admin.password_hash = get_password_hash(admin_pwd)
+                existing_admin.is_active = True
+
+            # Seed default categories if empty
+            default_categories = [
+                ("ताज्या घडामोडी", "latest", "Breaking & latest headlines"),
+                ("महाराष्ट्र", "maharashtra", "Maharashtra State news"),
+                ("राजकारण", "politics", "Political news & analysis"),
+                ("देश-विदेश", "national", "National and world news"),
+                ("मनोरंजन", "entertainment", "Cinema, arts & entertainment"),
+                ("क्रीडा", "sports", "Sports, cricket & tournament coverage"),
+                ("तंत्रज्ञान", "technology", "Tech, innovation & cyber"),
+                ("उद्योग-व्यापार", "business", "Finance, economy & markets"),
+            ]
+            for cat_name, cat_slug, cat_desc in default_categories:
+                if not db.query(Category).filter(Category.slug == cat_slug).first():
+                    db.add(Category(name=cat_name, slug=cat_slug, description=cat_desc, is_active=True))
+
+            # Seed default broadcast setting if empty
+            if not db.query(BroadcastSetting).filter(BroadcastSetting.id == "default").first():
+                db.add(BroadcastSetting(
+                    id="default",
+                    youtube_url="https://www.youtube.com/watch?v=live_stream",
+                    is_active=True,
+                    title="Nirbhid Live 24x7",
+                    channel_name="Nirbhid News Digital"
+                ))
+
+            db.commit()
+            logger.info("Database bootstrap seeding completed successfully.")
+    except Exception as e:
+        logger.error(f"Error during bootstrap seeding: {e}")
 
     # Start automated Live News Ingest Background Task (World & State news minute-by-minute)
     if settings.APP_ENV != "testing" and not os.environ.get("PYTEST_CURRENT_TEST"):
