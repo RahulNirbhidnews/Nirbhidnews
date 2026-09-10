@@ -78,10 +78,10 @@ export const TermsPage: React.FC = () => {
           </h2>
           <p>
             {language === 'en'
-              ? 'All articles, investigative reports, photographs, video broadcasts, and brand logos on Nirbhid News are protected under copyright laws. Unauthorized reproduction, web scraping, or republishing for commercial purposes without prior written consent from Chief Editor Rahul Baburao Jogdand is strictly prohibited.'
+              ? 'All articles, investigative reports, photographs, video broadcasts, and brand logos on Nirbhid News are protected under copyright laws. Unauthorized reproduction, web scraping, or republishing for commercial purposes without prior written consent from Chief Editor Rahul Jogdand is strictly prohibited.'
               : language === 'hi'
-              ? 'निर्भीड न्यूज़ पर प्रकाशित सभी समाचार, खोजी रिपोर्ट, चित्र, वीडियो और लोगो कॉपीराइट अधिनियम द्वारा संरक्षित हैं। मुख्य संपादक राहुल बाबूराव जोगदंड की लिखित अनुमति के बिना किसी भी व्यावसायिक उपयोग के लिए सामग्री की नकल करना वर्जित है।'
-              : 'निर्भीड न्यूजवरील सर्व बातम्या, शोध पत्रकारिता अहवाल, छायाचित्रे, व्हिडिओ बुलेटिन व लोगो कॉपीराइट कायद्यानुसार संरक्षित आहेत. मुख्य संपादक राहुल बाबुराव जोगदंड यांच्या लेखी परवानगीशिवाय सामग्रीची व्यावसायिक नक्कल करणे बेकायदेशीर आहे.'}
+              ? 'निर्भीड न्यूज़ पर प्रकाशित सभी समाचार, खोजी रिपोर्ट, चित्र, वीडियो और लोगो कॉपीराइट अधिनियम द्वारा संरक्षित हैं। मुख्य संपादक राहुल जोगदंड की लिखित अनुमति के बिना किसी भी व्यावसायिक उपयोग के लिए सामग्री की नकल करना वर्जित है।'
+              : 'निर्भीड न्यूजवरील सर्व बातम्या, शोध पत्रकारिता अहवाल, छायाचित्रे, व्हिडिओ बुलेटिन व लोगो कॉपीराइट कायद्यानुसार संरक्षित आहेत. मुख्य संपादक राहुल जोगदंड यांच्या लेखी परवानगीशिवाय सामग्रीची व्यावसायिक नक्कल करणे बेकायदेशीर आहे.'}
           </p>
         </section>
 

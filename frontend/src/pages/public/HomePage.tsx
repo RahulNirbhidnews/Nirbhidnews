@@ -123,7 +123,7 @@ export const HomePage: React.FC = () => {
         <HeroFeatured articles={featuredArticles || []} />
       )}
 
-      {/* 4. Chief Editor & Founder Spotlight (Rahul Baburao Jogdand) */}
+      {/* 4. Chief Editor & Founder Spotlight (Rahul Jogdand) */}
       <ChiefEditorSpotlight />
 
       {/* 4. Main Editorial Layout Grid (70% News Feed / 30% Sidebar) */}

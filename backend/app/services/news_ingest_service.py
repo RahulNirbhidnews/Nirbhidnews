@@ -373,7 +373,7 @@ def sync_live_feeds_sync() -> Dict:
             select(User).where(User.role == "admin").order_by(User.created_at.asc()).limit(1)
         )
         admin_id = admin_user.id if admin_user else None
-        author_name = "Rahul Baburao Jogdand (मुख्य संपादक)"
+        author_name = "Rahul Jogdand (मुख्य संपादक)"
 
         # Load categories lookup in one query
         categories = db.scalars(select(Category)).all()

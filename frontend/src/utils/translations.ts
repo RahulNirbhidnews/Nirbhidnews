@@ -232,7 +232,7 @@ export const translations: Record<Language, TranslationDict> = {
     welcome: 'स्वागत आहे',
 
     // Leadership & Chief Editor
-    editorName: 'राहुल बाबुराव जोगदंड',
+    editorName: 'राहुल जोगदंड',
     editorTitle: 'मुख्य संपादक व संस्थापक',
     editorQuote: '"सत्य, निर्भीड आणि जनसामान्यांच्या हक्काचा निर्भीड आवाज!"',
     editorPhone: '९९२२२९९०२७',
@@ -370,7 +370,7 @@ export const translations: Record<Language, TranslationDict> = {
     welcome: 'Welcome',
 
     // Leadership & Chief Editor
-    editorName: 'Rahul Baburao Jogdand',
+    editorName: 'Rahul Jogdand',
     editorTitle: 'Chief Editor & Founder',
     editorQuote: '"Truth, Unfiltered and the Fearless Voice of the People!"',
     editorPhone: '9922299027',
@@ -508,7 +508,7 @@ export const translations: Record<Language, TranslationDict> = {
     welcome: 'स्वागत है',
 
     // Leadership & Chief Editor
-    editorName: 'राहुल बाबूराव जोगदंड',
+    editorName: 'राहुल जोगदंड',
     editorTitle: 'मुख्य संपादक एवं संस्थापक',
     editorQuote: '"सत्य, निर्भीक और जनसामान्य के अधिकारों की बुलंद आवाज़!"',
     editorPhone: '9922299027',

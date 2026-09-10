@@ -488,7 +488,7 @@ export const ArticleDetailPage: React.FC = () => {
                   मुख्य संपादक व संस्थापक
                 </span>
                 <h4 style={{ margin: '0.1rem 0', fontSize: '1rem', fontWeight: 800, color: '#f8fafc' }}>
-                  राहुल बाबुराव जोगदंड
+                  {t.editorName}
                 </h4>
               </div>
             </div>

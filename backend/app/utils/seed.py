@@ -93,7 +93,7 @@ def seed_advertisements(db: Session) -> int:
         ),
         Advertisement(
             title="निर्भीड न्यूज विशेष जाहिरात जागा - व्यवसाय वाढवा डिजिटल स्वरूपात",
-            client_name="Nirbhid Media House (राहुल बाबुराव जोगदंड)",
+            client_name="Nirbhid Media House (राहुल जोगदंड)",
             image_url="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
             target_url="tel:9922299027",
             placement="sidebar",

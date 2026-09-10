@@ -227,7 +227,7 @@ export const AdminAdsPage: React.FC = () => {
               मुख्य संपादक व जाहिरात प्रमुख
             </span>
             <h3 style={{ margin: '0.1rem 0', fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc' }}>
-              राहुल बाबुराव जोगदंड (संपर्क: ९९२२२९९०२७)
+              राहुल जोगदंड (संपर्क: ९९२२२९९०२७)
             </h3>
             <p style={{ margin: 0, fontSize: '0.8125rem', color: '#cbd5e1' }}>
               सर्व प्रायोजित जाहिराती थेट पोर्टलवर टॉप हेडर, इन-आर्टिकल व साइडबारमध्ये प्रदर्शित होतात.

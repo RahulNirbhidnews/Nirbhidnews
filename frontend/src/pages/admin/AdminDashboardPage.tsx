@@ -93,7 +93,7 @@ export const AdminDashboardPage: React.FC = () => {
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <img
               src="/assets/editor-rahul-jogdand.png"
-              alt="Rahul Baburao Jogdand"
+              alt="Rahul Jogdand"
               style={{
                 width: '80px',
                 height: '80px',
