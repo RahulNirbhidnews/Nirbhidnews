@@ -187,7 +187,7 @@ npm run dev
 ### Deploying Backend to Render.com
 
 1. Log in to [Render](https://render.com) and create a **New Web Service**.
-2. Connect the GitHub repository.
+2. Connect the GitHub repository: `https://github.com/RahulNirbhidnews/Nirbhidnews`.
 3. Set:
    - **Root Directory:** `backend`
    - **Environment:** `Python 3`
@@ -202,7 +202,19 @@ npm run dev
    - `SUPABASE_STORAGE_BUCKET`: `news-media`
    - `CORS_ORIGINS`: `https://nirbhidnews.com,https://<your-vercel-app>.vercel.app`
    - `ACCESS_TOKEN_EXPIRE_MINUTES`: `1440`
+   - `RENDER_EXTERNAL_URL`: `https://nirbhid-news-api1.onrender.com`
 5. Click **Deploy Web Service**.
+
+---
+
+### 📡 24/7 Render Uptime Keep-Alive Bot Setup
+
+To prevent Render free instances from sleeping after 15 minutes of inactivity:
+- **Built-in Background Keep-Alive**: FastAPI runs a background worker (`app.services.keepalive_service`) pinging `/api/v1/health` every 10 minutes.
+- **External Free Uptime Monitor**:
+  - Target URL: `https://nirbhid-news-api1.onrender.com/api/v1/health` or `/api/v1/ping`
+  - Set up a free 5–10 minute HTTP monitor on [UptimeRobot](https://uptimerobot.com) or [cron-job.org](https://cron-job.org).
+  - Standalone script: `python backend/scripts/uptime_bot.py`.
 
 ---
 
