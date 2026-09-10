@@ -19,10 +19,25 @@ export const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { language, t, translateCategory, translateArticle } = useLanguage();
   const [isAISummaryOpen, setIsAISummaryOpen] = useState(false);
+  const [fontSizeDelta, setFontSizeDelta] = useState<number>(0);
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
 
   React.useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
   }, [slug]);
+
+  // Track reading scroll progress
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalScroll > 0) {
+        const currentProgress = (window.scrollY / totalScroll) * 100;
+        setScrollProgress(Math.min(100, Math.max(0, currentProgress)));
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const {
     data: rawArticle,
@@ -109,6 +124,11 @@ export const ArticleDetailPage: React.FC = () => {
 
   return (
     <div className="container" style={{ padding: '1.5rem 1.25rem 4rem 1.25rem' }}>
+      {/* Reading Progress Indicator */}
+      <div className="reading-progress-container">
+        <div className="reading-progress-bar" style={{ width: `${scrollProgress}%` }} />
+      </div>
+
       <SEOHead
         title={article.title}
         description={article.excerpt || article.title}
@@ -163,16 +183,47 @@ export const ArticleDetailPage: React.FC = () => {
       >
         {/* Left Column: Full News Content */}
         <main>
-          {/* Category Tag */}
-          {article.category && (
-            <Link
-              to={`/category/${article.category.slug}`}
-              className="badge badge-primary"
-              style={{ marginBottom: '1rem', textDecoration: 'none' }}
-            >
-              {translateCategory(article.category.slug, article.category.name)}
-            </Link>
-          )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+            {/* Category Tag */}
+            {article.category && (
+              <Link
+                to={`/category/${article.category.slug}`}
+                className="badge badge-primary"
+                style={{ textDecoration: 'none' }}
+              >
+                {translateCategory(article.category.slug, article.category.name)}
+              </Link>
+            )}
+
+            {/* Font Size Resizer Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', backgroundColor: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-full)' }}>
+              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, marginRight: '0.25rem' }}>अ/A:</span>
+              <button
+                type="button"
+                onClick={() => setFontSizeDelta(Math.max(-2, fontSizeDelta - 1))}
+                style={{ background: fontSizeDelta === -2 ? '#e2e8f0' : 'transparent', border: 'none', padding: '0.15rem 0.4rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#334155' }}
+                title="Decrease font size"
+              >
+                -
+              </button>
+              <button
+                type="button"
+                onClick={() => setFontSizeDelta(0)}
+                style={{ background: fontSizeDelta === 0 ? '#cbd5e1' : 'transparent', border: 'none', padding: '0.15rem 0.4rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#0f172a' }}
+                title="Default font size"
+              >
+                A
+              </button>
+              <button
+                type="button"
+                onClick={() => setFontSizeDelta(Math.min(4, fontSizeDelta + 1))}
+                style={{ background: fontSizeDelta > 0 ? '#e2e8f0' : 'transparent', border: 'none', padding: '0.15rem 0.4rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', color: '#334155' }}
+                title="Increase font size"
+              >
+                +
+              </button>
+            </div>
+          </div>
 
           {/* Main Headline */}
           <h1
@@ -193,7 +244,7 @@ export const ArticleDetailPage: React.FC = () => {
           {article.excerpt && (
             <p
               style={{
-                fontSize: '1.125rem',
+                fontSize: `${1.125 + fontSizeDelta * 0.05}rem`,
                 lineHeight: 1.6,
                 color: 'var(--color-text-muted)',
                 fontWeight: 500,
@@ -242,16 +293,15 @@ export const ArticleDetailPage: React.FC = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                backgroundColor: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-                background: '#4f46e5',
+                background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
                 color: '#ffffff',
                 border: 'none',
-                padding: '0.35rem 0.75rem',
+                padding: '0.4rem 0.85rem',
                 borderRadius: '9999px',
                 fontSize: '0.75rem',
                 fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(79, 70, 229, 0.3)',
+                boxShadow: '0 2px 8px rgba(79, 70, 229, 0.35)',
                 transition: 'all 0.2s ease',
               }}
             >
@@ -437,6 +487,53 @@ export const ArticleDetailPage: React.FC = () => {
           </div>
         </aside>
       </div>
+      {/* Floating Quick Action Dock on Mobile Screens */}
+      <div className="floating-article-actions hide-desktop">
+        <button
+          type="button"
+          onClick={() => setIsAISummaryOpen(true)}
+          className="floating-action-btn"
+          title="AI Summary"
+        >
+          <Sparkles size={14} color="#facc15" />
+          <span>{t.aiSummary}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (navigator.share) {
+              navigator.share({
+                title: article.title,
+                url: window.location.href,
+              }).catch(() => {});
+            } else {
+              window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(article.title + ' ' + window.location.href)}`, '_blank');
+            }
+          }}
+          className="floating-action-btn"
+          style={{ color: '#4ade80' }}
+          title="Share on WhatsApp"
+        >
+          <span>💬 {language === 'en' ? 'Share' : 'शेअर करा'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="floating-action-btn"
+          title="Top"
+        >
+          <span>↑ वर</span>
+        </button>
+      </div>
+
+      <style>{`
+        @media (min-width: 769px) {
+          .hide-desktop {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       {/* AI Summary Modal */}
       {article && (
         <AISummarizerModal

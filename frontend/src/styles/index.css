@@ -1501,3 +1501,200 @@ button {
   }
 }
 
+/* ========================================================
+   Mobile-First Navigation & Dock Enhancements
+   ======================================================== */
+.category-pills-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0.5rem 0.25rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+.category-pills-scroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.category-pill-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #334155;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+.category-pill-item:hover,
+.category-pill-item.active {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+}
+
+/* Mobile Bottom Navigation Dock (Sticky at bottom on small screens) */
+.mobile-bottom-dock {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 0.4rem 0.75rem calc(0.4rem + env(safe-area-inset-bottom));
+  z-index: 999;
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-dock {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+  body {
+    padding-bottom: 60px; /* Prevent bottom dock from covering page content */
+  }
+}
+
+.mobile-dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #64748b;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  transition: all 0.18s ease;
+  min-width: 50px;
+}
+.mobile-dock-item:active,
+.mobile-dock-item.active {
+  color: #dc2626;
+  transform: scale(1.05);
+}
+.mobile-dock-item svg {
+  transition: transform 0.2s ease;
+}
+.mobile-dock-item.active svg {
+  transform: translateY(-1px);
+}
+
+/* Article Reading Progress Bar */
+.reading-progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: transparent;
+  z-index: 1000;
+}
+.reading-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  transition: width 0.1s ease-out;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.6);
+}
+
+/* Floating Action Pills on Mobile Article Detail */
+.floating-article-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(10px);
+  padding: 0.4rem 0.75rem;
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: fixed;
+  bottom: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 990;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-action-btn {
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.6rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.floating-action-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fef08a;
+}
+.floating-action-btn.active {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Admin Dashboard Modern Metric Cards */
+.admin-metric-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.admin-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -4px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
+}
+
+.admin-metric-badge-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.725rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 9999px;
+}
+.admin-metric-badge-trend.up {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+.admin-metric-badge-trend.neutral {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+/* Glassmorphism Card Style */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--radius-lg, 12px);
+}
+
+

@@ -372,6 +372,49 @@ export const Navbar: React.FC = () => {
         </div>
       </nav>
 
+      {/* 3b. Mobile Quick Category Pill Strip (Smooth Touch Horizontal Scroll) */}
+      <div
+        style={{
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid var(--color-border)',
+          padding: '0.4rem 0.75rem',
+          position: 'sticky',
+          top: 0,
+          zIndex: 45,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+        }}
+        className="mobile-category-pill-strip"
+      >
+        <div className="category-pills-scroll">
+          <Link
+            to="/"
+            className={`category-pill-item ${location.pathname === '/' ? 'active' : ''}`}
+          >
+            {t.home}
+          </Link>
+          {categories.map((cat) => {
+            const isActive = location.pathname === `/category/${cat.slug}`;
+            return (
+              <Link
+                key={cat.slug}
+                to={`/category/${cat.slug}`}
+                className={`category-pill-item ${isActive ? 'active' : ''}`}
+              >
+                {translateCategory(cat.slug, cat.name)}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      <style>{`
+        @media (min-width: 769px) {
+          .mobile-category-pill-strip {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       {/* 4. Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div
@@ -596,6 +639,31 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 5. Mobile Bottom Navigation Dock */}
+      <div className="mobile-bottom-dock">
+        <Link to="/" className={`mobile-dock-item ${location.pathname === '/' ? 'active' : ''}`}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>{t.home}</span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          className="mobile-dock-item"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <FolderTree size={20} />
+          <span>{t.categories}</span>
+        </button>
+        <Link to="/search" className={`mobile-dock-item ${location.pathname === '/search' ? 'active' : ''}`}>
+          <Search size={20} />
+          <span>{t.searchNews}</span>
+        </Link>
+        <Link to="/admin/login" className={`mobile-dock-item ${location.pathname.startsWith('/admin') ? 'active' : ''}`}>
+          <Shield size={20} />
+          <span>{t.adminLogin}</span>
+        </Link>
+      </div>
     </header>
   );
 };

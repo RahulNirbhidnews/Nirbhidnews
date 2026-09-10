@@ -23,6 +23,9 @@ from app.models.category import Category
 from app.models.broadcast import BroadcastSetting
 from app.core.security import get_password_hash
 
+from app.services.news_ingest_service import start_background_news_scheduler
+from app.services.keepalive_service import start_keepalive_service
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Ensure all DB tables including advertisements are created
@@ -87,9 +90,10 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Error during bootstrap seeding: {e}")
 
-    # Start automated Live News Ingest Background Task (World & State news minute-by-minute)
+    # Start automated Live News Ingest Background Task & Render Uptime Keepalive Worker
     if settings.APP_ENV != "testing" and not os.environ.get("PYTEST_CURRENT_TEST"):
         start_background_news_scheduler()
+        start_keepalive_service()
     yield
 
 

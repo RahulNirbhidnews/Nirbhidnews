@@ -408,6 +408,47 @@ export const AdminLayout: React.FC = () => {
         <Outlet />
       </main>
 
+      {/* Admin Mobile Bottom Navigation Dock */}
+      <div className="mobile-bottom-dock">
+        <Link to="/admin" className={`mobile-dock-item ${location.pathname === '/admin' ? 'active' : ''}`}>
+          <LayoutDashboard size={20} />
+          <span>डॅशबोर्ड</span>
+        </Link>
+        <Link to="/admin/articles" className={`mobile-dock-item ${location.pathname === '/admin/articles' ? 'active' : ''}`}>
+          <FileText size={20} />
+          <span>बातम्या</span>
+        </Link>
+        <Link
+          to="/admin/articles/new"
+          className="mobile-dock-item"
+          style={{
+            color: '#ffffff',
+            backgroundColor: '#dc2626',
+            borderRadius: '50%',
+            width: '42px',
+            height: '42px',
+            marginTop: '-18px',
+            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4)',
+          }}
+          title="नवीन बातमी"
+        >
+          <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>+</span>
+        </Link>
+        <Link to="/admin/feeds" className={`mobile-dock-item ${location.pathname === '/admin/feeds' ? 'active' : ''}`}>
+          <Radio size={20} />
+          <span>फीड्स</span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          className="mobile-dock-item"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <Menu size={20} />
+          <span>अधिक</span>
+        </button>
+      </div>
+
       {/* Editorial Onboarding Tutorial Modal */}
       <AdminTutorialModal
         isOpen={isTutorialOpen}
