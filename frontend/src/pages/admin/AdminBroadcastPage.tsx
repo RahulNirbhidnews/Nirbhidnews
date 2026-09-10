@@ -146,15 +146,7 @@ export const AdminBroadcastPage: React.FC = () => {
       )}
 
       {/* Main Grid: Settings Form & Live Preview */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1.2fr 1fr',
-          gap: '2rem',
-          alignItems: 'start',
-        }}
-        className="broadcast-grid"
-      >
+      <div className="broadcast-grid">
         {/* Left Column: Form Settings */}
         <div
           style={{

@@ -127,17 +127,9 @@ export const HomePage: React.FC = () => {
       <ChiefEditorSpotlight />
 
       {/* 4. Main Editorial Layout Grid (70% News Feed / 30% Sidebar) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '7fr 3fr',
-          gap: '2.5rem',
-          marginTop: '2rem',
-        }}
-        className="homepage-editorial-grid"
-      >
+      <div className="homepage-editorial-grid">
         {/* Left Column: Latest Feed & Categorized Sections */}
-        <main>
+        <main style={{ minWidth: 0 }}>
           {/* Latest Stories Header */}
           <div
             style={{
@@ -202,7 +194,7 @@ export const HomePage: React.FC = () => {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
                 gap: '1.5rem',
                 marginBottom: '2.5rem',
               }}

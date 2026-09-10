@@ -149,12 +149,12 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
             </button>
           </div>
 
-          <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
+          <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
               <span style={{ fontSize: '0.7rem', color: '#166534', display: 'block', textTransform: 'uppercase', fontWeight: 800 }}>
                 Generated Clean Slug URL:
               </span>
-              <span style={{ fontSize: '0.8125rem', color: '#15803d', fontFamily: 'monospace', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.78125rem', color: '#15803d', fontFamily: 'monospace', fontWeight: 700, wordBreak: 'break-all', overflowWrap: 'anywhere' }}>
                 https://nirbhidnews.com/news/{generatedDemoSlug}
               </span>
             </div>
@@ -179,6 +179,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 gap: '0.3rem',
                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                 transition: 'all 0.2s ease',
+                flexShrink: 0,
               }}
             >
               {copiedSlug ? <Check size={14} /> : <Copy size={14} />}
@@ -453,8 +454,8 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
         { label: 'Instant Cache Invalidation', desc: 'Clears reader cache instantly so new edits appear in real-time' },
       ],
       interactiveDemo: (
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.25rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.85rem' }}>
+        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem', marginBottom: '0.85rem' }}>
             <div
               onClick={() => setDemoBreakingToggle(!demoBreakingToggle)}
               style={{
@@ -515,51 +516,44 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
             height: '4px',
             width: '100%',
             background: 'linear-gradient(90deg, #dc2626, #f59e0b, #0284c7, #16a34a)',
+            flexShrink: 0,
           }}
         />
 
-        {/* Modal Header (Clean Light Theme) */}
-        <div
-          style={{
-            padding: '1.25rem 1.75rem',
-            backgroundColor: '#f8fafc',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            borderBottom: '1px solid #e2e8f0',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        {/* Modal Header (Clean Light Theme & Responsive) */}
+        <div className="admin-tutorial-header">
+          <div className="admin-tutorial-header-main">
             <div
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '10px',
+                width: '36px',
+                height: '36px',
+                borderRadius: '8px',
                 background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 2px 8px rgba(220, 38, 38, 0.25)',
+                flexShrink: 0,
               }}
             >
-              <HelpCircle size={22} color="#ffffff" />
+              <HelpCircle size={20} color="#ffffff" />
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
-                  Nirbhid News CMS — Editorial Master Guide
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <h3 className="admin-tutorial-header-title" style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  Nirbhid News CMS — Editorial Guide
                 </h3>
-                <span style={{ fontSize: '0.65rem', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '2px 8px', borderRadius: '9999px', fontWeight: 800, textTransform: 'uppercase' }}>
-                  PRO EDITION
+                <span style={{ fontSize: '0.625rem', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '1px 6px', borderRadius: '9999px', fontWeight: 800, textTransform: 'uppercase' }}>
+                  PRO
                 </span>
               </div>
-              <p style={{ fontSize: '0.78125rem', color: '#64748b', margin: 0 }}>
-                Interactive editorial workflow for reporters, editors & bureau journalists
+              <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '2px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                Interactive editorial workflow for journalists & editors
               </p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div className="admin-tutorial-header-actions">
             {/* Language Switcher inside Guide */}
             <div style={{ display: 'flex', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '2px', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
               {(['mr', 'en', 'hi'] as const).map((lang) => (
@@ -613,15 +607,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
         </div>
 
         {/* Step Navigation Bar (Horizontal Swipeable Tabs) */}
-        <div
-          style={{
-            display: 'flex',
-            borderBottom: '1px solid #e2e8f0',
-            backgroundColor: '#ffffff',
-            overflowX: 'auto',
-            padding: '0 0.75rem',
-          }}
-        >
+        <div className="admin-tutorial-tabs-container">
           {stepsData.map((step, idx) => {
             const isActive = idx === activeTab;
             const isDone = idx < activeTab;
@@ -631,22 +617,12 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 key={step.id}
                 type="button"
                 onClick={() => setActiveTab(idx)}
+                className="admin-tutorial-tab-btn"
                 style={{
-                  flex: 1,
-                  minWidth: '140px',
-                  padding: '0.85rem 0.65rem',
-                  border: 'none',
                   borderBottom: isActive ? `3px solid ${step.tagColor}` : '3px solid transparent',
                   backgroundColor: isActive ? '#f8fafc' : 'transparent',
                   color: isActive ? '#0f172a' : '#64748b',
                   fontWeight: isActive ? 800 : 600,
-                  fontSize: '0.78125rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.15s ease',
-                  whiteSpace: 'nowrap',
                 }}
               >
                 <div
@@ -661,6 +637,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                     justifyContent: 'center',
                     fontSize: '0.7rem',
                     fontWeight: 800,
+                    flexShrink: 0,
                   }}
                 >
                   {isDone ? <Check size={14} /> : step.number}
@@ -674,9 +651,9 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
         {/* Modal Main Content: Split Grid Layout */}
         <div className="admin-tutorial-layout">
           {/* Left Column: Guidelines & Features */}
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div className="admin-tutorial-col" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0 }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                 <span
                   style={{
                     fontSize: '0.7rem',
@@ -717,12 +694,13 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                       display: 'flex',
                       alignItems: 'flex-start',
                       gap: '0.65rem',
+                      minWidth: 0,
                     }}
                   >
                     <div style={{ width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
                       <CheckCheck size={12} color="#16a34a" />
                     </div>
-                    <div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'block', marginBottom: '0.1rem' }}>
                         {feat.label}
                       </span>
@@ -741,7 +719,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
           </div>
 
           {/* Right Column: Interactive Sandbox Simulator */}
-          <div>
+          <div className="admin-tutorial-col" style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: '#334155', fontWeight: 700, marginBottom: '0.65rem' }}>
               <MousePointerClick size={16} color="#0284c7" /> Interactive Sandbox Experience
             </div>
@@ -750,16 +728,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
         </div>
 
         {/* Modal Footer Controls */}
-        <div
-          style={{
-            padding: '1rem 1.75rem',
-            backgroundColor: '#f8fafc',
-            borderTop: '1px solid #e2e8f0',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
+        <div className="admin-tutorial-footer">
           <button
             type="button"
             disabled={activeTab === 0}

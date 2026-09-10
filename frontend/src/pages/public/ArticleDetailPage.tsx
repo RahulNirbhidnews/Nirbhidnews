@@ -178,16 +178,9 @@ export const ArticleDetailPage: React.FC = () => {
       </nav>
 
       {/* Main Grid: Article Column (Left) & Sidebar (Right) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '7fr 3fr',
-          gap: '2.5rem',
-        }}
-        className="article-page-layout"
-      >
+      <div className="article-page-layout">
         {/* Left Column: Full News Content */}
-        <main>
+        <main style={{ minWidth: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
             {/* Category Tag */}
             {article.category && (

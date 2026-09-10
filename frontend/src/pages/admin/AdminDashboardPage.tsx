@@ -310,7 +310,7 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
 
           {/* 3. Analytics Charts Section (7-Day Trend + Device Breakdown) */}
-          <div style={{ display: 'grid', gridTemplateColumns: '7fr 3fr', gap: '1.5rem', marginBottom: '2rem' }} className="article-editor-grid">
+          <div className="admin-analytics-grid">
             {/* 7-Day Readership & Visitor Trend Graph */}
             <div className="editor-card" style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -454,7 +454,7 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
 
           {/* 4. Top Read News Leaderboard & Category Readership */}
-          <div style={{ display: 'grid', gridTemplateColumns: '6fr 4fr', gap: '1.5rem', marginBottom: '2.5rem' }} className="article-editor-grid">
+          <div className="admin-leaderboard-grid">
             {/* Top Articles Leaderboard */}
             <div className="editor-card">
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-secondary)', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
