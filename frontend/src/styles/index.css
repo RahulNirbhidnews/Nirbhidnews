@@ -1708,4 +1708,57 @@ button:disabled .animate-spin {
   border-radius: var(--radius-lg, 12px);
 }
 
+/* Guided Editorial Masterclass Light Theme & Responsive Styles */
+.admin-tutorial-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-tutorial-card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(226, 232, 240, 0.9);
+  max-width: 1040px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-tutorial-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+@media (max-width: 868px) {
+  .admin-tutorial-modal-overlay {
+    padding: 0.5rem;
+  }
+  .admin-tutorial-card {
+    max-height: 96vh;
+    border-radius: 16px;
+  }
+  .admin-tutorial-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.25rem 1rem;
+  }
+}
+
+
 
