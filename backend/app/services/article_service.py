@@ -74,19 +74,64 @@ def get_public_articles(
     return articles, total, total_pages
 
 
+import urllib.parse
+
 def get_public_article_by_slug(db: Session, slug: str) -> Article:
-    """Retrieve a single published article by slug."""
+    """Retrieve a single published article by clean slug, legacy slug, or short hash."""
+    raw_slug = slug.strip().lower()
+    unquoted_slug = urllib.parse.unquote(raw_slug).strip().lower()
+
+    # 1. Exact match on slug (clean or unquoted)
     stmt = (
         select(Article)
         .join(Category, Category.id == Article.category_id)
         .options(joinedload(Article.category), joinedload(Article.author))
         .where(
-            Article.slug == slug.lower().strip(),
+            or_(
+                Article.slug == raw_slug,
+                Article.slug == unquoted_slug,
+            ),
             Article.status == "published",
             Category.is_active == True,
         )
     )
     article = db.scalar(stmt)
+
+    # 2. Match by ending hash or UUID if not found directly
+    if not article and len(raw_slug) >= 6:
+        # Extract potential 6-character hash from the end of the slug
+        slug_hash = raw_slug.split("-")[-1] if "-" in raw_slug else raw_slug
+        if len(slug_hash) >= 6:
+            stmt_hash = (
+                select(Article)
+                .join(Category, Category.id == Article.category_id)
+                .options(joinedload(Article.category), joinedload(Article.author))
+                .where(
+                    Article.slug.like(f"%{slug_hash}"),
+                    Article.status == "published",
+                    Category.is_active == True,
+                )
+            )
+            article = db.scalar(stmt_hash)
+
+    # 3. Match by ID
+    if not article:
+        try:
+            art_id = UUID(raw_slug)
+            stmt_id = (
+                select(Article)
+                .join(Category, Category.id == Article.category_id)
+                .options(joinedload(Article.category), joinedload(Article.author))
+                .where(
+                    Article.id == art_id,
+                    Article.status == "published",
+                    Category.is_active == True,
+                )
+            )
+            article = db.scalar(stmt_id)
+        except (ValueError, AttributeError):
+            pass
+
     if not article:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

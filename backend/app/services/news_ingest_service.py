@@ -290,14 +290,40 @@ def build_rich_news_story(
         )
 
 
+from app.utils.slug import generate_clean_slug
+
 def make_unique_slug(title: str, category_slug: str) -> str:
-    """Generate a clean URL-friendly unique slug with a short deterministic hash."""
-    clean_title = re.sub(r"[^\w\s-]", "", title.lower())
-    clean_title = re.sub(r"[\s_-]+", "-", clean_title).strip("-")
-    if not clean_title:
-        clean_title = f"{category_slug}-update"
-    title_hash = hashlib.md5(title.encode("utf-8")).hexdigest()[:6]
-    return f"{clean_title[:60]}-{title_hash}"
+    """Generate a clean, short, URL-safe ASCII slug (never Unicode percent-encoded)."""
+    return generate_clean_slug(title, category_slug=category_slug)
+
+
+def clean_all_article_slugs(db: Session) -> int:
+    """Convert any existing Unicode/Devanagari slugs to short, clean ASCII slugs."""
+    updated = 0
+    try:
+        articles = db.scalars(select(Article)).all()
+        used_slugs = set()
+        for art in articles:
+            # Check if slug has non-ascii characters or is too long
+            has_non_ascii = any(ord(c) >= 128 for c in (art.slug or ""))
+            is_too_long = len(art.slug or "") > 60
+            if has_non_ascii or is_too_long or not art.slug:
+                cat_slug = art.category.slug if art.category else "news"
+                new_slug = generate_clean_slug(art.title, category_slug=cat_slug)
+                if new_slug in used_slugs:
+                    new_slug = f"{new_slug}-{uuid.uuid4().hex[:4]}"
+                art.slug = new_slug
+                used_slugs.add(new_slug)
+                updated += 1
+            else:
+                used_slugs.add(art.slug)
+
+        if updated > 0:
+            db.commit()
+            print(f"[News Ingest] Successfully converted {updated} articles to clean ASCII short slugs.")
+    except Exception as exc:
+        print(f"[News Ingest] Error cleaning slugs: {exc}")
+    return updated
 
 
 def enrich_existing_short_articles(db: Session) -> int:
@@ -337,7 +363,9 @@ def sync_live_feeds_sync() -> Dict:
     sources_summary = []
 
     try:
-        # First enrich any old short articles in DB
+        # First clean all slugs and enrich any old short articles in DB
+        clean_all_article_slugs(db)
+        enrich_existing_short_articles(db)
         enrich_existing_short_articles(db)
 
         # Find Chief Editor or Admin user
