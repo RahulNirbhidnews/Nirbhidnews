@@ -4,6 +4,7 @@ import { Flame, X, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { articleApi } from '../../api/articles';
 import { useLanguage } from '../../context/LanguageContext';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 export const BreakingPopupModal: React.FC = () => {
   const { t, translateArticle } = useLanguage();
@@ -105,7 +106,7 @@ export const BreakingPopupModal: React.FC = () => {
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
           {topBreaking.featured_image_url && (
             <img
-              src={topBreaking.featured_image_url}
+              src={resolveMediaUrl(topBreaking.featured_image_url)}
               alt=""
               style={{
                 width: '64px',

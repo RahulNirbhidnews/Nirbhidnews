@@ -176,16 +176,22 @@ export const ArticleEditorPage: React.FC = () => {
 
   // Handle Title input with Auto-slug generator
   const handleTitleChange = (newTitle: string) => {
-    const generatedSlug = newTitle
+    let generatedSlug = newTitle
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/[\s-]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
+    if (!generatedSlug || generatedSlug.length < 2) {
+      // Create clean hash-based slug if non-English
+      const hash = Math.random().toString(36).substring(2, 8);
+      generatedSlug = `news-${hash}`;
+    }
+
     setFormData((prev) => ({
       ...prev,
       title: newTitle,
-      slug: prev.slug === '' || prev.slug === formData.slug ? generatedSlug : prev.slug,
+      slug: !prev.slug || prev.slug.startsWith('news-') ? generatedSlug : prev.slug,
     }));
   };
 
@@ -321,6 +327,7 @@ export const ArticleEditorPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['public-articles'] });
       queryClient.invalidateQueries({ queryKey: ['featured-articles'] });
       queryClient.invalidateQueries({ queryKey: ['breaking-articles'] });
+      queryClient.invalidateQueries({ queryKey: ['latest-public-articles'] });
       navigate('/admin/articles');
     },
     onError: (err: any) => {
@@ -336,19 +343,28 @@ export const ArticleEditorPage: React.FC = () => {
 
     // Validation
     if (!formData.title.trim()) {
-      setFormError('Article headline is required.');
+      setFormError(language === 'mr' ? 'कृपया बातमीचे मुख्य शीर्षक टाका.' : 'Article headline is required.');
       return;
     }
     if (!formData.content.trim()) {
-      setFormError('Article content body is required.');
+      setFormError(language === 'mr' ? 'कृपया बातमीचा मुख्य तपशील टाका.' : 'Article content body is required.');
       return;
     }
     if (!formData.category_id) {
-      setFormError('Please select a news category.');
+      setFormError(language === 'mr' ? 'कृपया बातमीचा विभाग निवडा.' : 'Please select a news category.');
       return;
     }
 
-    saveMutation.mutate(formData);
+    const cleanSlug = formData.slug && formData.slug.trim()
+      ? formData.slug.trim()
+      : `news-${Math.random().toString(36).substring(2, 8)}`;
+
+    const submissionData = {
+      ...formData,
+      slug: cleanSlug,
+    };
+
+    saveMutation.mutate(submissionData);
   };
 
   if (isEditing && loadingArticle) {
@@ -1157,6 +1173,46 @@ export const ArticleEditorPage: React.FC = () => {
         </div>
       </form>
 
+      {/* Dynamic Saving Overlay */}
+      {saveMutation.isPending && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            color: '#ffffff',
+            gap: '1.25rem',
+            animation: 'fadeIn 0.2s ease',
+          }}
+        >
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              border: '4px solid rgba(255,255,255,0.2)',
+              borderTopColor: '#ef4444',
+              borderRightColor: '#f59e0b',
+              animation: 'rollingRotate 0.8s linear infinite',
+            }}
+          />
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#ffffff' }}>
+              {formData.status === 'published' ? 'Publishing News Story...' : 'Saving Draft Article...'}
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: '#94a3b8', margin: 0 }}>
+              Updating news feed, invalidating cache & synchronizing media...
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Tutorial Modal */}
       <AdminTutorialModal
         isOpen={isTutorialOpen}
@@ -1165,3 +1221,4 @@ export const ArticleEditorPage: React.FC = () => {
     </div>
   );
 };
+
