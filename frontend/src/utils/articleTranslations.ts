@@ -406,23 +406,27 @@ export function stripHtml(raw: string | undefined | null): string {
       }
     });
 
-  // 2. Strip HTML tags
-  text = text.replace(/<[^>]*>?/gm, '');
+  // 2. Strip only real HTML tags (preserve < and > when used as comparisons/quotes)
+  text = text.replace(/<\/?[a-zA-Z][a-zA-Z0-9]*\b[^>]*>/gi, '');
 
-  // 3. Remove leftover broken angle bracket artifacts
-  text = text.replace(/<.*$/g, '').replace(/^.*>/g, '');
-
-  // 4. Normalize spaces
-  text = text.replace(/\s+/g, ' ').trim();
-  return text;
+  return text.trim();
 }
 
 /**
  * Translates a single string using Google Translate client-side API.
  */
 export async function translateText(text: string, targetLang: Language): Promise<string> {
+  if (!text || !text.trim()) return text || '';
   const cleanInput = stripHtml(text);
   if (!cleanInput) return text || '';
+
+  // Skip translation if already in target language
+  if (targetLang === 'en' && !/[\u0900-\u097F]/.test(cleanInput)) {
+    return cleanInput;
+  }
+  if (targetLang === 'mr' && !/[a-zA-Z]{3,}/.test(cleanInput) && /[\u0900-\u097F]/.test(cleanInput)) {
+    return cleanInput;
+  }
 
   const cacheKey = `tr_${targetLang}_${cleanInput.slice(0, 80)}_${cleanInput.length}`;
 
@@ -457,22 +461,86 @@ export async function translateText(text: string, targetLang: Language): Promise
 }
 
 /**
- * Translates long markdown content chunked by paragraphs for optimal accuracy.
+ * Translates long markdown content chunked by paragraphs and preserves formatting.
  */
-async function translateLongText(content: string, targetLang: Language): Promise<string> {
-  if (!content || !content.trim()) return content;
-  if (content.length <= 2000) {
-    return translateText(content, targetLang);
+export async function translateMarkdown(markdown: string, targetLang: Language): Promise<string> {
+  if (!markdown || !markdown.trim()) return markdown;
+
+  // If already in target language
+  if (targetLang === 'en' && !/[\u0900-\u097F]/.test(markdown)) {
+    return markdown;
+  }
+  if (targetLang === 'mr' && !/[a-zA-Z]{4,}/.test(markdown) && /[\u0900-\u097F]/.test(markdown)) {
+    return markdown;
   }
 
-  const paragraphs = content.split(/\n\n+/);
-  const translatedParagraphs = await Promise.all(
-    paragraphs.map((p) => {
-      if (p.trim().length === 0) return Promise.resolve(p);
-      return translateText(p, targetLang);
+  const blocks = markdown.split(/\n\n+/);
+  const translatedBlocks = await Promise.all(
+    blocks.map(async (block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return block;
+
+      // Preserve markdown headers (# Header)
+      const headerMatch = block.match(/^(#{1,6}\s+)(.*)$/s);
+      if (headerMatch) {
+        const trans = await translateText(headerMatch[2], targetLang);
+        return headerMatch[1] + trans;
+      }
+
+      // Preserve blockquotes (> Quote)
+      const quoteMatch = block.match(/^(>\s+)(.*)$/s);
+      if (quoteMatch) {
+        const trans = await translateText(quoteMatch[2], targetLang);
+        return quoteMatch[1] + trans;
+      }
+
+      // Preserve bullet items (- Item or * Item)
+      if (/^[-*]\s+/.test(trimmed)) {
+        const lines = block.split('\n');
+        const translatedLines = await Promise.all(
+          lines.map(async (line) => {
+            const lineMatch = line.match(/^([-*]\s+)(.*)$/);
+            if (lineMatch) {
+              const trans = await translateText(lineMatch[2], targetLang);
+              return lineMatch[1] + trans;
+            }
+            return translateText(line, targetLang);
+          })
+        );
+        return translatedLines.join('\n');
+      }
+
+      // Preserve numbered items (1. Item)
+      if (/^\d+\.\s+/.test(trimmed)) {
+        const lines = block.split('\n');
+        const translatedLines = await Promise.all(
+          lines.map(async (line) => {
+            const lineMatch = line.match(/^(\d+\.\s+)(.*)$/);
+            if (lineMatch) {
+              const trans = await translateText(lineMatch[2], targetLang);
+              return lineMatch[1] + trans;
+            }
+            return translateText(line, targetLang);
+          })
+        );
+        return translatedLines.join('\n');
+      }
+
+      return translateText(block, targetLang);
     })
   );
-  return translatedParagraphs.join('\n\n');
+
+  return translatedBlocks.join('\n\n');
+}
+
+/**
+ * Check if translation is currently in-flight
+ */
+export function isTranslationInFlight(article: Article, targetLang: Language): boolean {
+  if (!article) return false;
+  const articleKey = article.slug || String(article.id);
+  const cacheKey = `${articleKey}_${targetLang}`;
+  return IN_FLIGHT.has(cacheKey);
 }
 
 /**
@@ -497,7 +565,7 @@ export async function fetchDynamicTranslation(
       const [transTitle, transExcerpt, transContent] = await Promise.all([
         cleanTitle ? translateText(cleanTitle, targetLang) : Promise.resolve(''),
         cleanExcerpt ? translateText(cleanExcerpt, targetLang) : Promise.resolve(''),
-        article.content ? translateLongText(article.content, targetLang) : Promise.resolve(''),
+        article.content ? translateMarkdown(article.content, targetLang) : Promise.resolve(''),
       ]);
 
       const result: TranslatedArticleFields = {
@@ -583,9 +651,36 @@ export function getTranslatedArticle(article: Article, language: Language): Arti
     }
   }
 
-  // 4. Check In-Memory Dynamic Cache
-  if (MEMORY_CACHE.has(dynamicKey)) {
-    const cached = MEMORY_CACHE.get(dynamicKey)!;
+  // Check In-Memory Dynamic Cache
+  let cached = MEMORY_CACHE.get(dynamicKey);
+
+  // Check Session Storage Dynamic Cache
+  if (!cached) {
+    try {
+      const sessionData = sessionStorage.getItem(`art_trans_${dynamicKey}`);
+      if (sessionData) {
+        cached = JSON.parse(sessionData);
+        if (cached) {
+          MEMORY_CACHE.set(dynamicKey, cached);
+        }
+      }
+    } catch {}
+  }
+
+  // Check if content translation is missing while full content is provided
+  const hasFullContent = Boolean(article.content && article.content.trim().length > 20);
+  const isContentMissingInCache = hasFullContent && (!cached || !cached.content || cached.content === article.content);
+  const isTargetDifferentFromSource =
+    (language === 'en' && /[\u0900-\u097F]/.test(article.title || article.content || '')) ||
+    (language === 'hi' && /[\u0933\u0962\u0963]/.test(article.title || article.content || '') || (language === 'hi' && !/[\u0900-\u097F]/.test(article.title || ''))) ||
+    (language === 'mr' && /[a-zA-Z]{5,}/.test(article.title || ''));
+
+  if (cached) {
+    if (isContentMissingInCache && isTargetDifferentFromSource) {
+      // Trigger background translation for full content
+      fetchDynamicTranslation(article, language);
+    }
+
     return {
       ...article,
       title: stripHtml(cached.title || article.title),
@@ -595,30 +690,16 @@ export function getTranslatedArticle(article: Article, language: Language): Arti
     };
   }
 
-  // 5. Check Session Storage Dynamic Cache
-  try {
-    const sessionData = sessionStorage.getItem(`art_trans_${dynamicKey}`);
-    if (sessionData) {
-      const parsed: TranslatedArticleFields = JSON.parse(sessionData);
-      MEMORY_CACHE.set(dynamicKey, parsed);
-      return {
-        ...article,
-        title: stripHtml(parsed.title || article.title),
-        excerpt: parsed.excerpt !== undefined ? stripHtml(parsed.excerpt) : (article.excerpt ? stripHtml(article.excerpt) : undefined),
-        content: parsed.content || article.content,
-        author_name: finalAuthor || article.author_name,
-      };
-    }
-  } catch {}
-
-  // 6. Not yet cached: Trigger dynamic background translation
+  // Not yet cached: Trigger dynamic background translation
   fetchDynamicTranslation(article, language);
 
   return {
     ...article,
     title: stripHtml(article.title),
     excerpt: article.excerpt ? stripHtml(article.excerpt) : undefined,
+    content: article.content,
     author_name: finalAuthor || article.author_name,
   };
 }
+
 

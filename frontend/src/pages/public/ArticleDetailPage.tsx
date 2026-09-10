@@ -14,10 +14,11 @@ import { SEOHead } from '../../components/common/SEOHead';
 import { SkeletonLoader } from '../../components/common/SkeletonLoader';
 import { useLanguage } from '../../context/LanguageContext';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { isTranslationInFlight } from '../../utils/articleTranslations';
 
 export const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { language, t, translateCategory, translateArticle } = useLanguage();
+  const { language, t, translateCategory, translateArticle, translationVersion } = useLanguage();
   const [isAISummaryOpen, setIsAISummaryOpen] = useState(false);
   const [fontSizeDelta, setFontSizeDelta] = useState<number>(0);
   const [scrollProgress, setScrollProgress] = useState<number>(0);
@@ -49,7 +50,11 @@ export const ArticleDetailPage: React.FC = () => {
     enabled: Boolean(slug),
   });
 
-  const article = rawArticle ? translateArticle(rawArticle) : null;
+  const article = React.useMemo(() => {
+    return rawArticle ? translateArticle(rawArticle) : null;
+  }, [rawArticle, language, translationVersion, translateArticle]);
+
+  const isTranslating = rawArticle ? isTranslationInFlight(rawArticle, language) : false;
 
   // Fetch related articles from same category
   const { data: relatedData } = useQuery({
@@ -224,6 +229,40 @@ export const ArticleDetailPage: React.FC = () => {
               </button>
             </div>
           </div>
+
+          {/* Dynamic Translation In-Progress Indicator */}
+          {isTranslating && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                backgroundColor: '#eff6ff',
+                color: '#1d4ed8',
+                border: '1px solid #bfdbfe',
+                borderRadius: 'var(--radius-full)',
+                padding: '0.35rem 0.85rem',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                marginBottom: '0.75rem',
+              }}
+            >
+              <div
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#2563eb',
+                  animation: 'pulse 1.2s infinite',
+                }}
+              />
+              {language === 'en'
+                ? 'Translating full story to English...'
+                : language === 'hi'
+                ? 'खबर का हिंदी में अनुवाद किया जा रहा है...'
+                : 'मजकूर मराठीत भाषांतरित होत आहे...'}
+            </div>
+          )}
 
           {/* Main Headline */}
           <h1
