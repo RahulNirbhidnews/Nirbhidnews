@@ -9,16 +9,10 @@ import {
   Video as VideoIcon,
   Sparkles,
   Send,
-  Radio,
-  Star,
   Check,
   Play,
   Copy,
-  Layers,
-  Flame,
-  MousePointerClick,
   CheckCheck,
-  HelpCircle
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { Language } from '../../utils/translations';
@@ -33,19 +27,11 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
   onClose,
 }) => {
   const { language: globalLang, setLanguage } = useLanguage();
-  const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeStep, setActiveStep] = useState<number>(0);
   const [modalLang, setModalLang] = useState<Language>(globalLang);
-
-  // Interactive step simulators state
-  const [demoHeadline, setDemoHeadline] = useState('मुंबई-पुणे एक्सप्रेसवेवर नवीन AI ट्रॅफिक सिस्टीम सुरू');
-  const [demoAspect, setDemoAspect] = useState<'16:9' | '4:3' | '1:1'>('16:9');
-  const [demoVideoPlaying, setDemoVideoPlaying] = useState(false);
-  const [demoTemplate, setDemoTemplate] = useState<'breaking' | 'report' | 'interview'>('breaking');
-  const [demoBreakingToggle, setDemoBreakingToggle] = useState(true);
-  const [demoHeroToggle, setDemoHeroToggle] = useState(true);
   const [copiedSlug, setCopiedSlug] = useState(false);
 
-  // Sync language with global if changed
+  // Sync language with global
   useEffect(() => {
     setModalLang(globalLang);
   }, [globalLang]);
@@ -55,113 +41,47 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight' && activeTab < 4) setActiveTab((prev) => prev + 1);
-      if (e.key === 'ArrowLeft' && activeTab > 0) setActiveTab((prev) => prev - 1);
+      if (e.key === 'ArrowRight' && activeStep < 4) setActiveStep((prev) => prev + 1);
+      if (e.key === 'ArrowLeft' && activeStep > 0) setActiveStep((prev) => prev - 1);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, activeTab, onClose]);
+  }, [isOpen, activeStep, onClose]);
 
   if (!isOpen) return null;
-
-  // Calculate clean slug for interactive demo 1
-  const generatedDemoSlug = demoHeadline
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/[\s-]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'mumbai-pune-ai-traffic-dc5716';
 
   const stepsData = [
     {
       id: 'step-1',
       number: '01',
       title: modalLang === 'mr' ? 'मथळे व ऑटो-स्लग' : modalLang === 'hi' ? 'शीर्षक एवं ऑटो-स्लग' : 'Headlines & Auto-Slug',
-      category: modalLang === 'mr' ? 'लेखन व SEO' : modalLang === 'hi' ? 'लेखन एवं SEO' : 'Writing & SEO Beat',
-      icon: <FileText size={18} color="#dc2626" />,
-      tagColor: '#dc2626',
-      headline: modalLang === 'mr' ? 'आकर्षक मथळे, ऑटो-स्लग व बातमी विभाग' : modalLang === 'hi' ? 'आकर्षक शीर्षक, ऑटो-स्लग एवं श्रेणी' : 'Dynamic Headlines, Auto-Slug & Beats',
-      summary: modalLang === 'mr'
-        ? 'मथळा टाईप करताच WhatsApp व सोशल मीडियासाठी स्वच्छ आणि सुरक्षित ASCII इंग्रजी वेब लिंक आपोआप तयार होते.'
+      badge: modalLang === 'mr' ? 'पायरी १: मथळा व SEO' : modalLang === 'hi' ? 'चरण १: शीर्षक एवं SEO' : 'Step 1: Writing & SEO',
+      icon: <FileText size={20} color="#dc2626" />,
+      color: '#dc2626',
+      headline: modalLang === 'mr' ? 'आकर्षक मथळा व ऑटो-स्लग' : modalLang === 'hi' ? 'आकर्षक शीर्षक एवं ऑटो-स्लग' : 'Catchy Headline & Auto-Slug',
+      description: modalLang === 'mr'
+        ? 'मथळा लिहिताच WhatsApp व सोशल मीडियासाठी स्वच्छ इंग्रजी वेब लिंक आपोआप तयार होते.'
         : modalLang === 'hi'
-        ? 'शीर्षक टाइप करते ही WhatsApp और सोशल मीडिया के लिए स्वच्छ और सुरक्षित ASCII अंग्रेजी वेब लिंक स्वतः बन जाता है।'
-        : 'Typing any headline automatically creates a clean, short ASCII slug so shared links on WhatsApp are short, fast, and never hex-encoded.',
-      features: [
-        { label: 'Auto-Slug Engine', desc: 'Converts Marathi/Hindi to clean URL slugs (e.g. news-mumbai-dc5716)' },
-        { label: '12+ Editorial Beats', desc: 'Assign to Maharashtra, Mumbai Metro, Thane, Politics, Crime, Sports, Tech' },
-        { label: 'SEO Excerpt', desc: 'Add 1-2 sentence lead summary for Google ranking & WhatsApp preview cards' },
+        ? 'शीर्षक लिखते ही WhatsApp एवं सोशल मीडिया के लिए स्वच्छ अंग्रेजी वेब लिंक अपने-आप बन जाती है।'
+        : 'Typing any headline instantly creates a clean, short ASCII slug so shared links on WhatsApp are short and fast.',
+      points: [
+        modalLang === 'mr' ? 'मराठी मथळ्याचे स्वच्छ इंग्रजी URL मध्ये रूपांतर' : modalLang === 'hi' ? 'शीर्षक का स्वच्छ अंग्रेजी URL में स्वतः रूपांतरण' : 'Auto-converts regional headlines into clean ASCII URLs',
+        modalLang === 'mr' ? '१२+ संपादकीय विभाग (महाराष्ट्र, मुंबई, राजकारण, गुन्हे...)' : modalLang === 'hi' ? '१२+ संपादकीय श्रेणियां (महाराष्ट्र, मुंबई, राजनीति...)' : '12+ Editorial beats (Maharashtra, Mumbai, Politics, Crime...)',
+        modalLang === 'mr' ? 'गुगल व व्हॉट्सॲप प्रिव्ह्यूसाठी १-२ ओळींचा सारांश' : modalLang === 'hi' ? 'Google और WhatsApp पूर्वावलोकन हेतु १-२ पंक्तियों का सारांश' : '1-2 sentence lead excerpt for Google Search & WhatsApp cards',
       ],
-      interactiveDemo: (
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.25rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
-            <span style={{ fontSize: '0.75rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }} />
-              Live Interactive Slug Simulator
+      preview: (
+        <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '0.75rem 0.85rem' }}>
+          <div style={{ fontSize: '0.7rem', color: '#166534', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+            ✓ Generated Clean WhatsApp Link:
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.75rem', color: '#15803d', fontFamily: 'monospace', fontWeight: 700, wordBreak: 'break-all' }}>
+              https://nirbhidnews.com/news/mumbai-expressway-dc5716
             </span>
-            <span style={{ fontSize: '0.7rem', color: '#0284c7', backgroundColor: '#e0f2fe', padding: '2px 8px', borderRadius: '9999px', fontWeight: 700 }}>
-              Try Typing Below
-            </span>
-          </div>
-
-          <div style={{ marginBottom: '0.75rem' }}>
-            <label style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>
-              Headline Input (मथळा):
-            </label>
-            <input
-              type="text"
-              value={demoHeadline}
-              onChange={(e) => setDemoHeadline(e.target.value)}
-              style={{
-                width: '100%',
-                backgroundColor: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                borderRadius: '8px',
-                padding: '0.65rem 0.85rem',
-                color: '#0f172a',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                outline: 'none',
-              }}
-              placeholder="Type headline here..."
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              onClick={() => setDemoHeadline('मुंबई-पुणे एक्सप्रेसवेवर नवीन AI ट्रॅफिक सिस्टीम सुरू')}
-              style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', fontSize: '0.7rem', fontWeight: 600, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer' }}
-            >
-              Preset 1: Expressway AI
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoHeadline('ठाणे महानगरपालिका नवीन अर्थसंकल्प २०२६ सादर')}
-              style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', fontSize: '0.7rem', fontWeight: 600, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer' }}
-            >
-              Preset 2: Thane Budget
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoHeadline('Maharashtra Cabinet Approves Major Infrastructure Project')}
-              style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', fontSize: '0.7rem', fontWeight: 600, padding: '3px 8px', borderRadius: '4px', cursor: 'pointer' }}
-            >
-              Preset 3: Cabinet News
-            </button>
-          </div>
-
-          <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <span style={{ fontSize: '0.7rem', color: '#166534', display: 'block', textTransform: 'uppercase', fontWeight: 800 }}>
-                Generated Clean Slug URL:
-              </span>
-              <span style={{ fontSize: '0.78125rem', color: '#15803d', fontFamily: 'monospace', fontWeight: 700, wordBreak: 'break-all', overflowWrap: 'anywhere' }}>
-                https://nirbhidnews.com/news/{generatedDemoSlug}
-              </span>
-            </div>
             <button
               type="button"
               onClick={() => {
-                navigator.clipboard.writeText(`https://nirbhidnews.com/news/${generatedDemoSlug}`);
+                navigator.clipboard.writeText('https://nirbhidnews.com/news/mumbai-expressway-dc5716');
                 setCopiedSlug(true);
                 setTimeout(() => setCopiedSlug(false), 1500);
               }}
@@ -170,347 +90,194 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 color: copiedSlug ? '#ffffff' : '#0f172a',
                 border: '1px solid #cbd5e1',
                 borderRadius: '6px',
-                padding: '0.35rem 0.65rem',
-                fontSize: '0.75rem',
+                padding: '3px 8px',
+                fontSize: '0.7rem',
                 fontWeight: 700,
                 cursor: 'pointer',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.3rem',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                transition: 'all 0.2s ease',
+                gap: '3px',
                 flexShrink: 0,
               }}
             >
-              {copiedSlug ? <Check size={14} /> : <Copy size={14} />}
+              {copiedSlug ? <Check size={12} /> : <Copy size={12} />}
               {copiedSlug ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>
       ),
+      tip: modalLang === 'mr' ? 'टीप: मथळा ६० ते ८० अक्षरांमध्ये ठेवल्यास जास्त वाचक मिळतात.' : modalLang === 'hi' ? 'सुझाव: ६०-८० अक्षरों का शीर्षक अधिक पाठकों को आकर्षित करता है।' : 'Tip: Headlines between 60-80 characters get maximum clicks on WhatsApp.',
     },
     {
       id: 'step-2',
       number: '02',
-      title: modalLang === 'mr' ? 'फोटो व कव्हर इमेज' : modalLang === 'hi' ? 'फोटो एवं कवर' : 'Photos & 16:9 Cover',
-      category: modalLang === 'mr' ? 'मीडिया व्यवस्थापन' : modalLang === 'hi' ? 'मीडिया प्रबंधन' : 'Media Engine',
-      icon: <ImageIcon size={18} color="#0284c7" />,
-      tagColor: '#0284c7',
-      headline: modalLang === 'mr' ? 'उच्च दर्जाचे १६:९ कव्हर फोटो व मीडिया अपलोड' : modalLang === 'hi' ? 'उच्च गुणवत्ता वाले १६:९ कवर फोटो एवं मीडिया' : 'High-Res 16:9 Cover Photos & Media',
-      summary: modalLang === 'mr'
-        ? 'कव्हर फोटो अपलोड करा किंवा कोणत्याही अधिकृत प्रेस रिलीजची वेब लिंक थेट पेस्ट करा.'
+      title: modalLang === 'mr' ? '१६:९ कव्हर फोटो' : modalLang === 'hi' ? '१६:९ कवर फोटो' : '16:9 Cover Photos',
+      badge: modalLang === 'mr' ? 'पायरी २: मीडिया व फोटो' : modalLang === 'hi' ? 'चरण २: मीडिया एवं फोटो' : 'Step 2: Media Engine',
+      icon: <ImageIcon size={20} color="#0284c7" />,
+      color: '#0284c7',
+      headline: modalLang === 'mr' ? 'उत्कृष्ट दर्जाचे १६:९ कव्हर फोटो' : modalLang === 'hi' ? 'उच्च गुणवत्ता वाले १६:९ कवर फोटो' : 'HD 16:9 Landscape Photos',
+      description: modalLang === 'mr'
+        ? 'कव्हर फोटो थेट अपलोड करा किंवा कोणत्याही अधिकृत प्रेस रिलीजची वेब लिंक थेट पेस्ट करा.'
         : modalLang === 'hi'
         ? 'कवर फोटो सीधे अपलोड करें या किसी प्रेस विज्ञप्ति की वेब लिंक पेस्ट करें।'
-        : 'Upload high-resolution landscape images (16:9 aspect ratio) or paste public media URLs for instantaneous CDN delivery.',
-      features: [
-        { label: 'Direct Cloud Upload', desc: 'Upload JPG, PNG, or WebP up to 10MB directly to server storage' },
-        { label: '16:9 Aspect Ratio Guide', desc: 'Standard 1200x675px delivers pixel-perfect display across Hero and cards' },
-        { label: 'External URL Support', desc: 'Paste press release or news agency photo URLs with live instant preview' },
+        : 'Upload high-resolution landscape images or paste public image URLs for instant CDN delivery.',
+      points: [
+        modalLang === 'mr' ? 'JPG, PNG, WebP १० MB पर्यंत थेट अपलोड' : modalLang === 'hi' ? 'JPG, PNG, WebP १० MB तक सीधा अपलोड' : 'Direct upload for JPG, PNG, and WebP up to 10MB',
+        modalLang === 'mr' ? '१६:९ (Landscape) आकाराचा फोटो सर्व स्क्रीनवर परिपूर्ण दिसतो' : modalLang === 'hi' ? '१६:९ (Landscape) अनुपात सभी स्क्रीन पर शानदार दिखता है' : 'Standard 16:9 aspect ratio fits perfectly on mobile and desktop',
+        modalLang === 'mr' ? 'प्रेस रिलीज फोटो वेब लिंक पेस्ट करताच लाईव्ह प्रिव्ह्यू' : modalLang === 'hi' ? 'प्रेस विज्ञप्ति फोटो लिंक पेस्ट करते ही तुरंत पूर्वावलोकन' : 'Live preview when pasting external press release URLs',
       ],
-      interactiveDemo: (
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.25rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
-            <span style={{ fontSize: '0.75rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}>
-              <Layers size={14} color="#0284c7" /> Live Aspect-Ratio Viewport
-            </span>
-            <div style={{ display: 'flex', gap: '0.35rem' }}>
-              {(['16:9', '4:3', '1:1'] as const).map((ratio) => (
-                <button
-                  key={ratio}
-                  type="button"
-                  onClick={() => setDemoAspect(ratio)}
-                  style={{
-                    backgroundColor: demoAspect === ratio ? '#0284c7' : '#f1f5f9',
-                    color: demoAspect === ratio ? '#ffffff' : '#475569',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '4px',
-                    padding: '2px 8px',
-                    fontSize: '0.7rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {ratio}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div
-            style={{
-              width: '100%',
-              height: demoAspect === '16:9' ? '145px' : demoAspect === '4:3' ? '170px' : '170px',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              position: 'relative',
-              border: '2px solid #0284c7',
-              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.1)',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            <img
-              src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80"
-              alt="Demo Visual"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-            <div style={{ position: 'absolute', bottom: '8px', left: '8px', backgroundColor: 'rgba(15,23,42,0.85)', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>
-              Selected Aspect: {demoAspect} • HD Cover Image
-            </div>
-          </div>
+      preview: (
+        <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', height: '110px', border: '1.5px solid #0284c7' }}>
+          <img
+            src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=600&q=80"
+            alt="Demo"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <span style={{ position: 'absolute', bottom: '6px', left: '6px', backgroundColor: 'rgba(15,23,42,0.85)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
+            16:9 HD Cover • Standard Size
+          </span>
         </div>
       ),
+      tip: modalLang === 'mr' ? 'टीप: उभे (Portrait) ऐवजी आडवे (Landscape) फोटो वापरा.' : modalLang === 'hi' ? 'सुझाव: पोर्ट्रेट के बजाय लैंडस्केप फोटो का उपयोग करें।' : 'Tip: Always use landscape photos for the cleanest mobile news cards.',
     },
     {
       id: 'step-3',
       number: '03',
       title: modalLang === 'mr' ? 'व्हिडिओ बुलेटिन' : modalLang === 'hi' ? 'वीडियो बुलेटिन' : 'Video Bulletins',
-      category: modalLang === 'mr' ? 'डिजिटल ब्रॉडकास्ट' : modalLang === 'hi' ? 'डिजिटल प्रसारण' : 'Broadcast Video',
-      icon: <VideoIcon size={18} color="#7c3aed" />,
-      tagColor: '#7c3aed',
-      headline: modalLang === 'mr' ? 'YouTube किंवा थेट MP4 व्हिडिओ बातमी जोडा' : modalLang === 'hi' ? 'YouTube या सीधा MP4 वीडियो समाचार जोड़ें' : 'Embed YouTube or Native MP4 Bulletins',
-      summary: modalLang === 'mr'
-        ? 'व्हिडिओ बातम्या वाचकांना थेट पोर्टलवर पूर्ण-स्क्रीन डिजिटल बुलेटिन अनुभव देतात.'
+      badge: modalLang === 'mr' ? 'पायरी ३: व्हिडिओ बातमी' : modalLang === 'hi' ? 'चरण ३: वीडियो समाचार' : 'Step 3: Broadcast Video',
+      icon: <VideoIcon size={20} color="#7c3aed" />,
+      color: '#7c3aed',
+      headline: modalLang === 'mr' ? 'YouTube किंवा थेट MP4 व्हिडिओ जोडा' : modalLang === 'hi' ? 'YouTube या सीधा MP4 वीडियो जोड़ें' : 'Embed YouTube or Upload MP4',
+      description: modalLang === 'mr'
+        ? 'व्हिडिओ बातम्या वाचकांना थेट पोर्टलवर डिजिटल बुलेटिन अनुभव देतात.'
         : modalLang === 'hi'
-        ? 'वीडियो समाचार पाठकों को सीधे पोर्टल पर पूर्ण-स्क्रीन डिजिटल बुलेटिन अनुभव प्रदान करते हैं।'
-        : 'Embed YouTube reports or upload recorded MP4 videos to deliver broadcast digital journalism directly inside the reader view.',
-      features: [
-        { label: 'YouTube & Vimeo Embed', desc: 'Paste standard watch URLs or youtu.be shortlinks with 1-click parsing' },
-        { label: 'Direct MP4 Upload', desc: 'Upload recorded mobile phone footage or broadcast studio MP4 clips' },
-        { label: 'Red Video Badge', desc: 'Automatically flashes animated red VIDEO BULLETIN badge across all feeds' },
+        ? 'वीडियो समाचार पाठकों को सीधे पोर्टल पर डिजिटल बुलेटिन अनुभव प्रदान करते हैं।'
+        : 'Embed YouTube reports or upload mobile MP4 videos to deliver broadcast digital journalism.',
+      points: [
+        modalLang === 'mr' ? 'YouTube लिंक पेस्ट करताच १-क्लिक व्हिडिओ प्लेअर तयार' : modalLang === 'hi' ? 'YouTube लिंक पेस्ट करते ही १-क्लिक वीडियो प्लेयर तैयार' : 'Paste any YouTube or Vimeo watch link with instant parsing',
+        modalLang === 'mr' ? 'मोबाईलवरील रेकॉर्ड केलेले MP4 व्हिडिओ थेट अपलोड' : modalLang === 'hi' ? 'मोबाइल से रिकॉर्ड किया MP4 वीडियो सीधा अपलोड करें' : 'Upload recorded mobile phone footage or broadcast studio clips',
+        modalLang === 'mr' ? 'बातमीवर आपोआप लाल रंगाचा VIDEO BULLETIN बॅज झळकतो' : modalLang === 'hi' ? 'समाचार पर स्वतः लाल रंग का VIDEO BULLETIN बैज दिखाई देगा' : 'Automatically flashes animated red VIDEO BULLETIN badge',
       ],
-      interactiveDemo: (
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.25rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
-            <span style={{ fontSize: '0.75rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}>
-              <Radio size={14} color="#dc2626" /> Native Video Player Simulator
-            </span>
-            <span style={{ fontSize: '0.7rem', color: '#7c3aed', backgroundColor: '#f3e8ff', padding: '2px 8px', borderRadius: '9999px', fontWeight: 700 }}>
-              Click to Test Player
-            </span>
-          </div>
-
-          <div
-            onClick={() => setDemoVideoPlaying(!demoVideoPlaying)}
-            style={{
-              position: 'relative',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              height: '140px',
-              backgroundColor: '#0f172a',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid #334155',
-            }}
-          >
-            <div style={{ position: 'absolute', inset: 0, opacity: demoVideoPlaying ? 0.9 : 0.5, backgroundImage: 'linear-gradient(135deg, #1e1b4b 0%, #311042 100%)', transition: 'all 0.3s ease' }} />
-
-            <div style={{ zIndex: 2, textAlign: 'center' }}>
-              <div
-                style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '50%',
-                  backgroundColor: demoVideoPlaying ? '#16a34a' : '#dc2626',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                <Play size={20} color="#fff" style={{ marginLeft: '3px' }} />
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#ffffff', fontWeight: 800, marginTop: '0.4rem' }}>
-                {demoVideoPlaying ? '▶ Playing Video Bulletin' : 'Click to Play Broadcast Demo'}
-              </div>
+      preview: (
+        <div style={{ backgroundColor: '#0f172a', borderRadius: '8px', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Play size={14} color="#fff" style={{ marginLeft: '2px' }} />
             </div>
-
-            <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: '#dc2626', color: '#fff', fontSize: '0.65rem', fontWeight: 900, padding: '3px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Radio size={11} /> VIDEO BULLETIN
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>Digital Video Bulletin</div>
+              <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>YouTube / Direct MP4 Player</div>
             </div>
           </div>
+          <span style={{ fontSize: '0.6rem', backgroundColor: '#dc2626', color: '#fff', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
+            LIVE
+          </span>
         </div>
       ),
+      tip: modalLang === 'mr' ? 'टीप: ३० ते ९० सेकंदांचे छोटे व्हिडिओ बुलेटिन सर्वाधिक व्हायरल होतात.' : modalLang === 'hi' ? 'सुझाव: ३० से ९० सेकंड के छोटे वीडियो अधिक वायरल होते हैं।' : 'Tip: Short 30-90 second video bulletins generate highest mobile engagement.',
     },
     {
       id: 'step-4',
       number: '04',
       title: modalLang === 'mr' ? '१-क्लिक फॉरमॅटिंग व AI' : modalLang === 'hi' ? '१-क्लिक प्रारूप एवं AI' : '1-Click AI Formatting',
-      category: modalLang === 'mr' ? 'संपादकीय साधने' : modalLang === 'hi' ? 'संपादकीय उपकरण' : 'Editorial AI',
-      icon: <Sparkles size={18} color="#d97706" />,
-      tagColor: '#d97706',
-      headline: modalLang === 'mr' ? 'एका क्लिकवर रिपोर्ट फॉरमॅटिंग व AI भाषांतर' : modalLang === 'hi' ? 'एक क्लिक में रिपोर्ट प्रारूप एवं AI अनुवाद' : 'Instant 1-Click Layouts & AI Auto-Translate',
-      summary: modalLang === 'mr'
+      badge: modalLang === 'mr' ? 'पायरी ४: संपादकीय साचे' : modalLang === 'hi' ? 'चरण ४: संपादकीय सांचे' : 'Step 4: Editorial Templates',
+      icon: <Sparkles size={20} color="#d97706" />,
+      color: '#d97706',
+      headline: modalLang === 'mr' ? '१-क्लिक फॉरमॅटिंग व AI भाषांतर' : modalLang === 'hi' ? '१-क्लिक प्रारूप एवं AI अनुवाद' : 'Instant Templates & AI Translate',
+      description: modalLang === 'mr'
         ? 'ब्रेकिंग अलर्ट, ग्राउंड रिपोर्ट आणि मुलाखतीचे रेडीमेड साचे वापरून बातम्या अवघ्या काही सेकंदात तयार करा.'
         : modalLang === 'hi'
         ? 'ब्रेकिंग अलर्ट, ग्राउंड रिपोर्ट और साक्षात्कार के सांचे चुनकर खबरें तेजी से तैयार करें।'
-        : 'Select pre-structured editorial templates (Breaking News Alert, Ground Report, Interview) and apply 1-Click AI Auto-Translation in 1 tap.',
-      features: [
-        { label: 'Breaking Alert Layout', desc: 'Urgent red alert callout box with bulleted immediate facts' },
-        { label: 'Ground Report Layout', desc: 'Multi-paragraph journalistic structure with on-ground investigative depth' },
-        { label: 'AI Auto-Translate', desc: 'Instantly localizes titles & excerpts between Marathi, English, and Hindi' },
+        : 'Select pre-structured editorial templates and translate headlines into Marathi, Hindi, and English with 1 tap.',
+      points: [
+        modalLang === 'mr' ? '🚨 ब्रेकिंग अलर्ट, 📰 ग्राउंड रिपोर्ट आणि 🎙️ मुलाखत रेडीमेड साचे' : modalLang === 'hi' ? '🚨 ब्रेकिंग अलर्ट, 📰 ग्राउंड रिपोर्ट और 🎙️ साक्षात्कार के तैयार सांचे' : 'Ready templates for Breaking Alerts, Ground Reports, and Interviews',
+        modalLang === 'mr' ? 'AI भाषांतर बटणाने एका क्लिकवर मथळा व मजकूर भाषांतरित करा' : modalLang === 'hi' ? 'AI अनुवाद बटन से एक क्लिक में शीर्षक एवं विवरण का अनुवाद करें' : '1-Click AI Translation between Marathi, Hindi, and English',
+        modalLang === 'mr' ? 'ठळक मुद्दे, कोट्स आणि मथळे सहज फॉरमॅट करा' : modalLang === 'hi' ? 'मुख्य बिंदु, कोट्स और उप-शीर्षक आसानी से सजाएं' : 'Rich formatting with bullet points, quotes, and bold highlights',
       ],
-      interactiveDemo: (
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1.25rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.85rem' }}>
-            <button
-              type="button"
-              onClick={() => setDemoTemplate('breaking')}
-              style={{
-                flex: 1,
-                padding: '0.45rem 0.5rem',
-                backgroundColor: demoTemplate === 'breaking' ? '#dc2626' : '#f8fafc',
-                color: demoTemplate === 'breaking' ? '#fff' : '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                fontSize: '0.725rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-            >
-              🚨 Breaking Alert
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoTemplate('report')}
-              style={{
-                flex: 1,
-                padding: '0.45rem 0.5rem',
-                backgroundColor: demoTemplate === 'report' ? '#0284c7' : '#f8fafc',
-                color: demoTemplate === 'report' ? '#fff' : '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                fontSize: '0.725rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-            >
-              📰 Ground Report
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoTemplate('interview')}
-              style={{
-                flex: 1,
-                padding: '0.45rem 0.5rem',
-                backgroundColor: demoTemplate === 'interview' ? '#7c3aed' : '#f8fafc',
-                color: demoTemplate === 'interview' ? '#fff' : '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                fontSize: '0.725rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
-            >
-              🎙️ Interview
-            </button>
-          </div>
-
-          <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.75rem', color: '#334155', lineHeight: 1.5, maxHeight: '110px', overflowY: 'auto' }}>
-            {demoTemplate === 'breaking' && (
-              <>
-                <span style={{ color: '#dc2626', fontWeight: 800 }}># 🚨 ब्रेकिंग अलर्ट: तात्काळ घडामोड</span><br />
-                <span style={{ color: '#854d0e' }}>&gt; "घटनेचे प्राथमिक वृत्त हाती आले असून बचाव कार्य सुरू आहे."</span><br />
-                <span style={{ color: '#0284c7', fontWeight: 700 }}>### ठळक घडामोडी:</span><br />
-                - पहिली महत्त्वाची बाब...
-              </>
-            )}
-            {demoTemplate === 'report' && (
-              <>
-                <span style={{ color: '#0284c7', fontWeight: 800 }}># 📰 विशेष ग्राउंड रिपोर्ट व सविस्तर वृत्त</span><br />
-                <span style={{ color: '#475569' }}>मुंबई ब्युरो / विशेष प्रतिनिधी: सविस्तर पार्श्वभूमी...</span><br />
-                <span style={{ color: '#166534', fontWeight: 700 }}>🔍 घटनेचे विश्लेषण व पुढील पावले...</span>
-              </>
-            )}
-            {demoTemplate === 'interview' && (
-              <>
-                <span style={{ color: '#7c3aed', fontWeight: 800 }}># 🎙️ विशेष मुलाखत: प्रमुख वक्तव्ये</span><br />
-                <span style={{ color: '#854d0e' }}>**प्रश्न:** आगामी धोरणाबाबत आपली भूमिका काय?</span><br />
-                <span style={{ color: '#0284c7' }}>**उत्तर:** जनहिताचे निर्णय प्राधान्याने...</span>
-              </>
-            )}
-          </div>
+      preview: (
+        <div style={{ display: 'flex', gap: '0.4rem' }}>
+          <span style={{ flex: 1, backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '0.4rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, textAlign: 'center' }}>
+            🚨 Breaking Alert
+          </span>
+          <span style={{ flex: 1, backgroundColor: '#e0f2fe', color: '#0284c7', border: '1px solid #bae6fd', padding: '0.4rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, textAlign: 'center' }}>
+            📰 Ground Report
+          </span>
+          <span style={{ flex: 1, backgroundColor: '#f3e8ff', color: '#7c3aed', border: '1px solid #e9d5ff', padding: '0.4rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, textAlign: 'center' }}>
+            ✨ AI Translate
+          </span>
         </div>
       ),
+      tip: modalLang === 'mr' ? 'टीप: बातमीचे मुख्य ३ मुद्दे बुलेट पॉईंट्समध्ये दिल्यास वाचक सहज वाचतात.' : modalLang === 'hi' ? 'सुझाव: मुख्य ३ बातों को बुलेट पॉइंट्स में लिखें।' : 'Tip: Breaking down stories into 3 bullet points increases readability by 2x.',
     },
     {
       id: 'step-5',
       number: '05',
-      title: modalLang === 'mr' ? 'ब्रेकिंग अलर्ट व प्रकाशन' : modalLang === 'hi' ? 'ब्रेकिंग अलर्ट एवं प्रकाशन' : 'Breaking Alert & Publish',
-      category: modalLang === 'mr' ? 'थेट प्रसारण' : modalLang === 'hi' ? 'लाइव प्रसारण' : 'Live Publishing',
-      icon: <Send size={18} color="#16a34a" />,
-      tagColor: '#16a34a',
-      headline: modalLang === 'mr' ? 'ब्रेकिंग टिकर अलर्ट, हिरो पिन व थेट प्रकाशन' : modalLang === 'hi' ? 'ब्रेकिंग टिकर अलर्ट, हीरो पिन एवं सीधा प्रकाशन' : 'Breaking Ticker Alert, Hero Pinned & Live Push',
-      summary: modalLang === 'mr'
+      title: modalLang === 'mr' ? 'थेट प्रकाशन व टिकर अलर्ट' : modalLang === 'hi' ? 'लाइव प्रकाशन एवं टिकर' : 'Publish Live & Alerts',
+      badge: modalLang === 'mr' ? 'पायरी ५: थेट प्रकाशन' : modalLang === 'hi' ? 'चरण ५: सीधा प्रकाशन' : 'Step 5: Live Push',
+      icon: <Send size={20} color="#16a34a" />,
+      color: '#16a34a',
+      headline: modalLang === 'mr' ? 'ब्रेकिंग टिकर अलर्ट व थेट प्रकाशन' : modalLang === 'hi' ? 'ब्रेकिंग टिकर अलर्ट एवं सीधा प्रकाशन' : 'Breaking Ticker Alert & Live Publish',
+      description: modalLang === 'mr'
         ? 'बातमी तात्काळ मुख्य टिकरवर फ्लॅश करा आणि वाचकांसाठी त्वरित लाईव्ह प्रकाशित करा.'
         : modalLang === 'hi'
         ? 'समाचार को शीर्ष टिकर पर फ्लैश करें और पाठकों के लिए तुरंत लाइव प्रकाशित करें।'
-        : 'Flash urgent news on the top breaking ticker, pin lead stories to the Hero showcase, and publish live to update feeds instantly across all devices.',
-      features: [
-        { label: 'Breaking News Ticker', desc: 'Immediately flashes red scrolling ticker alert across the public site' },
-        { label: 'Featured Hero Pin', desc: 'Promotes article into the top hero visual billboard' },
-        { label: 'Instant Cache Invalidation', desc: 'Clears reader cache instantly so new edits appear in real-time' },
+        : 'Flash urgent news on the top breaking ticker, pin lead stories to the Hero showcase, and publish live.',
+      points: [
+        modalLang === 'mr' ? '🔥 ब्रेकिंग टिकर: मुख्य पानावर लाल रंगात तात्काळ फ्लॅश होते' : modalLang === 'hi' ? '🔥 ब्रेकिंग टिकर: मुख्य पृष्ठ पर लाल रंग में तुरंत फ्लैश होती है' : 'Flash red scrolling ticker alert across the public site',
+        modalLang === 'mr' ? '⭐ हिरो पिन: बातमी मुख्य बॅनरवर सर्वात वर ठळकपणे दिसते' : modalLang === 'hi' ? '⭐ हीरो पिन: खबर मुख्य बैनर पर सबसे ऊपर प्रमुखता से दिखती है' : 'Pin lead stories into the top hero billboard banner',
+        modalLang === 'mr' ? '✓ त्वरित लाईव्ह: एका सेकंदात सर्व मोबाईल व वेबसाईटवर प्रकाशित' : modalLang === 'hi' ? '✓ तुरंत लाइव: एक सेकंड में सभी मोबाइल व वेबसाइट पर लाइव' : 'Instant real-time reader delivery across all devices',
       ],
-      interactiveDemo: (
-        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem', marginBottom: '0.85rem' }}>
-            <div
-              onClick={() => setDemoBreakingToggle(!demoBreakingToggle)}
-              style={{
-                backgroundColor: demoBreakingToggle ? '#fef2f2' : '#f8fafc',
-                border: `1px solid ${demoBreakingToggle ? '#fca5a5' : '#e2e8f0'}`,
-                borderRadius: '8px',
-                padding: '0.6rem 0.75rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: demoBreakingToggle ? '#dc2626' : '#64748b', fontWeight: 700 }}>
-                <Flame size={14} color={demoBreakingToggle ? '#dc2626' : '#94a3b8'} /> Breaking Alert
-              </div>
-              <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: demoBreakingToggle ? '#dc2626' : '#cbd5e1', display: 'inline-block', boxShadow: demoBreakingToggle ? '0 0 8px rgba(220,38,38,0.4)' : 'none' }} />
-            </div>
-
-            <div
-              onClick={() => setDemoHeroToggle(!demoHeroToggle)}
-              style={{
-                backgroundColor: demoHeroToggle ? '#eff6ff' : '#f8fafc',
-                border: `1px solid ${demoHeroToggle ? '#bfdbfe' : '#e2e8f0'}`,
-                borderRadius: '8px',
-                padding: '0.6rem 0.75rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: demoHeroToggle ? '#1d4ed8' : '#64748b', fontWeight: 700 }}>
-                <Star size={14} color={demoHeroToggle ? '#eab308' : '#94a3b8'} fill={demoHeroToggle ? '#eab308' : 'none'} /> Pin in Hero
-              </div>
-              <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: demoHeroToggle ? '#eab308' : '#cbd5e1', display: 'inline-block', boxShadow: demoHeroToggle ? '0 0 8px rgba(234,179,8,0.4)' : 'none' }} />
-            </div>
+      preview: (
+        <div style={{ backgroundColor: '#16a34a', color: '#ffffff', borderRadius: '8px', padding: '0.65rem 0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 800 }}>
+            <CheckCircle2 size={16} /> Live on Nirbhid News
           </div>
-
-          <div style={{ backgroundColor: '#16a34a', color: '#fff', padding: '0.65rem', borderRadius: '8px', textAlign: 'center', fontWeight: 800, fontSize: '0.8125rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)' }}>
-            <CheckCircle2 size={16} /> Ready to Publish Live to News Feed
-          </div>
+          <span style={{ fontSize: '0.65rem', backgroundColor: 'rgba(255,255,255,0.25)', padding: '2px 8px', borderRadius: '9999px', fontWeight: 800 }}>
+            Instant Push
+          </span>
         </div>
       ),
+      tip: modalLang === 'mr' ? 'टीप: बातमी प्रकाशित झाल्यावर WhatsApp वर शेअर करण्यासाठी लिंक लगेच उपलब्ध होते.' : modalLang === 'hi' ? 'सुझाव: प्रकाशन के तुरंत बाद WhatsApp शेयर लिंक तैयार मिलती है।' : 'Tip: Clean WhatsApp sharing links are available immediately upon publish.',
     },
   ];
 
-  const currentStep = stepsData[activeTab];
+  const current = stepsData[activeStep];
 
   return (
-    <div className="admin-tutorial-modal-overlay" onClick={onClose}>
-      <div className="admin-tutorial-card" onClick={(e) => e.stopPropagation()}>
-        {/* Top Accent Gradient Bar */}
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0.75rem',
+        boxSizing: 'border-box',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          backgroundColor: '#ffffff',
+          width: '100%',
+          maxWidth: '560px',
+          maxHeight: '92vh',
+          borderRadius: '16px',
+          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          border: '1px solid #e2e8f0',
+          boxSizing: 'border-box',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top Accent Line */}
         <div
           style={{
             height: '4px',
@@ -520,42 +287,51 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
           }}
         />
 
-        {/* Modal Header (Clean Light Theme & Responsive) */}
-        <div className="admin-tutorial-header">
-          <div className="admin-tutorial-header-main">
+        {/* 1. Header */}
+        <div
+          style={{
+            padding: '0.85rem 1.15rem',
+            backgroundColor: '#f8fafc',
+            borderBottom: '1px solid #e2e8f0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.5rem',
+            flexShrink: 0,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div
               style={{
-                width: '36px',
-                height: '36px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
-                background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                backgroundColor: current.color,
+                color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.25)',
+                fontWeight: 900,
+                fontSize: '0.8rem',
                 flexShrink: 0,
+                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
               }}
             >
-              <HelpCircle size={20} color="#ffffff" />
+              {current.number}
             </div>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                <h3 className="admin-tutorial-header-title" style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                  Nirbhid News CMS — Editorial Guide
-                </h3>
-                <span style={{ fontSize: '0.625rem', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '1px 6px', borderRadius: '9999px', fontWeight: 800, textTransform: 'uppercase' }}>
-                  PRO
-                </span>
+            <div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
+                Nirbhid Guide
               </div>
-              <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '2px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                Interactive editorial workflow for journalists & editors
-              </p>
+              <div style={{ fontSize: '0.6875rem', color: '#64748b', fontWeight: 600 }}>
+                Step {activeStep + 1} of {stepsData.length}
+              </div>
             </div>
           </div>
 
-          <div className="admin-tutorial-header-actions">
-            {/* Language Switcher inside Guide */}
-            <div style={{ display: 'flex', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '2px', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {/* Language Switcher */}
+            <div style={{ display: 'flex', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '1px' }}>
               {(['mr', 'en', 'hi'] as const).map((lang) => (
                 <button
                   key={lang}
@@ -565,12 +341,12 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                     setLanguage(lang);
                   }}
                   style={{
-                    backgroundColor: modalLang === lang ? '#dc2626' : 'transparent',
+                    backgroundColor: modalLang === lang ? current.color : 'transparent',
                     color: modalLang === lang ? '#ffffff' : '#475569',
                     border: 'none',
-                    borderRadius: '6px',
-                    padding: '3px 8px',
-                    fontSize: '0.7rem',
+                    borderRadius: '4px',
+                    padding: '2px 7px',
+                    fontSize: '0.675rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     textTransform: 'uppercase',
@@ -591,177 +367,166 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 border: '1px solid #cbd5e1',
                 color: '#64748b',
                 cursor: 'pointer',
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '6px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.2s ease',
               }}
-              aria-label="Close guide"
+              aria-label="Close"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </div>
         </div>
 
-        {/* Step Navigation Bar (Horizontal Swipeable Tabs) */}
-        <div className="admin-tutorial-tabs-container">
-          {stepsData.map((step, idx) => {
-            const isActive = idx === activeTab;
-            const isDone = idx < activeTab;
+        {/* 2. Step Progress Bar */}
+        <div style={{ display: 'flex', backgroundColor: '#e2e8f0', height: '3px', flexShrink: 0 }}>
+          {stepsData.map((_, idx) => (
+            <div
+              key={idx}
+              onClick={() => setActiveStep(idx)}
+              style={{
+                flex: 1,
+                backgroundColor: idx <= activeStep ? current.color : '#e2e8f0',
+                transition: 'background-color 0.25s ease',
+                cursor: 'pointer',
+              }}
+            />
+          ))}
+        </div>
 
-            return (
-              <button
-                key={step.id}
-                type="button"
-                onClick={() => setActiveTab(idx)}
-                className="admin-tutorial-tab-btn"
+        {/* 3. Main Step Content (Clean, Lightweight & Mobile-Optimized) */}
+        <div
+          style={{
+            padding: '1.15rem',
+            overflowY: 'auto',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+          }}
+        >
+          {/* Badge & Headline */}
+          <div>
+            <span
+              style={{
+                display: 'inline-block',
+                fontSize: '0.65rem',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                color: current.color,
+                backgroundColor: `${current.color}15`,
+                border: `1px solid ${current.color}30`,
+                padding: '2px 8px',
+                borderRadius: '9999px',
+                marginBottom: '0.4rem',
+              }}
+            >
+              {current.badge}
+            </span>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.35rem 0', lineHeight: 1.25 }}>
+              {current.headline}
+            </h3>
+            <p style={{ fontSize: '0.8125rem', color: '#475569', margin: 0, lineHeight: 1.45 }}>
+              {current.description}
+            </p>
+          </div>
+
+          {/* Live Mini Preview Box */}
+          <div>
+            {current.preview}
+          </div>
+
+          {/* Key Checklist Points */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+            {current.points.map((pt, pidx) => (
+              <div
+                key={pidx}
                 style={{
-                  borderBottom: isActive ? `3px solid ${step.tagColor}` : '3px solid transparent',
-                  backgroundColor: isActive ? '#f8fafc' : 'transparent',
-                  color: isActive ? '#0f172a' : '#64748b',
-                  fontWeight: isActive ? 800 : 600,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.5rem',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '6px',
+                  padding: '0.45rem 0.65rem',
+                  fontSize: '0.78125rem',
+                  color: '#1e293b',
+                  lineHeight: 1.35,
                 }}
               >
-                <div
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '6px',
-                    backgroundColor: isActive ? step.tagColor : isDone ? '#16a34a' : '#f1f5f9',
-                    color: isActive || isDone ? '#ffffff' : '#64748b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.7rem',
-                    fontWeight: 800,
-                    flexShrink: 0,
-                  }}
-                >
-                  {isDone ? <Check size={14} /> : step.number}
+                <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
+                  <CheckCheck size={11} color="#16a34a" />
                 </div>
-                <span>{step.title}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Modal Main Content: Split Grid Layout */}
-        <div className="admin-tutorial-layout">
-          {/* Left Column: Guidelines & Features */}
-          <div className="admin-tutorial-col" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
-                <span
-                  style={{
-                    fontSize: '0.7rem',
-                    backgroundColor: `${currentStep.tagColor}15`,
-                    color: currentStep.tagColor,
-                    border: `1px solid ${currentStep.tagColor}30`,
-                    padding: '2px 8px',
-                    borderRadius: '9999px',
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {currentStep.category}
-                </span>
-                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
-                  Chapter {currentStep.number} of 05
-                </span>
+                <span>{pt}</span>
               </div>
-
-              <h4 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.65rem 0', letterSpacing: '-0.01em' }}>
-                {currentStep.headline}
-              </h4>
-
-              <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
-                {currentStep.summary}
-              </p>
-
-              {/* Feature Highlights Cards (Clean Light Cards) */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.25rem' }}>
-                {currentStep.features.map((feat, fidx) => (
-                  <div
-                    key={fidx}
-                    style={{
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      padding: '0.65rem 0.85rem',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '0.65rem',
-                      minWidth: 0,
-                    }}
-                  >
-                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
-                      <CheckCheck size={12} color="#16a34a" />
-                    </div>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', display: 'block', marginBottom: '0.1rem' }}>
-                        {feat.label}
-                      </span>
-                      <span style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.4 }}>
-                        {feat.desc}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ padding: '0.75rem 1rem', backgroundColor: '#eff6ff', borderLeft: '3px solid #3b82f6', borderRadius: '6px', fontSize: '0.8rem', color: '#1e40af' }}>
-              💡 <strong>Journalist Rule:</strong> Fast factual reporting with compelling 16:9 visual covers increases WhatsApp viral reach by over 300%.
-            </div>
+            ))}
           </div>
 
-          {/* Right Column: Interactive Sandbox Simulator */}
-          <div className="admin-tutorial-col" style={{ minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: '#334155', fontWeight: 700, marginBottom: '0.65rem' }}>
-              <MousePointerClick size={16} color="#0284c7" /> Interactive Sandbox Experience
-            </div>
-            {currentStep.interactiveDemo}
-          </div>
-        </div>
-
-        {/* Modal Footer Controls */}
-        <div className="admin-tutorial-footer">
-          <button
-            type="button"
-            disabled={activeTab === 0}
-            onClick={() => setActiveTab((prev) => Math.max(0, prev - 1))}
+          {/* Pro Tip Box */}
+          <div
             style={{
-              backgroundColor: activeTab === 0 ? 'transparent' : '#ffffff',
-              color: activeTab === 0 ? '#94a3b8' : '#334155',
-              border: '1px solid #cbd5e1',
-              borderRadius: '8px',
-              padding: '0.5rem 1rem',
-              fontSize: '0.8125rem',
-              fontWeight: 700,
-              cursor: activeTab === 0 ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              visibility: activeTab === 0 ? 'hidden' : 'visible',
+              backgroundColor: '#fffbeb',
+              border: '1px solid #fde68a',
+              borderRadius: '6px',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.75rem',
+              color: '#92400e',
+              lineHeight: 1.35,
             }}
           >
-            <ChevronLeft size={16} /> Prev Chapter
+            💡 <strong>Pro Tip:</strong> {current.tip}
+          </div>
+        </div>
+
+        {/* 4. Footer Controls */}
+        <div
+          style={{
+            padding: '0.75rem 1.15rem',
+            backgroundColor: '#f8fafc',
+            borderTop: '1px solid #e2e8f0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.5rem',
+            flexShrink: 0,
+          }}
+        >
+          <button
+            type="button"
+            disabled={activeStep === 0}
+            onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
+            style={{
+              backgroundColor: activeStep === 0 ? 'transparent' : '#ffffff',
+              color: activeStep === 0 ? '#94a3b8' : '#334155',
+              border: '1px solid #cbd5e1',
+              borderRadius: '6px',
+              padding: '0.45rem 0.85rem',
+              fontSize: '0.78125rem',
+              fontWeight: 700,
+              cursor: activeStep === 0 ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              visibility: activeStep === 0 ? 'hidden' : 'visible',
+            }}
+          >
+            <ChevronLeft size={15} /> Prev
           </button>
 
-          {/* Chapter step indicator dots */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          {/* Dot Indicators */}
+          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
             {stepsData.map((_, dotIdx) => (
               <span
                 key={dotIdx}
-                onClick={() => setActiveTab(dotIdx)}
+                onClick={() => setActiveStep(dotIdx)}
                 style={{
-                  width: dotIdx === activeTab ? '22px' : '8px',
-                  height: '8px',
-                  borderRadius: '4px',
-                  backgroundColor: dotIdx === activeTab ? '#dc2626' : '#cbd5e1',
+                  width: dotIdx === activeStep ? '16px' : '6px',
+                  height: '6px',
+                  borderRadius: '3px',
+                  backgroundColor: dotIdx === activeStep ? current.color : '#cbd5e1',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'inline-block',
@@ -770,27 +535,26 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
             ))}
           </div>
 
-          {activeTab < stepsData.length - 1 ? (
+          {activeStep < stepsData.length - 1 ? (
             <button
               type="button"
-              onClick={() => setActiveTab((prev) => Math.min(stepsData.length - 1, prev + 1))}
+              onClick={() => setActiveStep((prev) => Math.min(stepsData.length - 1, prev + 1))}
               style={{
-                backgroundColor: '#dc2626',
+                backgroundColor: current.color,
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '0.55rem 1.25rem',
-                fontSize: '0.85rem',
+                borderRadius: '6px',
+                padding: '0.45rem 1rem',
+                fontSize: '0.8125rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.35rem',
-                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
-                transition: 'all 0.2s ease',
+                gap: '0.25rem',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
               }}
             >
-              Next Chapter <ChevronRight size={16} />
+              Next <ChevronRight size={15} />
             </button>
           ) : (
             <button
@@ -800,19 +564,18 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 backgroundColor: '#16a34a',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '0.55rem 1.35rem',
-                fontSize: '0.875rem',
+                borderRadius: '6px',
+                padding: '0.45rem 1rem',
+                fontSize: '0.8125rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.4rem',
-                boxShadow: '0 4px 12px rgba(22, 163, 74, 0.35)',
-                transition: 'all 0.2s ease',
+                gap: '0.3rem',
+                boxShadow: '0 2px 8px rgba(22, 163, 74, 0.35)',
               }}
             >
-              <CheckCircle2 size={18} /> Start Writing News
+              <CheckCircle2 size={15} /> Start Writing
             </button>
           )}
         </div>
