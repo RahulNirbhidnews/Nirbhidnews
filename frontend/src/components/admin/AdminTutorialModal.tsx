@@ -244,39 +244,8 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
   const current = stepsData[activeStep];
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(6px)',
-        WebkitBackdropFilter: 'blur(6px)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0.75rem',
-        boxSizing: 'border-box',
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          backgroundColor: '#ffffff',
-          width: '100%',
-          maxWidth: '560px',
-          maxHeight: '92vh',
-          borderRadius: '16px',
-          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          border: '1px solid #e2e8f0',
-          boxSizing: 'border-box',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="admin-guide-overlay" onClick={onClose}>
+      <div className="admin-guide-card" onClick={(e) => e.stopPropagation()}>
         {/* Top Accent Line */}
         <div
           style={{
@@ -288,23 +257,12 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
         />
 
         {/* 1. Header */}
-        <div
-          style={{
-            padding: '0.85rem 1.15rem',
-            backgroundColor: '#f8fafc',
-            borderBottom: '1px solid #e2e8f0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.5rem',
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="admin-guide-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '8px',
                 backgroundColor: current.color,
                 color: '#fff',
@@ -312,24 +270,24 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
-                fontSize: '0.8rem',
+                fontSize: '0.85rem',
                 flexShrink: 0,
                 boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
               }}
             >
               {current.number}
             </div>
-            <div>
-              <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Nirbhid Guide
               </div>
-              <div style={{ fontSize: '0.6875rem', color: '#64748b', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>
                 Step {activeStep + 1} of {stepsData.length}
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
             {/* Language Switcher */}
             <div style={{ display: 'flex', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #cbd5e1', padding: '1px' }}>
               {(['mr', 'en', 'hi'] as const).map((lang) => (
@@ -345,8 +303,8 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                     color: modalLang === lang ? '#ffffff' : '#475569',
                     border: 'none',
                     borderRadius: '4px',
-                    padding: '2px 7px',
-                    fontSize: '0.675rem',
+                    padding: '3px 7px',
+                    fontSize: '0.7rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     textTransform: 'uppercase',
@@ -367,16 +325,17 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 border: '1px solid #cbd5e1',
                 color: '#64748b',
                 cursor: 'pointer',
-                width: '30px',
-                height: '30px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '6px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                flexShrink: 0,
               }}
               aria-label="Close"
             >
-              <X size={16} />
+              <X size={18} />
             </button>
           </div>
         </div>
@@ -398,16 +357,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
         </div>
 
         {/* 3. Main Step Content (Clean, Lightweight & Mobile-Optimized) */}
-        <div
-          style={{
-            padding: '1.15rem',
-            overflowY: 'auto',
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-          }}
-        >
+        <div className="admin-guide-body">
           {/* Badge & Headline */}
           <div>
             <span
@@ -451,7 +401,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                   backgroundColor: '#f8fafc',
                   border: '1px solid #e2e8f0',
                   borderRadius: '6px',
-                  padding: '0.45rem 0.65rem',
+                  padding: '0.5rem 0.65rem',
                   fontSize: '0.78125rem',
                   color: '#1e293b',
                   lineHeight: 1.35,
@@ -471,7 +421,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
               backgroundColor: '#fffbeb',
               border: '1px solid #fde68a',
               borderRadius: '6px',
-              padding: '0.5rem 0.75rem',
+              padding: '0.55rem 0.75rem',
               fontSize: '0.75rem',
               color: '#92400e',
               lineHeight: 1.35,
@@ -482,29 +432,19 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
         </div>
 
         {/* 4. Footer Controls */}
-        <div
-          style={{
-            padding: '0.75rem 1.15rem',
-            backgroundColor: '#f8fafc',
-            borderTop: '1px solid #e2e8f0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.5rem',
-            flexShrink: 0,
-          }}
-        >
+        <div className="admin-guide-footer">
           <button
             type="button"
             disabled={activeStep === 0}
             onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
+            className="admin-guide-nav-btn"
             style={{
               backgroundColor: activeStep === 0 ? 'transparent' : '#ffffff',
               color: activeStep === 0 ? '#94a3b8' : '#334155',
               border: '1px solid #cbd5e1',
               borderRadius: '6px',
               padding: '0.45rem 0.85rem',
-              fontSize: '0.78125rem',
+              fontSize: '0.8125rem',
               fontWeight: 700,
               cursor: activeStep === 0 ? 'not-allowed' : 'pointer',
               display: 'flex',
@@ -513,7 +453,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
               visibility: activeStep === 0 ? 'hidden' : 'visible',
             }}
           >
-            <ChevronLeft size={15} /> Prev
+            <ChevronLeft size={16} /> Prev
           </button>
 
           {/* Dot Indicators */}
@@ -539,12 +479,13 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
             <button
               type="button"
               onClick={() => setActiveStep((prev) => Math.min(stepsData.length - 1, prev + 1))}
+              className="admin-guide-nav-btn"
               style={{
                 backgroundColor: current.color,
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '6px',
-                padding: '0.45rem 1rem',
+                padding: '0.45rem 1.15rem',
                 fontSize: '0.8125rem',
                 fontWeight: 800,
                 cursor: 'pointer',
@@ -554,18 +495,19 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
               }}
             >
-              Next <ChevronRight size={15} />
+              Next <ChevronRight size={16} />
             </button>
           ) : (
             <button
               type="button"
               onClick={onClose}
+              className="admin-guide-nav-btn"
               style={{
                 backgroundColor: '#16a34a',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '6px',
-                padding: '0.45rem 1rem',
+                padding: '0.45rem 1.15rem',
                 fontSize: '0.8125rem',
                 fontWeight: 800,
                 cursor: 'pointer',
@@ -575,7 +517,7 @@ export const AdminTutorialModal: React.FC<AdminTutorialModalProps> = ({
                 boxShadow: '0 2px 8px rgba(22, 163, 74, 0.35)',
               }}
             >
-              <CheckCircle2 size={15} /> Start Writing
+              <CheckCircle2 size={16} /> Start Writing
             </button>
           )}
         </div>
