@@ -346,7 +346,7 @@ export const ArticleDetailPage: React.FC = () => {
           <AIAudioReader textToRead={article.content} title={article.title} />
 
           {/* Social Share Bar Top */}
-          <SocialShareBar title={article.title} />
+          <SocialShareBar title={article.title} videoUrl={article.video_url || undefined} />
 
           {/* Video News Bulletin Player */}
           {article.video_url && (
@@ -399,7 +399,7 @@ export const ArticleDetailPage: React.FC = () => {
 
           {/* Bottom Social Share Bar */}
           <div style={{ borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)', padding: '1rem 0', margin: '2rem 0' }}>
-            <SocialShareBar title={article.title} />
+            <SocialShareBar title={article.title} videoUrl={article.video_url || undefined} />
           </div>
 
           {/* Editorial Disclaimer */}
@@ -527,8 +527,9 @@ export const ArticleDetailPage: React.FC = () => {
           onClick={() => setIsAISummaryOpen(true)}
           className="floating-action-btn"
           title="AI Summary"
+          style={{ backgroundColor: 'rgba(124, 58, 237, 0.4)' }}
         >
-          <Sparkles size={14} color="#facc15" />
+          <Sparkles size={13} color="#facc15" />
           <span>{t.aiSummary}</span>
         </button>
 
@@ -541,6 +542,46 @@ export const ArticleDetailPage: React.FC = () => {
           title="Facebook Share"
         >
           <span>📘 Facebook</span>
+        </a>
+
+        <a
+          href="https://www.instagram.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(`${article.title} - ${window.location.href}`);
+            } catch {
+              // ignore
+            }
+          }}
+          className="floating-action-btn"
+          style={{ color: '#f472b6', textDecoration: 'none' }}
+          title="Instagram Share"
+        >
+          <span>📷 Insta</span>
+        </a>
+
+        <a
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="floating-action-btn"
+          style={{ color: '#f8fafc', textDecoration: 'none' }}
+          title="X (Twitter) Share"
+        >
+          <span>🐦 X</span>
+        </a>
+
+        <a
+          href={article.video_url || `https://www.youtube.com/results?search_query=Nirbhid+News+${encodeURIComponent(article.title)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="floating-action-btn"
+          style={{ color: '#f87171', textDecoration: 'none' }}
+          title="YouTube Bulletin"
+        >
+          <span>▶️ YouTube</span>
         </a>
 
         <a

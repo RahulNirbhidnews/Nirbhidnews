@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import { categoryApi } from '../../api/categories';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -39,6 +39,112 @@ export const Footer: React.FC = () => {
             <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', lineHeight: 1.6, color: '#94a3b8' }}>
               {t.editorialDisclaimer}
             </p>
+
+            {/* Official Social Channels */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Follow on Facebook"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#1e293b',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#60a5fa',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Facebook size={16} />
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Follow on Instagram"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#1e293b',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f472b6',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Instagram size={16} />
+              </a>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Follow on X (Twitter)"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#1e293b',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f8fafc',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Twitter size={15} />
+              </a>
+              <a
+                href="https://youtube.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Subscribe on YouTube"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#1e293b',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f87171',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Youtube size={16} />
+              </a>
+              <a
+                href="https://api.whatsapp.com/send?phone=919922299027"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="WhatsApp Channel"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#1e293b',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#4ade80',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                💬
+              </a>
+            </div>
+
             <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.8125rem', color: '#cbd5e1' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#facc15', fontWeight: 700 }}>
                 {t.editorTitle}: {t.editorName}
