@@ -125,7 +125,7 @@ export const AdminArticlesPage: React.FC = () => {
   };
 
   return (
-    <div className="container" style={{ padding: '2rem 1.25rem' }}>
+    <div className="admin-page-container container" style={{ padding: '1.5rem 1.25rem 6rem 1.25rem' }}>
       {/* Toast Notification */}
       {toastMessage && (
         <div style={{
@@ -483,36 +483,37 @@ export const AdminArticlesPage: React.FC = () => {
 
       {/* Pagination Controls */}
       {!isLoading && data && data.total_pages > 1 && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginTop: '1.5rem',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}>
-          <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
+        <div className="admin-pagination-container">
+          <div className="admin-pagination-info">
             {language === 'mr'
               ? `पृष्ठ ${data.page} / ${data.total_pages} (एकूण ${data.total} बातम्या)`
               : language === 'hi'
               ? `पृष्ठ ${data.page} / ${data.total_pages} (कुल ${data.total} समाचार)`
               : `Showing page ${data.page} of ${data.total_pages} (${data.total} total articles)`}
-          </span>
+          </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="admin-pagination-actions">
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              type="button"
+              onClick={() => {
+                setPage((p) => Math.max(1, p - 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               disabled={page === 1}
-              className="btn btn-sm btn-outline"
-              style={{ opacity: page === 1 ? 0.5 : 1 }}
+              className="btn btn-outline admin-page-btn"
+              style={{ opacity: page === 1 ? 0.45 : 1 }}
             >
               ← Previous
             </button>
             <button
-              onClick={() => setPage((p) => Math.min(data.total_pages, p + 1))}
+              type="button"
+              onClick={() => {
+                setPage((p) => Math.min(data.total_pages, p + 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               disabled={page === data.total_pages}
-              className="btn btn-sm btn-outline"
-              style={{ opacity: page === data.total_pages ? 0.5 : 1 }}
+              className="btn btn-primary admin-page-btn"
+              style={{ opacity: page === data.total_pages ? 0.45 : 1 }}
             >
               Next →
             </button>

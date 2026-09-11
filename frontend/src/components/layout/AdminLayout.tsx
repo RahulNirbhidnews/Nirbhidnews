@@ -404,7 +404,7 @@ export const AdminLayout: React.FC = () => {
       )}
 
       {/* Main Admin Content Body */}
-      <main style={{ flex: 1 }}>
+      <main className="admin-main-content" style={{ flex: 1 }}>
         <Outlet />
       </main>
 

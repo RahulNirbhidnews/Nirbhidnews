@@ -110,148 +110,40 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   // Pure High-Impact Text-Driven Ad Space Announcement Banner
   return (
     <div
-      className={`ad-banner-text-slot ${className}`}
-      style={{
-        width: '100%',
-        margin: '1.25rem 0',
-        padding: isSidebar ? '1.5rem 1.25rem' : '1.25rem 1.75rem',
-        borderRadius: 'var(--radius-md, 10px)',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #172554 100%)',
-        border: '1.5px solid rgba(234, 179, 8, 0.35)',
-        color: '#ffffff',
-        display: 'flex',
-        flexDirection: isSidebar ? 'column' : 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '1.25rem',
-        boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
-        position: 'relative',
-        overflow: 'hidden',
-        ...style,
-      }}
+      className={`ad-banner-text-slot ${isSidebar ? 'is-sidebar' : ''} ${className}`}
+      style={style}
     >
       {/* Background Accent Radial Light */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-30px',
-          right: '-30px',
-          width: '120px',
-          height: '120px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(234, 179, 8, 0.25) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
+      <div className="ad-banner-radial-light" />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
-        <div
-          style={{
-            width: isSidebar ? '48px' : '52px',
-            height: isSidebar ? '48px' : '52px',
-            borderRadius: '12px',
-            backgroundColor: 'rgba(220, 38, 38, 0.2)',
-            border: '1px solid rgba(220, 38, 38, 0.45)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 0 15px rgba(220, 38, 38, 0.3)',
-          }}
-        >
+      <div className="ad-banner-content-wrap">
+        <div className="ad-banner-icon-box">
           <Megaphone size={24} color="#f87171" />
         </div>
 
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              flexWrap: 'wrap',
-              marginBottom: '0.25rem',
-            }}
-          >
-            <span
-              style={{
-                backgroundColor: '#dc2626',
-                color: '#ffffff',
-                fontSize: '0.7rem',
-                fontWeight: 800,
-                padding: '2px 8px',
-                borderRadius: '4px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '3px',
-              }}
-            >
+        <div className="ad-banner-text-info">
+          <div className="ad-banner-tags-row">
+            <span className="ad-banner-tag-badge">
               <Sparkles size={11} color="#fef08a" /> {t.adSpaceAvailable}
             </span>
-            <span
-              style={{
-                fontSize: '0.72rem',
-                color: '#facc15',
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '3px',
-              }}
-            >
+            <span className="ad-banner-leader-badge">
               <Award size={12} /> {t.adContactLeader}: {t.editorName}
             </span>
           </div>
 
-          <h3
-            style={{
-              margin: '0 0 0.25rem 0',
-              fontSize: isSidebar ? '1rem' : '1.1rem',
-              fontWeight: 800,
-              color: '#f8fafc',
-              lineHeight: 1.3,
-            }}
-          >
+          <h3 className="ad-banner-title">
             {t.adSpaceDesc}
           </h3>
-          <p
-            style={{
-              margin: 0,
-              fontSize: '0.825rem',
-              color: '#94a3b8',
-            }}
-          >
+          <p className="ad-banner-subtitle">
             {t.editorTitle}: <strong>{t.editorName}</strong> | 📞 {t.editorPhone}
           </p>
         </div>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          gap: '0.6rem',
-          width: isSidebar ? '100%' : 'auto',
-          flexShrink: 0,
-          flexWrap: 'wrap',
-        }}
-      >
+      <div className="ad-banner-actions-wrap">
         <a
           href="tel:9922299027"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.4rem',
-            backgroundColor: '#dc2626',
-            color: '#ffffff',
-            padding: '0.55rem 1rem',
-            borderRadius: '6px',
-            fontSize: '0.85rem',
-            fontWeight: 800,
-            textDecoration: 'none',
-            flex: isSidebar ? 1 : 'none',
-            boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
-          }}
+          className="ad-banner-btn-phone"
         >
           <Phone size={15} /> {t.editorPhone}
         </a>
@@ -260,21 +152,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
           href={`https://wa.me/919922299027?text=नमस्कार%20राहुल%20सर,%20मला%20निर्भीड%20न्यूजवर%20जाहिरात%20द्यायची%20आहे.`}
           target="_blank"
           rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.4rem',
-            backgroundColor: '#16a34a',
-            color: '#ffffff',
-            padding: '0.55rem 1rem',
-            borderRadius: '6px',
-            fontSize: '0.85rem',
-            fontWeight: 800,
-            textDecoration: 'none',
-            flex: isSidebar ? 1 : 'none',
-            boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)',
-          }}
+          className="ad-banner-btn-whatsapp"
         >
           <MessageSquare size={15} /> {t.bookAdWhatsApp}
         </a>

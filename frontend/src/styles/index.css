@@ -1852,6 +1852,320 @@ button:disabled .animate-spin {
   }
 }
 
+/* ========================================================
+   Default Text Ad Banner (Responsive & Mobile-Fit)
+   ======================================================== */
+.ad-banner-text-slot {
+  width: 100%;
+  margin: 1.25rem 0;
+  padding: 1.25rem 1.75rem;
+  border-radius: var(--radius-md, 10px);
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #172554 100%);
+  border: 1.5px solid rgba(234, 179, 8, 0.35);
+  color: #ffffff;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ad-banner-text-slot.is-sidebar {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 1.5rem 1.25rem;
+}
+
+.ad-banner-radial-light {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.ad-banner-content-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ad-banner-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background-color: rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(220, 38, 38, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.3);
+}
+
+.ad-banner-text-slot.is-sidebar .ad-banner-icon-box {
+  width: 44px;
+  height: 44px;
+}
+
+.ad-banner-text-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ad-banner-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
+}
+
+.ad-banner-tag-badge {
+  background-color: #dc2626;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ad-banner-leader-badge {
+  font-size: 0.72rem;
+  color: #facc15;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ad-banner-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.3;
+}
+
+.ad-banner-text-slot.is-sidebar .ad-banner-title {
+  font-size: 1rem;
+}
+
+.ad-banner-subtitle {
+  margin: 0;
+  font-size: 0.825rem;
+  color: #94a3b8;
+  word-break: break-word;
+}
+
+.ad-banner-actions-wrap {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.ad-banner-text-slot.is-sidebar .ad-banner-actions-wrap {
+  width: 100%;
+}
+
+.ad-banner-btn-phone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background-color: #dc2626;
+  color: #ffffff;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.ad-banner-btn-phone:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.ad-banner-btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background-color: #16a34a;
+  color: #ffffff;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.ad-banner-btn-whatsapp:hover {
+  background-color: #15803d;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .ad-banner-text-slot {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 1rem 0.9rem !important;
+    gap: 0.85rem !important;
+    margin: 1rem 0 !important;
+  }
+
+  .ad-banner-content-wrap {
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+
+  .ad-banner-icon-box {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 8px !important;
+  }
+  .ad-banner-icon-box svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .ad-banner-title {
+    font-size: 0.95rem !important;
+  }
+
+  .ad-banner-subtitle {
+    font-size: 0.775rem !important;
+  }
+
+  .ad-banner-actions-wrap {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .ad-banner-btn-phone,
+  .ad-banner-btn-whatsapp {
+    width: 100% !important;
+    padding: 0.5rem 0.4rem !important;
+    font-size: 0.775rem !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .ad-banner-actions-wrap {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ========================================================
+   Admin Layout & Pagination Controls
+   ======================================================== */
+.admin-main-content {
+  flex: 1;
+}
+
+.admin-page-container {
+  padding-bottom: 5rem;
+}
+
+@media (max-width: 768px) {
+  .admin-main-content {
+    padding-bottom: calc(75px + env(safe-area-inset-bottom)) !important;
+  }
+  .admin-page-container {
+    padding-bottom: calc(85px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+.admin-pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.75rem;
+  margin-bottom: 2.5rem;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-pagination-info {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.admin-pagination-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.admin-page-btn {
+  font-size: 0.825rem;
+  font-weight: 700;
+  padding: 0.45rem 1rem;
+  min-height: 38px;
+  min-width: 100px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 768px) {
+  .admin-pagination-container {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    margin-bottom: 4rem !important;
+    padding: 0.85rem 1rem !important;
+  }
+
+  .admin-pagination-info {
+    text-align: center !important;
+    font-size: 0.8rem !important;
+  }
+
+  .admin-pagination-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .admin-page-btn {
+    width: 100% !important;
+    min-height: 42px !important;
+    font-size: 0.85rem !important;
+  }
+}
+
 /* Admin Dashboard Modern Metric Cards */
 .admin-metric-card {
   background: #ffffff;
