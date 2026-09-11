@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, User, Sparkles } from 'lucide-react';
+import { Clock, User, Sparkles, ArrowRight } from 'lucide-react';
 import { Article } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
@@ -16,8 +16,8 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
     return null;
   }
 
+  // Display only the primary featured website launch story
   const primaryArticle = translateArticle(articles[0]);
-  const secondaryArticles = articles.slice(1, 4).map(translateArticle);
 
   const formatPublishDate = (dateStr?: string) => {
     if (!dateStr) return '';
@@ -54,28 +54,21 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
         </span>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: secondaryArticles.length > 0 ? '7fr 5fr' : '1fr',
-          gap: '1.5rem',
-        }}
-        className="hero-grid"
-      >
-        {/* Primary Large Lead Card */}
+      <div style={{ width: '100%' }}>
+        {/* Full-Width Hero Featured Spotlight Card */}
         <article
           style={{
             position: 'relative',
-            borderRadius: 'var(--radius-lg)',
+            borderRadius: 'var(--radius-lg, 12px)',
             overflow: 'hidden',
             backgroundColor: '#0f172a',
-            minHeight: '400px',
+            minHeight: '420px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
             transition: 'box-shadow 0.3s ease',
-            border: !primaryArticle.featured_image_url ? '1px solid #334155' : 'none',
+            border: '1.5px solid rgba(239, 68, 68, 0.3)',
           }}
           className="hero-primary-card"
         >
@@ -103,7 +96,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.6) 45%, rgba(15, 23, 42, 0.95) 100%)',
+                  background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.65) 45%, rgba(15, 23, 42, 0.98) 100%)',
                 }}
               />
             </>
@@ -125,38 +118,61 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
             style={{
               position: 'relative',
               zIndex: 10,
-              padding: '2rem',
+              padding: '2.25rem 2rem',
               color: 'white',
             }}
+            className="hero-card-content"
           >
-            {primaryArticle.category && (
-              <Link
-                to={`/category/${primaryArticle.category.slug}`}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '0.85rem' }}>
+              {primaryArticle.category && (
+                <Link
+                  to={`/category/${primaryArticle.category.slug}`}
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'white',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    padding: '0.35rem 0.85rem',
+                    borderRadius: 'var(--radius-sm, 4px)',
+                    letterSpacing: '0.5px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  {translateCategory(primaryArticle.category.slug, primaryArticle.category.name)}
+                </Link>
+              )}
+
+              <span
                 style={{
-                  display: 'inline-block',
-                  backgroundColor: 'var(--color-primary)',
-                  color: 'white',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
+                  backgroundColor: 'rgba(234, 179, 8, 0.25)',
+                  color: '#fef08a',
+                  border: '1px solid rgba(234, 179, 8, 0.5)',
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  padding: '0.3rem 0.65rem',
+                  borderRadius: 'var(--radius-sm, 4px)',
                   textTransform: 'uppercase',
-                  padding: '0.3rem 0.75rem',
-                  borderRadius: 'var(--radius-sm)',
-                  marginBottom: '0.75rem',
-                  letterSpacing: '0.5px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
                 }}
               >
-                {translateCategory(primaryArticle.category.slug, primaryArticle.category.name)}
-              </Link>
-            )}
+                <Sparkles size={12} color="#facc15" /> {t.featuredStories}
+              </span>
+            </div>
 
             <h2
               style={{
                 fontFamily: 'var(--font-serif)',
-                fontSize: '1.75rem',
+                fontSize: '2rem',
                 fontWeight: 800,
-                lineHeight: 1.25,
-                marginBottom: '0.75rem',
+                lineHeight: 1.3,
+                marginBottom: '0.85rem',
+                maxWidth: '900px',
               }}
+              className="hero-headline-text"
             >
               <Link to={`/news/${primaryArticle.slug}`} style={{ color: 'white', textDecoration: 'none' }}>
                 {primaryArticle.title}
@@ -166,15 +182,15 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
             {primaryArticle.excerpt && (
               <p
                 style={{
-                  fontSize: '0.9375rem',
+                  fontSize: '1rem',
                   color: '#e2e8f0',
-                  lineHeight: 1.5,
-                  marginBottom: '1rem',
+                  lineHeight: 1.6,
+                  marginBottom: '1.25rem',
                   display: '-webkit-box',
-                  WebkitLineClamp: 2,
+                  WebkitLineClamp: 3,
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
-                  maxWidth: '750px',
+                  maxWidth: '850px',
                 }}
               >
                 {primaryArticle.excerpt}
@@ -185,123 +201,51 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({ articles }) => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '1rem',
-                fontSize: '0.8125rem',
-                color: '#cbd5e1',
+                justifyContent: 'space-between',
                 flexWrap: 'wrap',
+                gap: '1rem',
+                paddingTop: '0.75rem',
+                borderTop: '1px solid rgba(255, 255, 255, 0.15)',
               }}
             >
-              {primaryArticle.author_name && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <User size={13} /> {primaryArticle.author_name}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1.25rem',
+                  fontSize: '0.8125rem',
+                  color: '#cbd5e1',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {primaryArticle.author_name && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600, color: '#f8fafc' }}>
+                    <User size={14} color="#f87171" /> {primaryArticle.author_name}
+                  </span>
+                )}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Clock size={14} /> {formatPublishDate(primaryArticle.published_at || primaryArticle.created_at)}
                 </span>
-              )}
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                <Clock size={13} /> {formatPublishDate(primaryArticle.published_at || primaryArticle.created_at)}
-              </span>
+              </div>
+
+              <Link
+                to={`/news/${primaryArticle.slug}`}
+                className="btn btn-primary"
+                style={{
+                  fontSize: '0.8125rem',
+                  padding: '0.45rem 1rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  fontWeight: 700,
+                }}
+              >
+                <span>{t.readMore}</span>
+                <ArrowRight size={14} />
+              </Link>
             </div>
           </div>
         </article>
-
-        {/* Secondary Featured Stack */}
-        {secondaryArticles.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem',
-              justifyContent: 'space-between',
-            }}
-          >
-            {secondaryArticles.map((article) => {
-              const hasImg = Boolean(article.featured_image_url && article.featured_image_url.trim() !== '');
-              return (
-                <article
-                  key={article.id}
-                  style={{
-                    display: hasImg ? 'grid' : 'block',
-                    gridTemplateColumns: hasImg ? '130px 1fr' : '1fr',
-                    gap: '1rem',
-                    backgroundColor: '#ffffff',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--color-border)',
-                    borderLeft: !hasImg ? '4px solid var(--color-primary)' : '1px solid var(--color-border)',
-                    overflow: 'hidden',
-                    padding: '0.85rem',
-                    boxShadow: 'var(--shadow-sm)',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                  }}
-                  className="hero-secondary-card"
-                >
-                  {hasImg && (
-                    <Link
-                      to={`/news/${article.slug}`}
-                      style={{
-                        backgroundColor: '#0f172a',
-                        borderRadius: 'var(--radius-sm)',
-                        overflow: 'hidden',
-                        display: 'block',
-                        height: '100px',
-                      }}
-                    >
-                      <img
-                        src={resolveMediaUrl(article.featured_image_url!)}
-                        alt={article.title}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                        }}
-                        loading="lazy"
-                      />
-                    </Link>
-                  )}
-
-                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    {article.category && (
-                      <Link
-                        to={`/category/${article.category.slug}`}
-                        style={{
-                          fontSize: '0.6875rem',
-                          fontWeight: 700,
-                          color: 'var(--color-primary)',
-                          textTransform: 'uppercase',
-                          marginBottom: '0.25rem',
-                          display: 'inline-block',
-                        }}
-                      >
-                        {translateCategory(article.category.slug, article.category.name)}
-                      </Link>
-                    )}
-
-                    <h3
-                      style={{
-                        fontFamily: 'var(--font-serif)',
-                        fontSize: '0.9375rem',
-                        fontWeight: 700,
-                        lineHeight: 1.35,
-                        color: 'var(--color-secondary)',
-                        margin: '0 0 0.35rem 0',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <Link to={`/news/${article.slug}`} style={{ color: 'inherit' }} className="article-title-hover">
-                        {article.title}
-                      </Link>
-                    </h3>
-
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
-                      {formatPublishDate(article.published_at || article.created_at)}
-                    </span>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
       </div>
     </section>
   );

@@ -1853,6 +1853,32 @@ button:disabled .animate-spin {
 }
 
 /* ========================================================
+   Hero Featured Spotlight Styles
+   ======================================================== */
+.hero-primary-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hero-primary-card:hover {
+  box-shadow: 0 25px 50px -12px rgba(220, 38, 38, 0.25), 0 0 0 1px rgba(239, 68, 68, 0.4);
+}
+.hero-primary-card:hover .hero-img-zoom {
+  transform: scale(1.03);
+}
+
+@media (max-width: 768px) {
+  .hero-primary-card {
+    min-height: 320px !important;
+  }
+  .hero-card-content {
+    padding: 1.25rem 1rem !important;
+  }
+  .hero-headline-text {
+    font-size: 1.35rem !important;
+    line-height: 1.35 !important;
+  }
+}
+
+/* ========================================================
    Default Text Ad Banner (Responsive & Mobile-Fit)
    ======================================================== */
 .ad-banner-text-slot {

@@ -23,10 +23,10 @@ import { useLanguage } from '../../context/LanguageContext';
 export const HomePage: React.FC = () => {
   const { t, translateCategory } = useLanguage();
 
-  // Fetch Featured Articles for Hero
+  // Fetch Featured Articles for Hero (Website Launch Story Only)
   const { data: featuredArticles, isLoading: loadingFeatured } = useQuery({
     queryKey: ['featured-articles'],
-    queryFn: () => articleApi.getFeaturedArticles(4),
+    queryFn: () => articleApi.getFeaturedArticles(1),
     refetchInterval: 1000 * 5, // Fast 5s live updates
   });
 
