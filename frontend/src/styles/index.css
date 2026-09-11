@@ -1620,52 +1620,7 @@ button:disabled .animate-spin {
   box-shadow: 0 0 8px rgba(220, 38, 38, 0.6);
 }
 
-/* Floating Action Pills on Mobile Article Detail */
-.floating-article-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(15, 23, 42, 0.94);
-  backdrop-filter: blur(12px);
-  padding: 0.35rem 0.5rem;
-  border-radius: 9999px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  position: fixed;
-  bottom: 74px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 990;
-  max-width: calc(100vw - 16px);
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.floating-article-actions::-webkit-scrollbar {
-  display: none;
-}
 
-.floating-action-btn {
-  background: transparent;
-  color: #ffffff;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.3rem 0.55rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-.floating-action-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fef08a;
-}
 /* ========================================================
    Floating Elements & Live Broadcast Bar Positioning
    ======================================================== */
@@ -1720,10 +1675,6 @@ button:disabled .animate-spin {
     right: 12px !important;
     width: auto !important;
     max-width: calc(100vw - 24px) !important;
-  }
-
-  .floating-article-actions {
-    bottom: calc(64px + env(safe-area-inset-bottom) + 10px) !important;
   }
 }
 
