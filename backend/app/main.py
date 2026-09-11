@@ -86,6 +86,10 @@ async def lifespan(app: FastAPI):
                 ))
 
             db.commit()
+
+            # Ensure articles and advertisements are seeded with single featured website launch story
+            from app.utils.seed import seed_all
+            seed_all(db)
             logger.info("Database bootstrap seeding completed successfully.")
     except Exception as e:
         logger.error(f"Error during bootstrap seeding: {e}")

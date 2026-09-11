@@ -9,6 +9,65 @@ export interface TranslatedArticleFields {
 }
 
 export const ARTICLE_TRANSLATIONS: Record<string, Record<Language, TranslatedArticleFields>> = {
+  'nirbhid-news-website-launch': {
+    mr: {
+      title: "'निर्भीड न्यूज'च्या अधिकृत डिजिटल न्यूज पोर्टलचे भव्य लोकार्पण; मुख्य संपादक राहुल जोगदंड यांच्या नेतृत्वाखाली निष्पक्ष पत्रकारितेची नवी सुरुवात",
+      excerpt: 'महाराष्ट्रातील जनतेसाठी २४ तास सत्य, अचूक आणि निर्भीड बातम्या पोहोचवणारे आधुनिक डिजिटल न्यूज व्यासपीठ आजपासून जनसेवेत रुजू.',
+      author_name: 'राहुल जोगदंड (मुख्य संपादक)',
+      content: `# 'निर्भीड न्यूज'च्या डिजिटल पोर्टलचे दिमाखात लोकार्पण
+
+महाराष्ट्रातील अग्रगण्य डिजिटल माध्यम समूह **'निर्भीड न्यूज'** च्या अधिकृत डिजिटल न्यूज वेबसाईट व आधुनिक वेब पोर्टलचे आज मुख्य संपादक **राहुल जोगदंड** यांच्या शुभहस्ते भव्य लोकार्पण करण्यात आले.
+
+> "सत्य, अचूकता आणि निर्भीडपणा हीच आमची ओळख आहे. कोणत्याही राजकीय अथवा आर्थिक दबावाला बळी न पडता सर्वसामान्य नागरिकांचे प्रश्न शासन दरबारी मांडणे हेच निर्भीड न्यूजचे सर्वोच्च ध्येय आहे." — राहुल जोगदंड (मुख्य संपादक)
+
+### वेबसाईटची प्रमुख वैशिष्ट्ये:
+- **२४ तास थेट प्रवाह (Live 24x7):** ताज्या घडामोडींचे अविरत थेट प्रक्षेपण.
+- **AI बातमी सारांश (AI Quick Summary):** लांबलचक बातम्यांचा सेकंदात अचूक ३-मुद्द्यांचा सारांश.
+- **AI ऑडिओ वाचक (AI Voice Reader):** बातमी वाचण्यासोबत ऐकण्याची आधुनिक सोय.
+- **त्रिभाषिक बातमी सेवा:** मराठी, हिंदी व इंग्रजी भाषेत एका क्लिकवर सहज वाचन.
+- **विभागवार सखोल विश्लेषण:** महाराष्ट्र, मुंबई, ठाणे, राजकारण, गुन्हेगारी, क्रीडा, मनोरंजन व तंत्रज्ञान.
+
+सर्व वाचक, प्रेक्षक आणि हितचिंतकांचे मनःपूर्वक आभार! निष्पक्ष आणि रोकठोक पत्रकारितेसाठी नेहमी जोडलेले राहा.`,
+    },
+    en: {
+      title: 'Grand Launch of Nirbhid News Official Digital News Portal & Web Platform under Chief Editor Rahul Jogdand',
+      excerpt: 'State-of-the-art 24/7 digital journalism portal officially goes live across Maharashtra, dedicated to fearless, unfiltered public interest reporting.',
+      author_name: 'Rahul Jogdand (Chief Editor)',
+      content: `# Grand Digital Launch of 'Nirbhid News' Web Portal
+
+Leading digital news and investigative journalism network **'Nirbhid News'** has officially launched its modern digital news website and platform under the visionary leadership of Founder & Chief Editor **Rahul Jogdand**.
+
+> "Truth, precision, and fearlessness define our journalism. Our mission is to raise citizens' voices without yielding to any political or financial pressure." — Rahul Jogdand (Chief Editor)
+
+### Key Platform Highlights:
+- **24/7 Live Stream:** Continuous real-time news broadcasts.
+- **AI News Intelligence:** Instant 3-point verified summaries for fast reading.
+- **AI Voice Reader:** High-clarity native audio news narration.
+- **Tri-lingual Switcher:** Instant seamless reading in Marathi, English, and Hindi.
+- **Dedicated Categories:** Comprehensive coverage across Maharashtra, Mumbai, Politics, Business, Crime, and Tech.
+
+We extend our heartfelt gratitude to all our readers, viewers, and supporters across Maharashtra and beyond!`,
+    },
+    hi: {
+      title: "'निर्भीड न्यूज' के आधिकारिक डिजिटल पोर्टल और वेबसाइट का भव्य शुभारंभ; मुख्य संपादक राहुल जोगदंड के नेतृत्व में निष्पक्ष पत्रकारिता",
+      excerpt: 'महाराष्ट्र की जनता के लिए २४ घंटे सत्य, सटीक और निर्भीक समाचार पहुंचाने वाला आधुनिक डिजिटल न्यूज प्लेटफॉर्म आज से शुरू।',
+      author_name: 'राहुल जोगदंड (मुख्य संपादक)',
+      content: `# 'निर्भीड न्यूज' के डिजिटल पोर्टल का भव्य लोकार्पण
+
+महाराष्ट्र के अग्रणी डिजिटल मीडिया नेटवर्क **'निर्भीड न्यूज'** की आधिकारिक समाचार वेबसाइट और पोर्टल का आज मुख्य संपादक **राहुल जोगदंड** के करकमलों द्वारा भव्य शुभारंभ किया गया।
+
+> "सत्य, सटीकता और निर्भीकता ही हमारी पहचान है। बिना किसी दबाव के जनता के मुद्दे शासन तक पहुंचाना ही निर्भीड न्यूज का प्रमुख उद्देश्य है।" — राहुल जोगदंड (मुख्य संपादक)
+
+### वेबसाइट की प्रमुख विशेषताएं:
+- **२४x७ लाइव प्रसारण:** ताजातरीन खबरों का निरंतर लाइव स्ट्रीम।
+- **AI समाचार सारांश:** सेकंडों में ३-बिंदु सटीक एआई सारांश।
+- **AI वॉयस रीडर:** समाचार पढ़ने के साथ-साथ सुनने की आधुनिक सुविधा।
+- **त्रिभाषी समाचार सेवा:** मराठी, हिंदी व अंग्रेजी में आसान पठन।
+- **श्रेणीवार कवरेज:** महाराष्ट्र, मुंबई, राजनीति, अपराध, खेल, मनोरंजन और तकनीकी जगत।
+
+सभी पाठकों और शुभचिंतकों का हार्दिक आभार! निष्पक्ष और बेबाक पत्रकारिता के लिए जुड़े रहें।`,
+    },
+  },
   'mumbai-pune-expressway-ai-traffic-system': {
     mr: {
       title: 'मुंबई-पुणे एक्सप्रेसवेवर नवीन AI-आधारित इंटेलिजेंट ट्रॅफिक सिस्टीम कार्यान्वित',

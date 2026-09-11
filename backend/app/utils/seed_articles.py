@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, update
 from app.models.article import Article
 from app.models.category import Category
 from app.models.user import User
@@ -9,6 +9,31 @@ from app.models.user import User
 logger = logging.getLogger(__name__)
 
 SAMPLE_ARTICLES = [
+    {
+        "title": "'निर्भीड न्यूज'च्या अधिकृत डिजिटल न्यूज पोर्टलचे भव्य लोकार्पण; मुख्य संपादक राहुल जोगदंड यांच्या नेतृत्वाखाली निष्पक्ष पत्रकारितेची नवी सुरुवात",
+        "slug": "nirbhid-news-website-launch",
+        "category_slug": "maharashtra",
+        "excerpt": "महाराष्ट्रातील जनतेसाठी २४ तास सत्य, अचूक आणि निर्भीड बातम्या पोहोचवणारे आधुनिक डिजिटल न्यूज व्यासपीठ आजपासून जनसेवेत रुजू.",
+        "content": """# 'निर्भीड न्यूज'च्या डिजिटल पोर्टलचे दिमाखात लोकार्पण
+
+महाराष्ट्रातील अग्रगण्य डिजिटल माध्यम समूह **'निर्भीड न्यूज'** च्या अधिकृत डिजिटल न्यूज वेबसाईट व आधुनिक वेब पोर्टलचे आज मुख्य संपादक **राहुल जोगदंड** यांच्या शुभहस्ते भव्य लोकार्पण करण्यात आले.
+
+> "सत्य, अचूकता आणि निर्भीडपणा हीच आमची ओळख आहे. कोणत्याही राजकीय अथवा आर्थिक दबावाला बळी न पडता सर्वसामान्य नागरिकांचे प्रश्न शासन दरबारी मांडणे हेच निर्भीड न्यूजचे सर्वोच्च ध्येय आहे." — राहुल जोगदंड (मुख्य संपादक)
+
+### वेबसाईटची प्रमुख वैशिष्ट्ये:
+- **२४ तास थेट प्रवाह (Live 24x7):** ताज्या घडामोडींचे अविरत थेट प्रक्षेपण.
+- **AI बातमी सारांश (AI Quick Summary):** लांबलचक बातम्यांचा सेकंदात अचूक ३-मुद्द्यांचा सारांश.
+- **AI ऑडिओ वाचक (AI Voice Reader):** बातमी वाचण्यासोबत ऐकण्याची आधुनिक सोय.
+- **त्रिभाषिक बातमी सेवा:** मराठी, हिंदी व इंग्रजी भाषेत एका क्लिकवर सहज वाचन.
+- **विभागवार सखोल विश्लेषण:** महाराष्ट्र, मुंबई, ठाणे, राजकारण, गुन्हेगारी, क्रीडा, मनोरंजन व तंत्रज्ञान.
+
+सर्व वाचक, प्रेक्षक आणि हितचिंतकांचे मनःपूर्वक आभार! निष्पक्ष आणि रोकठोक पत्रकारितेसाठी नेहमी जोडलेले राहा.""",
+        "featured_image_url": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80",
+        "author_name": "राहुल जोगदंड (मुख्य संपादक)",
+        "is_featured": True,
+        "is_breaking": True,
+        "days_ago": 0,
+    },
     {
         "title": "मुंबई-पुणे एक्सप्रेसवेवर नवीन AI-आधारित इंटेलिजेंट ट्रॅफिक सिस्टीम कार्यान्वित",
         "slug": "mumbai-pune-expressway-ai-traffic-system",
@@ -28,9 +53,9 @@ SAMPLE_ARTICLES = [
 या उपक्रमामुळे घाट विभागात होणारी वाहतूक कोंडी लक्षणीयरीत्या कमी होण्यास मदत होणार आहे.""",
         "featured_image_url": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
         "author_name": "राजेश सावंत (विशेष प्रतिनिधी)",
-        "is_featured": True,
-        "is_breaking": True,
-        "days_ago": 0,
+        "is_featured": False,
+        "is_breaking": False,
+        "days_ago": 1,
     },
     {
         "title": "ठाणे महापालिकेचा ५ हजार कोटींचा अर्थसंकल्प सादर; पायाभूत सुविधा आणि आरोग्यावर भर",
@@ -49,7 +74,7 @@ SAMPLE_ARTICLES = [
 शहरातील तलावांचे संवर्धन आणि सौरऊर्जा प्रकल्पांसाठीही विशेष अनुदानाची घोषणा करण्यात आली आहे.""",
         "featured_image_url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
         "author_name": "नितीन देशमुख",
-        "is_featured": True,
+        "is_featured": False,
         "is_breaking": False,
         "days_ago": 1,
     },
@@ -70,9 +95,9 @@ SAMPLE_ARTICLES = [
 - महिला प्रवाशांच्या सुरक्षेसाठी विशेष सुरक्षा रक्षक व सीसीटीव्ही कव्हरेज.""",
         "featured_image_url": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
         "author_name": "प्रिया कांबळे (मुंबई ब्युरो)",
-        "is_featured": True,
-        "is_breaking": True,
-        "days_ago": 1,
+        "is_featured": False,
+        "is_breaking": False,
+        "days_ago": 2,
     },
     {
         "title": "विधानसभा निवडणुकीच्या पार्श्वभूमीवर राजकीय पक्षांची मोर्चेबांधणी वेगवान; जागावाटपावर खलबते",
@@ -91,7 +116,7 @@ SAMPLE_ARTICLES = [
 राजकीय विश्लेषकांच्या मते ही निवडणूक महाराष्ट्राच्या इतिहासातील सर्वात रंगतदार ठरण्याची शक्यता आहे.""",
         "featured_image_url": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80",
         "author_name": "आनंद कुलकर्णी (वरिष्ठ राजकीय विश्लेषक)",
-        "is_featured": True,
+        "is_featured": False,
         "is_breaking": False,
         "days_ago": 2,
     },
@@ -112,7 +137,7 @@ SAMPLE_ARTICLES = [
         "author_name": "सुनील पाटील (गुन्हे वार्ताहर)",
         "is_featured": False,
         "is_breaking": True,
-        "days_ago": 2,
+        "days_ago": 3,
     },
     {
         "title": "भारतीय शेअर बाजारात ऐतिहासिक तेजी; सेन्सेक्स ८२,००० पार, आयटी व बँकिंग शेअर्समध्ये तेजी",
@@ -150,7 +175,7 @@ SAMPLE_ARTICLES = [
         "author_name": "महेश जोशी (क्रीडा प्रतिनिधी)",
         "is_featured": False,
         "is_breaking": False,
-        "days_ago": 3,
+        "days_ago": 4,
     },
     {
         "title": "मराठी चित्रपटसृष्टीत नवीन प्रयोग; ऐतिहासिक आणि सामाजिक चित्रपटांना बॉक्स ऑफिसवर पसंती",
@@ -188,7 +213,7 @@ SAMPLE_ARTICLES = [
         "author_name": "डॉ. मंदार वैद्य (विज्ञान वार्ताहर)",
         "is_featured": False,
         "is_breaking": True,
-        "days_ago": 4,
+        "days_ago": 5,
     },
     {
         "title": "जागतिक हवामान परिषदेत नवी दिल्ली जाहीरनाम्याचे स्वागत; विकसनशील देशांसाठी हरित निधीची मागणी",
@@ -226,7 +251,7 @@ SAMPLE_ARTICLES = [
         "author_name": "प्रा. शशिकांत कुलकर्णी",
         "is_featured": False,
         "is_breaking": False,
-        "days_ago": 5,
+        "days_ago": 6,
     },
     {
         "title": "आरोग्य संजीवनी: बदलत्या ऋतूत प्रतिकारशक्ती वाढवण्यासाठी तज्ज्ञांचा बहुमोल सल्ला",
@@ -251,7 +276,7 @@ SAMPLE_ARTICLES = [
 
 
 def seed_articles(db: Session, admin_user: User) -> int:
-    """Seed rich realistic sample articles idempotently."""
+    """Seed rich realistic sample articles and enforce only Website Launch is featured."""
     created_count = 0
     now = datetime.now(timezone.utc)
 
@@ -283,7 +308,17 @@ def seed_articles(db: Session, admin_user: User) -> int:
             )
             db.add(article)
             created_count += 1
+        else:
+            # Sync is_featured flag
+            existing.is_featured = art_data.get("is_featured", False)
+
+    # Make sure all other articles that are not 'nirbhid-news-website-launch' have is_featured = False
+    db.execute(
+        update(Article)
+        .where(Article.slug != "nirbhid-news-website-launch")
+        .values(is_featured=False)
+    )
 
     db.commit()
-    logger.info(f"Seeded {created_count} articles.")
+    logger.info(f"Seeded {created_count} articles and enforced single featured website launch story.")
     return created_count
