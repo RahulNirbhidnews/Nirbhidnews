@@ -34,22 +34,7 @@ export const NewsAlertsToast: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        bottom: '24px',
-        left: '24px',
-        zIndex: 980,
-        maxWidth: '340px',
-        width: 'calc(100% - 48px)',
-        backgroundColor: '#ffffff',
-        borderRadius: 'var(--radius-md)',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
-        border: '1px solid #e2e8f0',
-        padding: '1rem',
-        animation: 'slideUpPopup 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-      }}
-    >
+    <div className="news-alerts-toast-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#dc2626', fontWeight: 700, fontSize: '0.8125rem' }}>
           <Bell size={16} />

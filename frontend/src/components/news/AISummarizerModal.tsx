@@ -18,12 +18,29 @@ export const AISummarizerModal: React.FC<AISummarizerModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(true);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, onClose]);
+
   useEffect(() => {
     if (isOpen) {
       setIsGenerating(true);
       const timer = setTimeout(() => {
         setIsGenerating(false);
-      }, 700);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isOpen, article.id]);
@@ -56,181 +73,173 @@ export const AISummarizerModal: React.FC<AISummarizerModalProps> = ({
   const bullets = generateBulletPoints();
 
   const handleCopySummary = () => {
-    const textToCopy = `🤖 AI Summary — Nirbhid News:\n\n📌 ${article.title}\n\n• ${bullets.join('\n• ')}\n\nRead more: ${window.location.href}`;
+    const textToCopy = `🤖 AI Quick Summary — Nirbhid News:\n\n📌 ${article.title}\n\n• ${bullets.join('\n• ')}\n\nRead more: ${window.location.href}`;
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const closeLabel = language === 'mr' ? 'बंद करा' : language === 'hi' ? 'बंद करें' : 'Close';
+  const copyLabel = language === 'mr' ? 'सारांश कॉपी करा' : language === 'hi' ? 'सारांश कॉपी करें' : 'Copy Summary';
+  const copiedLabel = language === 'mr' ? 'कॉपी झाले!' : language === 'hi' ? 'कॉपी हुआ!' : 'Copied!';
+
   return (
     <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        animation: 'fadeIn 0.2s ease',
-      }}
+      className="ai-summary-modal-overlay"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ai-summary-title"
     >
       <div
-        style={{
-          backgroundColor: '#ffffff',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          maxWidth: '600px',
-          width: '100%',
-          overflow: 'hidden',
-          border: '1px solid #e2e8f0',
-        }}
+        className="ai-summary-modal-box"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div
-          style={{
-            padding: '1.25rem 1.5rem',
-            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
-            color: '#ffffff',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                backgroundColor: 'rgba(168, 85, 247, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Sparkles size={20} color="#c084fc" />
+        <div className="ai-summary-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
+            <div className="ai-summary-icon-badge">
+              <Sparkles size={18} color="#c084fc" />
             </div>
-            <div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>
+            <div style={{ minWidth: 0 }}>
+              <h3 id="ai-summary-title" style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {t.aiSummaryTitle}
               </h3>
-              <span style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
-                Powered by Nirbhid AI News Intelligence
+              <span style={{ fontSize: '0.7rem', color: '#c7d2fe', fontWeight: 500, display: 'block' }}>
+                Nirbhid AI News Intelligence
               </span>
             </div>
           </div>
 
+          {/* Prominent High-Contrast Close Button */}
           <button
             type="button"
             onClick={onClose}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#cbd5e1',
-              cursor: 'pointer',
-              padding: '0.25rem',
-            }}
+            className="ai-summary-close-btn"
+            aria-label={closeLabel}
+            title={closeLabel}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Body */}
-        <div style={{ padding: '1.5rem' }}>
+        {/* Body Content */}
+        <div className="ai-summary-body">
           {isGenerating ? (
-            <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-              <Sparkles size={32} color="#8b5cf6" className="spinner" style={{ margin: '0 auto 1rem auto' }} />
-              <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600 }}>
+            <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+              <Sparkles size={28} color="#8b5cf6" className="spinner" style={{ margin: '0 auto 0.75rem auto' }} />
+              <p style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, margin: 0 }}>
                 {t.aiTranslating}...
               </p>
             </div>
           ) : (
             <div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: '#16a34a',
-                  backgroundColor: '#f0fdf4',
-                  padding: '0.35rem 0.75rem',
-                  borderRadius: '4px',
-                  width: 'fit-content',
-                  marginBottom: '1rem',
-                  border: '1px solid #bbf7d0',
-                }}
-              >
-                <ShieldCheck size={14} /> {t.aiFactChecked} (Score: 98.4%)
+              {/* Fact Check Badge */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    color: '#15803d',
+                    backgroundColor: '#f0fdf4',
+                    padding: '0.25rem 0.6rem',
+                    borderRadius: 'var(--radius-full)',
+                    border: '1px solid #bbf7d0',
+                  }}
+                >
+                  <ShieldCheck size={13} /> {t.aiFactChecked} (98.4%)
+                </div>
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                  3-Point Brief
+                </span>
               </div>
 
+              {/* Title */}
               <h4
                 style={{
-                  fontSize: '1.05rem',
+                  fontSize: '0.95rem',
                   fontWeight: 700,
                   color: 'var(--color-secondary)',
-                  lineHeight: 1.4,
-                  marginBottom: '1rem',
+                  lineHeight: 1.35,
+                  margin: '0 0 0.75rem 0',
                   fontFamily: 'var(--font-serif)',
                 }}
               >
                 {article.title}
               </h4>
 
-              <div
-                style={{
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  padding: '1rem 1.25rem',
-                  marginBottom: '1.25rem',
-                }}
-              >
-                <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.9rem', color: '#334155', lineHeight: 1.7 }}>
+              {/* Bullet Points */}
+              <div className="ai-summary-points-card">
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {bullets.map((point, index) => (
-                    <li key={index} style={{ marginBottom: '0.5rem' }}>
-                      {point}
+                    <li
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '0.5rem',
+                        fontSize: '0.825rem',
+                        color: '#334155',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          backgroundColor: '#ede9fe',
+                          color: '#7c3aed',
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          marginTop: '2px',
+                        }}
+                      >
+                        {index + 1}
+                      </span>
+                      <span>{point}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <button
-                  type="button"
-                  onClick={handleCopySummary}
-                  className="btn btn-outline"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    fontSize: '0.8125rem',
-                  }}
-                >
-                  {copied ? <CheckCircle2 size={14} color="#16a34a" /> : <Copy size={14} />}
-                  {copied ? t.linkCopied : t.copyLink}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="btn btn-primary"
-                  style={{ fontSize: '0.8125rem', padding: '0.45rem 1rem' }}
-                >
-                  {t.readMore}
-                </button>
-              </div>
             </div>
           )}
+        </div>
+
+        {/* Bottom Footer Actions */}
+        <div className="ai-summary-footer">
+          <button
+            type="button"
+            onClick={handleCopySummary}
+            className="btn btn-outline"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: '0.75rem',
+              padding: '0.4rem 0.75rem',
+              minHeight: '34px',
+            }}
+          >
+            {copied ? <CheckCircle2 size={14} color="#16a34a" /> : <Copy size={14} />}
+            <span>{copied ? copiedLabel : copyLabel}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="ai-summary-bottom-close-btn"
+          >
+            <X size={14} />
+            <span>{closeLabel}</span>
+          </button>
         </div>
       </div>
     </div>

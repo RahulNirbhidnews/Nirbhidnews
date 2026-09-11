@@ -26,14 +26,7 @@ export const LiveBroadcastBar: React.FC = () => {
   const channelName = broadcast?.channel_name || 'Nirbhid Digital Live';
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        bottom: '24px',
-        left: '24px',
-        zIndex: 990,
-      }}
-    >
+    <div className="live-broadcast-floating-container">
       {/* Floating Trigger Pill when closed or minimized */}
       {!isOpen || isMinimized ? (
         <button
@@ -77,17 +70,7 @@ export const LiveBroadcastBar: React.FC = () => {
         </button>
       ) : (
         /* Expanded Live Stream Mini-Player */
-        <div
-          style={{
-            width: '340px',
-            backgroundColor: '#0f172a',
-            borderRadius: 'var(--radius-lg)',
-            overflow: 'hidden',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(239, 68, 68, 0.3)',
-            border: '2px solid #ef4444',
-            animation: 'slideUpPopup 0.3s ease',
-          }}
-        >
+        <div className="live-broadcast-player-box">
           {/* Top Bar */}
           <div
             style={{
@@ -110,27 +93,27 @@ export const LiveBroadcastBar: React.FC = () => {
                   href={broadcast.youtube_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: 'white', display: 'flex', alignItems: 'center', padding: '2px' }}
+                  style={{ color: 'white', display: 'flex', alignItems: 'center', padding: '4px', borderRadius: '4px' }}
                   title="Open on YouTube"
                 >
-                  <ExternalLink size={13} />
+                  <ExternalLink size={14} />
                 </a>
               )}
               <button
                 type="button"
                 onClick={() => setIsMinimized(true)}
-                style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '2px' }}
+                style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '4px', borderRadius: '4px', display: 'flex', alignItems: 'center' }}
                 title="Minimize"
               >
-                <Minimize2 size={14} />
+                <Minimize2 size={15} />
               </button>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '2px' }}
+                style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '4px', borderRadius: '4px', display: 'flex', alignItems: 'center' }}
                 title="Close"
               >
-                <X size={14} />
+                <X size={16} />
               </button>
             </div>
           </div>
