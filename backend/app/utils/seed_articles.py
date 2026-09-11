@@ -1,12 +1,19 @@
 import logging
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from app.models.article import Article
 from app.models.category import Category
 from app.models.user import User
 
 logger = logging.getLogger(__name__)
+
+# List of legacy slugs requested for complete removal
+REMOVED_SLUGS = [
+    "mumbai-pune-expressway-ai-traffic-system",
+    "thane-municipal-budget-infrastructure-focus",
+    "maharashtra-assembly-elections-political-alliances",
+]
 
 SAMPLE_ARTICLES = [
     {
@@ -35,50 +42,6 @@ SAMPLE_ARTICLES = [
         "days_ago": 0,
     },
     {
-        "title": "मुंबई-पुणे एक्सप्रेसवेवर नवीन AI-आधारित इंटेलिजेंट ट्रॅफिक सिस्टीम कार्यान्वित",
-        "slug": "mumbai-pune-expressway-ai-traffic-system",
-        "category_slug": "maharashtra",
-        "excerpt": "वाहतूक कोंडी आणि अपघातांवर तात्काळ नियंत्रण मिळवण्यासाठी राज्य रस्ते विकास महामंडळाने नवीन तंत्रज्ञानाचा अवलंब केला आहे.",
-        "content": """# मुंबई-पुणे द्रुतगती मार्गावर आधुनिक तंत्रज्ञान
-
-महाराष्ट्र राज्य रस्ते विकास महामंडळाने (MSRDC) मुंबई-पुणे एक्सप्रेसवेवर **आर्टिफिशियल इंटेलिजन्स (AI)** आधारित प्रगत इंटेलिजेंट ट्रॅफिक मॅनेजमेंट सिस्टीम (ITMS) पूर्णपणे सुरू केली आहे.
-
-> "या अत्याधुनिक प्रणालीमुळे अपघातांची संख्या ६० टक्क्यांहून अधिक कमी होईल आणि वाहतूक नियम तोडणाऱ्यांवर २४ तास स्वयंचलित लक्ष ठेवले जाईल." — सार्वजनिक बांधकाम विभाग
-
-### प्रमुख वैशिष्ट्ये:
-- **हाय-स्पीड कॅमेरे:** प्रति तासाला वाहनांचा वेग मोजण्यासाठी १०० हून अधिक गॅन्ट्री कॅमेरे.
-- **स्वयंचलित ई-चलन:** ओव्हरस्पीडिंग, लेन कटिंग आणि विना सीटबेल्ट वाहन चालवणाऱ्यांवर थेट कारवाई.
-- **तातडीची मदत यंत्रणा:** अपघात घडल्यास ५ मिनिटांत बचाव पथक घटनास्थळी पोहोचणार.
-
-या उपक्रमामुळे घाट विभागात होणारी वाहतूक कोंडी लक्षणीयरीत्या कमी होण्यास मदत होणार आहे.""",
-        "featured_image_url": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
-        "author_name": "राजेश सावंत (विशेष प्रतिनिधी)",
-        "is_featured": False,
-        "is_breaking": False,
-        "days_ago": 1,
-    },
-    {
-        "title": "ठाणे महापालिकेचा ५ हजार कोटींचा अर्थसंकल्प सादर; पायाभूत सुविधा आणि आरोग्यावर भर",
-        "slug": "thane-municipal-budget-infrastructure-focus",
-        "category_slug": "thane",
-        "excerpt": "ठाणेकरांसाठी दिलासादायक बाब म्हणजे चालू आर्थिक वर्षात कोणतीही नवीन कर वाढ सुचवण्यात आलेली नाही.",
-        "content": """# ठाणे शहराचा सर्वांगीण विकास आराखडा
-
-ठाणे महानगरपालिकेने आगामी आर्थिक वर्षासाठी **५,२५० कोटी रुपयांचा** अर्थसंकल्प सादर केला आहे. यामध्ये ठाणेकरांवर कोणताही अतिरिक्त कर न लादता रस्ते सुधारणा, मेट्रो कनेक्टिव्हिटी आणि आरोग्य सुविधांवर मोठा निधी मंजूर करण्यात आला आहे.
-
-### अर्थसंकल्पातील महत्त्वाच्या तरतुदी:
-1. **ठाणे कोस्टल रोड आणि उड्डाणपूल:** ९५० कोटी रुपये निधी.
-2. **छत्रपती शिवाजी महाराज रुग्णालय आधुनिकीकरण:** नवीन २०० आयसीयू बेड्स.
-3. **पर्यावरणपूरक इलेक्ट्रिक बसेस:** टीएमटीच्या ताफ्यात नवीन १०० एसी बसेसचा समावेश.
-
-शहरातील तलावांचे संवर्धन आणि सौरऊर्जा प्रकल्पांसाठीही विशेष अनुदानाची घोषणा करण्यात आली आहे.""",
-        "featured_image_url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
-        "author_name": "नितीन देशमुख",
-        "is_featured": False,
-        "is_breaking": False,
-        "days_ago": 1,
-    },
-    {
         "title": "मुंबई मेट्रो ३ आरे-बीकेसी टप्प्याला प्रवाशांचा उत्स्फूर्त प्रतिसाद; दैनंदिन प्रवासी संख्येत विक्रमी वाढ",
         "slug": "mumbai-metro-3-aarey-bkc-passenger-surge",
         "category_slug": "mumbai",
@@ -97,28 +60,7 @@ SAMPLE_ARTICLES = [
         "author_name": "प्रिया कांबळे (मुंबई ब्युरो)",
         "is_featured": False,
         "is_breaking": False,
-        "days_ago": 2,
-    },
-    {
-        "title": "विधानसभा निवडणुकीच्या पार्श्वभूमीवर राजकीय पक्षांची मोर्चेबांधणी वेगवान; जागावाटपावर खलबते",
-        "slug": "maharashtra-assembly-elections-political-alliances",
-        "category_slug": "politics",
-        "excerpt": "प्रमुख आघाड्यांमध्ये जागावाटपाची अंतिम चर्चा निर्णायक टप्प्यात पोहोचली असून उमेदवारांच्या पहिल्या याद्या लवकरच जाहीर होण्याची शक्यता.",
-        "content": """# महाराष्ट्राचे राजकारण तापले
-
-राज्यातील आगामी विधानसभा निवडणुकांसाठी सर्वच राजकीय पक्षांनी जोरदार तयारी सुरू केली आहे. मुंबई आणि दिल्लीमध्ये वरिष्ठ नेत्यांच्या बैठकांचे सत्र सुरू असून बंडखोरी रोखण्यासाठी विशेष रणनीती आखली जात आहे.
-
-### सध्याची राजकीय स्थिती:
-- विदर्भ आणि पश्चिम महाराष्ट्रातील जागांवर चुरशीची लढत.
-- तरुण आणि महिला उमेदवारांना अधिक संधी देण्यावर सर्व पक्षांचा भर.
-- ग्रामीण भागातील शेतकरी प्रश्न आणि कर्जमाफीचा मुद्दा प्रचाराच्या केंद्रस्थानी.
-
-राजकीय विश्लेषकांच्या मते ही निवडणूक महाराष्ट्राच्या इतिहासातील सर्वात रंगतदार ठरण्याची शक्यता आहे.""",
-        "featured_image_url": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80",
-        "author_name": "आनंद कुलकर्णी (वरिष्ठ राजकीय विश्लेषक)",
-        "is_featured": False,
-        "is_breaking": False,
-        "days_ago": 2,
+        "days_ago": 1,
     },
     {
         "title": "सायबर गुन्हेगारीविरोधात महाराष्ट्र पोलिसांची मोठी कारवाई; आंतरराज्यीय टोळीचा पर्दाफाश",
@@ -137,7 +79,7 @@ SAMPLE_ARTICLES = [
         "author_name": "सुनील पाटील (गुन्हे वार्ताहर)",
         "is_featured": False,
         "is_breaking": True,
-        "days_ago": 3,
+        "days_ago": 2,
     },
     {
         "title": "भारतीय शेअर बाजारात ऐतिहासिक तेजी; सेन्सेक्स ८२,००० पार, आयटी व बँकिंग शेअर्समध्ये तेजी",
@@ -277,6 +219,12 @@ SAMPLE_ARTICLES = [
 
 def seed_articles(db: Session, admin_user: User) -> int:
     """Seed rich realistic sample articles and enforce only Website Launch is featured."""
+    # 1. Permanently remove requested legacy articles from the database
+    if REMOVED_SLUGS:
+        db.execute(delete(Article).where(Article.slug.in_(REMOVED_SLUGS)))
+        db.commit()
+        logger.info(f"Purged removed articles from database: {REMOVED_SLUGS}")
+
     created_count = 0
     now = datetime.now(timezone.utc)
 

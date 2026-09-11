@@ -68,93 +68,6 @@ We extend our heartfelt gratitude to all our readers, viewers, and supporters ac
 सभी पाठकों और शुभचिंतकों का हार्दिक आभार! निष्पक्ष और बेबाक पत्रकारिता के लिए जुड़े रहें।`,
     },
   },
-  'mumbai-pune-expressway-ai-traffic-system': {
-    mr: {
-      title: 'मुंबई-पुणे एक्सप्रेसवेवर नवीन AI-आधारित इंटेलिजेंट ट्रॅफिक सिस्टीम कार्यान्वित',
-      excerpt: 'वाहतूक कोंडी आणि अपघातांवर तात्काळ नियंत्रण मिळवण्यासाठी राज्य रस्ते विकास महामंडळाने नवीन तंत्रज्ञानाचा अवलंब केला आहे.',
-      author_name: 'राजेश सावंत (विशेष प्रतिनिधी)',
-      content: `# मुंबई-पुणे द्रुतगती मार्गावर आधुनिक तंत्रज्ञान
-
-महाराष्ट्र राज्य रस्ते विकास महामंडळाने (MSRDC) मुंबई-पुणे एक्सप्रेसवेवर **आर्टिफिशियल इंटेलिजन्स (AI)** आधारित प्रगत इंटेलिजेंट ट्रॅफिक मॅनेजमेंट सिस्टीम (ITMS) पूर्णपणे सुरू केली आहे.
-
-> "या अत्याधुनिक प्रणालीमुळे अपघातांची संख्या ६० टक्क्यांहून अधिक कमी होईल आणि वाहतूक नियम तोडणाऱ्यांवर २४ तास स्वयंचलित लक्ष ठेवले जाईल." — सार्वजनिक बांधकाम विभाग
-
-### प्रमुख वैशिष्ट्ये:
-- **हाय-स्पीड कॅमेरे:** प्रति तासाला वाहनांचा वेग मोजण्यासाठी १०० हून अधिक गॅन्ट्री कॅमेरे.
-- **स्वयंचलित ई-चलन:** ओव्हरस्पीडिंग, लेन कटिंग आणि विना सीटबेल्ट वाहन चालवणाऱ्यांवर थेट कारवाई.
-- **तातडीची मदत यंत्रणा:** अपघात घडल्यास ५ मिनिटांत बचाव पथक घटनास्थळी पोहोचणार.
-
-या उपक्रमामुळे घाट विभागात होणारी वाहतूक कोंडी लक्षणीयरीत्या कमी होण्यास मदत होणार आहे.`,
-    },
-    en: {
-      title: 'Mumbai-Pune Expressway Deploys New AI-Powered Intelligent Traffic System',
-      excerpt: 'Maharashtra State Road Development Corporation implements advanced AI surveillance to curb traffic congestion and reduce road accidents.',
-      author_name: 'Rajesh Sawant (Special Correspondent)',
-      content: `# Modern AI Technology on Mumbai-Pune Expressway
-
-The Maharashtra State Road Development Corporation (MSRDC) has officially activated the **Artificial Intelligence (AI)** based Intelligent Traffic Management System (ITMS) on the Mumbai-Pune Expressway.
-
-> "This state-of-the-art system will reduce accident rates by more than 60% and maintain 24/7 automated surveillance against traffic violations." — Public Works Department
-
-### Key Features:
-- **High-Speed Gantry Cameras:** Over 100 automated gantry camera stations monitoring vehicular velocity in real-time.
-- **Automated E-Challans:** Instant electronic fines for overspeeding, hazardous lane changing, and seatbelt violations.
-- **Rapid Emergency Response:** Dedicated rescue units reaching incident locations within 5 minutes.
-
-This initiative is projected to significantly alleviate congestion across the Ghat section during peak travel hours.`,
-    },
-    hi: {
-      title: 'मुंबई-पुणे एक्सप्रेसवे पर नया AI-आधारित इंटेलिजेंट ट्रैफिक मैनेजमेंट सिस्टम शुरू',
-      excerpt: 'ट्रैफिक जाम और सड़क हादसों पर तुरंत नियंत्रण पाने के लिए राज्य सड़क विकास निगम ने अत्याधुनिक एआई तकनीक लागू की।',
-      author_name: 'राजेश सावंत (विशेष संवाददाता)',
-      content: `# मुंबई-पुणे एक्सप्रेसवे पर आधुनिक तकनीक
-
-महाराष्ट्र राज्य सड़क विकास निगम (MSRDC) ने मुंबई-पुणे एक्सप्रेसवे पर **आर्टिफिशियल इंटेलिजेंस (AI)** आधारित उन्नत इंटेलिजेंट ट्रैफिक मैनेजमेंट सिस्टम (ITMS) को पूरी तरह से चालू कर दिया है।
-
-> "इस अत्याधुनिक प्रणाली से दुर्घटनाओं में ६०% से अधिक की कमी आएगी और नियमों का उल्लंघन करने वालों पर २४ घंटे स्वचालित नज़र रखी जाएगी।" — लोक निर्माण विभाग
-
-### मुख्य विशेषताएं:
-- **हाई-स्पीड कैमरे:** वाहनों की गति मापने के लिए १०० से अधिक गैन्ट्री कैमरे।
-- **स्वचालित ई-चालान:** ओवरस्पीडिंग और लेन कटिंग पर सीधे चालान।
-- **त्वरित आपातकालीन सहायता:** दुर्घटना होने पर ५ मिनट के भीतर बचाव दल पहुंचेगा।`,
-    },
-  },
-  'thane-municipal-budget-infrastructure-focus': {
-    mr: {
-      title: 'ठाणे महापालिकेचा ५ हजार कोटींचा अर्थसंकल्प सादर; पायाभूत सुविधा आणि आरोग्यावर भर',
-      excerpt: 'ठाणेकरांसाठी दिलासादायक बाब म्हणजे चालू आर्थिक वर्षात कोणतीही नवीन कर वाढ सुचवण्यात आलेली नाही.',
-      author_name: 'नितीन देशमुख',
-      content: `# ठाणे शहराचा सर्वांगीण विकास आराखडा
-
-ठाणे महानगरपालिकेने आगामी आर्थिक वर्षासाठी **५,२५० कोटी रुपयांचा** अर्थसंकल्प सादर केला आहे. यामध्ये ठाणेकरांवर कोणताही अतिरिक्त कर न लादता रस्ते सुधारणा, मेट्रो कनेक्टिव्हिटी आणि आरोग्य सुविधांवर मोठा निधी मंजूर करण्यात आला आहे.
-
-### अर्थसंकल्पातील महत्त्वाच्या तरतुदी:
-1. **ठाणे कोस्टल रोड आणि उड्डाणपूल:** ९५० कोटी रुपये निधी.
-2. **छत्रपती शिवाजी महाराज रुग्णालय आधुनिकीकरण:** नवीन २०० आयसीयू बेड्स.
-3. **पर्यावरणपूरक इलेक्ट्रिक बसेस:** टीएमटीच्या ताफ्यात नवीन १०० एसी बसेसचा समावेश.`,
-    },
-    en: {
-      title: 'Thane Municipal Corporation Presents ₹5,250 Cr Budget; Major Focus on Infrastructure & Health',
-      excerpt: 'Relief for Thane residents as no new civic tax hikes are introduced in the municipal budget for the upcoming fiscal year.',
-      author_name: 'Nitin Deshmukh',
-      content: `# Comprehensive Development Blueprint for Thane City
-
-The Thane Municipal Corporation (TMC) has tabled its annual budget of **₹5,250 Crores** for the upcoming financial year. Without introducing any new tax hikes, substantial capital has been allocated towards road upgrades, metro connectivity, and healthcare modernization.
-
-### Key Budgetary Allocations:
-1. **Thane Coastal Road & Flyovers:** ₹950 Crore fund allocation.
-2. **Chhatrapati Shivaji Maharaj Hospital Modernization:** 200 new advanced ICU beds.
-3. **Eco-Friendly Electric Bus Fleet:** Induction of 100 new electric AC buses into TMT.`,
-    },
-    hi: {
-      title: 'ठाणे नगर निगम ने ₹५,२५० करोड़ का बजट पेश किया; बुनियादी ढांचे और स्वास्थ्य पर जोर',
-      excerpt: 'ठाणेवासियों के लिए राहत भरी खबर, आगामी वित्तीय वर्ष के लिए नगर निगम बजट में कोई नया कर नहीं बढ़ाया गया।',
-      author_name: 'नितिन देशमुख',
-      content: `# ठाणे शहर के विकास का नया खाका
-
-ठाणे नगर निगम (TMC) ने आगामी वित्तीय वर्ष के लिए **५,२५० करोड़ रुपये** का बजट पेश किया है। इसमें शहर के बुनियादी ढांचे, सड़कों और अस्पतालों के आधुनिकीकरण के लिए भारी धनराशि का आवंटन किया गया है।`,
-    },
-  },
   'mumbai-metro-3-aarey-bkc-passenger-surge': {
     mr: {
       title: 'मुंबई मेट्रो ३ आरे-बीकेसी टप्प्याला प्रवाशांचा उत्स्फूर्त प्रतिसाद; दैनंदिन प्रवासी संख्येत विक्रमी वाढ',
@@ -183,32 +96,6 @@ The newly inaugurated underground **Metro Line 3 (Aqua Line)** connecting Aarey 
       content: `# मुंबई की नई लाइफलाइन: अंडरग्राउंड मेट्रो ३
 
 मुंबई मेट्रो लाइन ३ के आरे-बीकेसी चरण के शुरू होते ही पहले हफ्ते में दैनिक यात्रियों की संख्या १.५ लाख के पार पहुंच गई है।`,
-    },
-  },
-  'maharashtra-assembly-elections-political-alliances': {
-    mr: {
-      title: 'विधानसभा निवडणुकीच्या पार्श्वभूमीवर राजकीय पक्षांची मोर्चेबांधणी वेगवान; जागावाटपावर खलबते',
-      excerpt: 'प्रमुख आघाड्यांमध्ये जागावाटपाची अंतिम चर्चा निर्णायक टप्प्यात पोहोचली असून उमेदवारांच्या पहिल्या याद्या लवकरच जाहीर होण्याची शक्यता.',
-      author_name: 'आनंद कुलकर्णी (वरिष्ठ राजकीय विश्लेषक)',
-      content: `# महाराष्ट्राचे राजकारण तापले
-
-राज्यातील आगामी विधानसभा निवडणुकांसाठी सर्वच राजकीय पक्षांनी जोरदार तयारी सुरू केली आहे. मुंबई आणि दिल्लीमध्ये वरिष्ठ नेत्यांच्या बैठकांचे सत्र सुरू असून बंडखोरी रोखण्यासाठी विशेष रणनीती आखली जात आहे.`,
-    },
-    en: {
-      title: 'Political Alliances Intensify Preparations for Maharashtra Assembly Elections; Seat-Sharing Near Finalization',
-      excerpt: 'Major coalitions enter conclusive negotiations over seat allocations as first candidate lists are expected to be announced soon.',
-      author_name: 'Anand Kulkarni (Senior Political Analyst)',
-      content: `# Maharashtra Politics Enters Decisive Phase
-
-With the State Legislative Assembly elections approaching, major political coalitions have ramped up their ground campaigns and strategic candidate selection across Maharashtra.`,
-    },
-    hi: {
-      title: 'महाराष्ट्र विधानसभा चुनाव को लेकर राजनीतिक दलों की हलचल तेज; सीट बंटवारे पर अंतिम मंथन',
-      excerpt: 'प्रमुख गठबंधनों में सीट बंटवारे पर अंतिम सहमति बनने के आसार, प्रत्याशियों की पहली सूची जल्द आने की संभावना।',
-      author_name: 'आनंद कुलकर्णी (वरिष्ठ राजनीतिक विश्लेषक)',
-      content: `# महाराष्ट्र चुनाव: तेज हुई राजनीतिक बिसात
-
-विधानसभा चुनावों की घोषणा के साथ ही सभी राजनीतिक दलों ने मुंबई और दिल्ली में रणनीतिक बैठकों का दौर तेज कर दिया है।`,
     },
   },
   'maharashtra-police-cyber-crime-busted': {
