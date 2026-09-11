@@ -30,17 +30,33 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
   };
 
   const handleShareClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, isPopup: boolean) => {
+    const isMobileDevice =
+      typeof window !== 'undefined' &&
+      (window.innerWidth < 768 || /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent));
+
+    // On mobile devices, let the browser naturally open target="_blank" or native app without popup blocker issues
+    if (isMobileDevice) {
+      return;
+    }
+
     if (isPopup && typeof window !== 'undefined') {
-      e.preventDefault();
-      const width = 640;
-      const height = 580;
-      const left = Math.max(0, (window.innerWidth - width) / 2 + window.screenX);
-      const top = Math.max(0, (window.innerHeight - height) / 2 + window.screenY);
-      window.open(
-        href,
-        'socialShareDialog',
-        `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${width},height=${height},top=${top},left=${left}`
-      );
+      try {
+        const width = 640;
+        const height = 580;
+        const left = Math.max(0, (window.innerWidth - width) / 2 + (window.screenX || 0));
+        const top = Math.max(0, (window.innerHeight - height) / 2 + (window.screenY || 0));
+        const popup = window.open(
+          href,
+          'socialShareDialog',
+          `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${width},height=${height},top=${top},left=${left}`
+        );
+        if (popup && !popup.closed) {
+          e.preventDefault();
+          popup.focus();
+        }
+      } catch {
+        // If popup blocker triggers, fallback to default target="_blank" navigation
+      }
     }
   };
 

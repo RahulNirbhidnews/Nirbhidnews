@@ -531,31 +531,36 @@ export const ArticleDetailPage: React.FC = () => {
           <Sparkles size={14} color="#facc15" />
           <span>{t.aiSummary}</span>
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            if (navigator.share) {
-              navigator.share({
-                title: article.title,
-                url: window.location.href,
-              }).catch(() => {});
-            } else {
-              window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(article.title + ' ' + window.location.href)}`, '_blank');
-            }
-          }}
+
+        <a
+          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="floating-action-btn"
-          style={{ color: '#4ade80' }}
-          title="Share on WhatsApp"
+          style={{ color: '#60a5fa', textDecoration: 'none' }}
+          title="Facebook Share"
         >
-          <span>💬 {language === 'en' ? 'Share' : 'शेअर करा'}</span>
-        </button>
+          <span>📘 Facebook</span>
+        </a>
+
+        <a
+          href={`https://api.whatsapp.com/send?text=${encodeURIComponent(article.title + ' ' + (typeof window !== 'undefined' ? window.location.href : ''))}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="floating-action-btn"
+          style={{ color: '#4ade80', textDecoration: 'none' }}
+          title="WhatsApp Share"
+        >
+          <span>💬 WhatsApp</span>
+        </a>
+
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="floating-action-btn"
           title="Top"
         >
-          <span>↑ वर</span>
+          <span>↑</span>
         </button>
       </div>
 
