@@ -29,13 +29,37 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
     }
   };
 
+  const handleShareClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, isPopup: boolean) => {
+    if (isPopup && typeof window !== 'undefined') {
+      e.preventDefault();
+      const width = 640;
+      const height = 580;
+      const left = Math.max(0, (window.innerWidth - width) / 2 + window.screenX);
+      const top = Math.max(0, (window.innerHeight - height) / 2 + window.screenY);
+      window.open(
+        href,
+        'socialShareDialog',
+        `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${width},height=${height},top=${top},left=${left}`
+      );
+    }
+  };
+
   const shareLinks = [
+    {
+      name: 'Facebook',
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      color: '#1877F2',
+      bg: '#dbeafe',
+      label: 'Facebook',
+      popup: true,
+    },
     {
       name: 'WhatsApp',
       href: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`,
       color: '#25D366',
       bg: '#dcfce7',
       label: 'WhatsApp',
+      popup: false,
     },
     {
       name: 'X (Twitter)',
@@ -43,13 +67,7 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
       color: '#0f172a',
       bg: '#f1f5f9',
       label: 'X',
-    },
-    {
-      name: 'Facebook',
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-      color: '#1877F2',
-      bg: '#dbeafe',
-      label: 'Facebook',
+      popup: true,
     },
     {
       name: 'Telegram',
@@ -57,6 +75,7 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
       color: '#0088cc',
       bg: '#e0f2fe',
       label: 'Telegram',
+      popup: false,
     },
   ];
 
@@ -93,6 +112,7 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
           href={item.href}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => handleShareClick(e, item.href, item.popup)}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -104,6 +124,7 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
             fontWeight: 600,
             textDecoration: 'none',
             transition: 'transform 0.15s ease, opacity 0.15s ease',
+            cursor: 'pointer',
           }}
           className="share-button"
         >

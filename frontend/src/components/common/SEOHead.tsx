@@ -45,19 +45,27 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     const finalDesc = description || DEFAULT_DESCRIPTION;
     setMetaTag('name', 'description', finalDesc);
 
+    // Ensure image is always a complete absolute URL for social crawlers
+    const rawImage = image || DEFAULT_IMAGE;
+    const finalImage = rawImage.startsWith('http')
+      ? rawImage
+      : typeof window !== 'undefined'
+      ? `${window.location.origin}${rawImage.startsWith('/') ? '' : '/'}${rawImage}`
+      : rawImage;
+
     // Open Graph
     setMetaTag('property', 'og:title', finalTitle);
     setMetaTag('property', 'og:description', finalDesc);
     setMetaTag('property', 'og:type', type);
-    setMetaTag('property', 'og:url', url || window.location.href);
-    setMetaTag('property', 'og:image', image || DEFAULT_IMAGE);
+    setMetaTag('property', 'og:url', url || (typeof window !== 'undefined' ? window.location.href : ''));
+    setMetaTag('property', 'og:image', finalImage);
     setMetaTag('property', 'og:site_name', 'Nirbhid News');
 
     // Twitter Card
     setMetaTag('name', 'twitter:card', 'summary_large_image');
     setMetaTag('name', 'twitter:title', finalTitle);
     setMetaTag('name', 'twitter:description', finalDesc);
-    setMetaTag('name', 'twitter:image', image || DEFAULT_IMAGE);
+    setMetaTag('name', 'twitter:image', finalImage);
 
     // Article Specific Metadata
     if (type === 'article') {

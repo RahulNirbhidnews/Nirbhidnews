@@ -137,7 +137,8 @@ export const ArticleDetailPage: React.FC = () => {
       <SEOHead
         title={article.title}
         description={article.excerpt || article.title}
-        image={article.featured_image_url || undefined}
+        image={article.featured_image_url ? resolveMediaUrl(article.featured_image_url) : undefined}
+        url={typeof window !== 'undefined' ? window.location.href : undefined}
         type="article"
         author={article.author_name || 'Nirbhid Bureau'}
         publishedTime={article.published_at || article.created_at}
